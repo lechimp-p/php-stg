@@ -82,7 +82,16 @@ function closure($info_table, $length) {
 }
 
 function forwarding_pointer($closure_address) {
-    throw new Exception("NYI!");
+    $fp = closure
+        ( info_table
+            ( code_label("Error", "forwarding_pointer_entry_code_called")
+            , code_label("Common", "return_first_field")
+            , code_label("Common", "nop");
+            )
+        , 1 
+        );
+    $fp[1] = $closure_address;
+    return $fp;
 }
 
 /*
@@ -148,5 +157,21 @@ class GarbageCollection {
             // returned by the evacuation code.
             $closure[$key] = $new_label;             
         }
+    }
+}
+
+class Common {
+    static public function nop() {
+    }
+
+    static public function return_first_field() {
+        throw new Exception("NYI!");
+    }
+}
+
+class Errors {
+    static public function forwarding_pointer_entry_code_called() {
+        die("The standard entry code of a forwarding pointer was called, that".
+            " should not happen.");
     }
 }
