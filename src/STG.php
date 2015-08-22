@@ -140,24 +140,60 @@ class STG {
 
     */
 
+    protected static $forwarding_info = null;
+
     public static function forwarding_pointer($closure_address) {
-        $fp = static::closure
-            ( static::info_table
-                ( static::code_label("STG", "forwarding_pointer_standard_entry_code")
-                , static::code_label("STG", "return_first_field")
-                , static::code_label("STG", "nop")
-                )
-            , 1 
-            );
-        $fp[1] = $closure_address;
-        return $fp;
+        if (static::$forwarding_info = null) {
+            static::$forwarding_info =
+                static::info_table
+                    ( static::code_label("STG", "forwarding_pointer_standard_entry_code")
+                    , static::code_label("STG", "return_first_field")
+                    , static::code_label("STG", "nop")
+                    );
+        }
+
+        $closure = static::closure( static::$forwarding_info, 1);
+        $closure[1] = $closure_address;
+        return $closure;
     }
 
-    static public function forwarding_pointer_standard_entry_code() {
+    public static function forwarding_pointer_standard_entry_code() {
         throw \LogicException("The standard entry code of a forwarding pointer".
                               " was called, that should not happen.");
     }
 
+    /*
+
+    === Unboxed values ===
+
+    */
+
+    protected static $mk_int_info = null;
+
+    public static function mk_int($int) {
+        if (static::$mk_int_info = null) {
+            static::$mk_int_info =
+                static::info_table
+                    ( static::code_label("STG", "mk_int_standard_entry_code")
+                    , static::code_label("STG", "return_first_field")
+                    , static::code_label("STG", "nop")
+                    );
+        }
+        $closure = static::closure(static::$mk_int_info, 1);
+        $closure[1] = $int;
+        return $closure;
+    } 
+
+    public static function mk_int_standard_entry_code($state) {
+        throw new \Exception("NYI!");
+    }
+
+    public static function mk_int_evacuation_code($state, $closure_address) {
+        // TODO: This could use a lookup table for a set of preallocated instances
+        //       of the same integer. In that way we could unify all similar integers
+        //       to one instance.
+        return static::evacuate($state, $closure_address);
+    }
 
     /*
 
@@ -173,11 +209,19 @@ class STG {
 
     const NODE = 0;
     const HEAP = 1;
-    const STATE_LENGTH = 2;
+    // TODO: It might not be necessary to use two stacks here, as PHP already
+    //       distinguishes values and references to objects? We might also only
+    //       need this for the garbage collector, which might also be superfluous.
+    const A_STACK = 2;  // for pointer
+    const B_STACK = 3;  // for values (and other things?)
+    const STATE_LENGTH = 4;
 
     public static function state() {
         $state = new \SplFixedArray(STATE_LENGTH);
         $state[STG::HEAP] = array();
+        $state[STG::A_STACK] = array();
+        $state[STG::B_STACK] = array();
+        $state[STG::UPDATE_STACK] = array();
         return $state;
     }
 
