@@ -1,26 +1,50 @@
 <?php
 
 class Jumps {
-    static function one($_) {
+    function one($_) {
         return 1;
     }
-    static function two($_) {
+    function two($_) {
         return 2;
     }
 }
 
-use Lechimp\STG\STG;
+use Lechimp\STG\CodeLabel;
 
 class JumpTest extends PHPUnit_Framework_TestCase {
     public function test_jump1() {
-        $label = STG::code_label("Jumps", "one");
-        $res = STG::jump(null, $label);
+        $jumps = new Jumps();
+        $label = new CodeLabel($jumps, "one");
+        $res = $label->jump(null);
         $this->assertEquals(1, $res);
     }
 
     public function test_jump2() {
-        $label = STG::code_label("Jumps", "two");
-        $res = STG::jump(null, $label);
+        $jumps = new Jumps();
+        $label = new CodeLabel($jumps, "two");
+        $res = $label->jump(null);
         $this->assertEquals(2, $res);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function test_noUnknownMethod() {
+        $jumps = new Jumps();
+        $label = new CodeLabel($jumps, "three");
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function test_noNoneObject() {
+        $label = new CodeLabel("foo", "three");
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function test_noNull() {
+        $label = new CodeLabel(null, "three");
     }
 }
