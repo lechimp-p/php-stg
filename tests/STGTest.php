@@ -9,18 +9,18 @@ class Jumps {
     }
 }
 
-require_once(__DIR__."/../src/STG.php");
+use Lechimp\STG\STG;
 
 class STGTest extends PHPUnit_Framework_TestCase {
     public function test_jump1() {
-        $label = code_label("Jumps", "one");
-        $res = jump(null, $label);
+        $label = STG::code_label("Jumps", "one");
+        $res = STG::jump(null, $label);
         $this->assertEquals(1, $res);
     }
 
     public function test_jump2() {
-        $label = code_label("Jumps", "two");
-        $res = jump(null, $label);
+        $label = STG::code_label("Jumps", "two");
+        $res = STG::jump(null, $label);
         $this->assertEquals(2, $res);
     }
 }
