@@ -11,7 +11,7 @@ class Jumps {
 
 use Lechimp\STG\STG;
 
-class STGTest extends PHPUnit_Framework_TestCase {
+class JumpTest extends PHPUnit_Framework_TestCase {
     public function test_jump1() {
         $label = STG::code_label("Jumps", "one");
         $res = STG::jump(null, $label);
