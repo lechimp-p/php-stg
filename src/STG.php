@@ -2,6 +2,65 @@
 
 namespace Lechimp\STG;
 
+/**
+ * One STG machine.
+ */
+abstract class STG {
+    /**
+     * @var array
+     */
+    protected $argument_stack = array();
+
+    /**
+     * @var array
+     */
+    protected $return_stack = array();
+
+    /**
+     * @var array
+     */
+    protected $update_stack = array();
+
+    /**
+     * @var array
+     */
+    protected $globals;
+
+    /**
+     * @var STGClosure
+     */
+    protected $node;
+
+    public function __construct(array $globals) {
+        foreach($globals as $key => $value) {
+            assert(is_string($key));
+            assert($value instanceof STGClosure);
+        }
+        if (!array_key_exists("main", $globals)) {
+            throw new \LogicException("Missing global 'main'.");
+        }
+        $this->node = $globals["main"];
+    }
+
+    /**
+     * Run the machine to evaluate main.
+     */
+    public function run() {
+        $label = new CodeLabel($this, "evaluate");
+        while($label !== null) {
+            $label = $label->jump($this); 
+        }
+    }
+
+    /**
+     * Evaluate the current node.
+     *
+     * @return CodeLabel
+     */
+    public function evaluate($_) {
+    }
+}
+
 /*
 = The STG for PHP =
 
@@ -9,7 +68,7 @@ This implements the Spineless Tagless G-Machine by Simon Peyton Jones in PHP.
 
 */
 
-class STG {
+/*class STG {
     /*
     == Construct from the Paper ==
 
@@ -27,7 +86,7 @@ class STG {
     `$foo::$bar()` instead and therefore use a 2-tuple of strings as a *code label*.
     */
 
-    public static function code_label($class, $method) {
+/*    public static function code_label($class, $method) {
         $label = new \SplFixedArray(2);
         $label[0] = $class;
         $label[1] = $method;
@@ -41,7 +100,7 @@ class STG {
     public static function call($state, \SplFixedArray $label) {
         return $label[0]::$label[1]($state);
     }
-
+*/
     /*
 
     === Interpreter ===
@@ -49,12 +108,12 @@ class STG {
     We use an interpreter very similar to the one from the paper:
 
     */
-    public static function interpret($state) {
+/*    public static function interpret($state) {
         while ($label !== null) {
             $label = static::jump($state, $label);
         } 
     }
-
+*/
     /*
 
     We could use another interpreter for debugging or other purposes.
@@ -67,7 +126,7 @@ class STG {
 
     */
 
-    const STANDARD_ENTRY_CODE = 0;
+/*    const STANDARD_ENTRY_CODE = 0;
     const EVACUATION_CODE = 1;
     const SCAVENGE_CODE = 2;
     const INFO_TABLE_LENGTH = 3;
@@ -93,13 +152,13 @@ class STG {
         $closure = $state[STG::HEAP][$closure_address];
         return static::jump($state, $closure[STG::INFO_TABLE][STG::STANDARD_ENTRY_CODE]);
     }
-
+*/
     /*
 
     === Indirection Closure ===
 
     */
-
+/*
     protected static $indirection_info = null;
 
     public static function indirection_closure($closure_address) {
@@ -133,13 +192,13 @@ class STG {
         throw new \LogicException("The scavenge code for an indirection was called, that".
                                   " should not happen.");
     }
-
+*/
     /*
 
     === Forwarding Pointer ===
 
     */
-
+/*
     protected static $forwarding_info = null;
 
     public static function forwarding_pointer($closure_address) {
@@ -161,13 +220,13 @@ class STG {
         throw \LogicException("The standard entry code of a forwarding pointer".
                               " was called, that should not happen.");
     }
-
+*/
     /*
 
     === Unboxed values ===
 
     */
-
+/*
     protected static $mk_int_info = null;
 
     public static function mk_int($int) {
@@ -194,7 +253,7 @@ class STG {
         //       to one instance.
         return static::evacuate($state, $closure_address);
     }
-
+*/
     /*
 
     === Machine State ===
@@ -206,7 +265,7 @@ class STG {
     state.
 
     */
-
+/*
     const NODE = 0;
     const HEAP = 1;
     // TODO: It might not be necessary to use two stacks here, as PHP already
@@ -224,20 +283,20 @@ class STG {
         $state[STG::UPDATE_STACK] = array();
         return $state;
     }
-
+*/
     /*
 
     === Common Operations ===
 
     */
-
+/*
     static public function nop() {
     }
 
     static public function return_first_field() {
         throw new \Exception("NYI!");
     }
-
+*/
     /*
 
     === Garbage Collection ===
@@ -258,7 +317,7 @@ class STG {
     it out later...
 
     */
-
+/*
     static public function evacuate($state, $closure_address) {
         // TODO: This procedure will lead to "holes" in the array used for the
         //       heap. I should think of something more clever.
@@ -285,4 +344,4 @@ class STG {
             $closure[$key] = $new_label;             
         }
     }
-}
+}*/

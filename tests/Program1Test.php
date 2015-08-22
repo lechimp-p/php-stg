@@ -27,6 +27,10 @@ class Program1Test extends PHPUnit_Framework_TestCase {
                     )
                 )
             ));
-        $compiled = Compiler::compile($program); 
+        $compiler = new Compiler();
+        $compiled = $compiler->compile($program, "TheMachine"); 
+        eval($compiled["main.php"]);
+        $machine = new TheMachine();
+        $result = $machine->run();
     }
 }
