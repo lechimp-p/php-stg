@@ -1,11 +1,16 @@
 {
-    "name": "lechimp-p/stg",
-    "description": "The Spineless Tagless G-Machine in PHP",
+    "name": "lechimp-p/php-stg",
+    "description": "The Spineless Tagless G-Machine in PHP.",
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Richard Klees",
             "email": "richard.klees@rwth-aachen.de"
         }
     ],
-    "require": {}
+     "autoload" : {
+        "psr-4" : { "Lechimp\\STG\\" : "src" }
+    },
+   "require": {}
 }
