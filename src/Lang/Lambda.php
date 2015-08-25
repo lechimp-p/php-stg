@@ -35,7 +35,7 @@ class Lambda {
         }, $free_variables);
         $this->arguments = array_map(function(Variable $variable) {
             return $variable; 
-        }, $free_variables);
+        }, $arguments);
         $this->expression = $expression;
         assert(is_bool($updatable));
         $this->updatable = $updatable;
