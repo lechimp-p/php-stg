@@ -7,19 +7,19 @@ namespace Lechimp\STG;
  */
 abstract class STG {
     /**
-     * @var array
+     * @var \SPLStack
      */
-    protected $argument_stack = array();
+    protected $argument_stack;
 
     /**
-     * @var array
+     * @var \SPLStack
      */
-    protected $return_stack = array();
+    protected $return_stack;
 
     /**
-     * @var array
+     * @var \SPLStack
      */
-    protected $update_stack = array();
+    protected $update_stack;
 
     /**
      * @var array
@@ -39,25 +39,101 @@ abstract class STG {
         if (!array_key_exists("main", $globals)) {
             throw new \LogicException("Missing global 'main'.");
         }
-        $this->node = $globals["main"];
+        if (!$globals["main"] instanceof STGClosure) {
+            throw new \LogicException("Expected 'main' to be a closure.");
+        }
+        $this->globals = $globals;
+        $this->argument_stack = new \SPLStack();
+        $this->return_stack = new \SPLStack();
+        $this->update_stack = new \SPLStack();
     }
 
     /**
      * Run the machine to evaluate main.
      */
     public function run() {
-        $label = new CodeLabel($this, "evaluate");
+        $label = new CodeLabel($this->globals["main"], "entry_code");
         while($label !== null) {
             $label = $label->jump($this); 
         }
     }
 
     /**
-     * Evaluate the current node.
+     * Enter the given closure.
      *
      * @return CodeLabel
      */
-    public function evaluate($_) {
+    public function enter(STGClosure $closure) {
+        $this->node = $closure;
+        return new CodeLabel($closure, "entry_code");
+    }
+
+    /**
+     * Get a value from the current environment.
+     *
+     * @param   Lang\Variable|int    $atom
+     * @return  STGClosure|int
+     */
+    public function val($atom) {
+        assert(is_int($atom) || $atom instanceof Lang\Variable);
+        if (is_int($atom)) {
+            return $atom;
+        }
+
+        $name = $atom->name();
+        if (array_key_exists($name, $this->globals)) {
+            return $this->globals[$name];
+        }
+        throw new \LogicException("Unknown global variable '$name'.");
+    }
+
+    /**
+     * Push an argument on the stack.
+     *
+     * @param   STGClosure|int  $arg
+     * @return  none
+     */
+    public function push_arg($argument) {
+        assert(is_int($argument) || $argument instanceof STGClosure);
+        $this->argument_stack->push($argument); 
+    }
+
+    /**
+     * Pop an argument from the stack.
+     *
+     * @return  STGClosure|int
+     */
+    public function pop_arg() {
+        return $this->argument_stack->pop();
+    }
+
+    /**
+     * Get the length of the argument stack.
+     *
+     * @return  int
+     */
+    public function count_args() {
+        return $this->argument_stack->count();
+    }
+
+    /**
+     * Push a continuation on the return stack.
+     *
+     * @param   array   $continuations
+     * @return  none
+     */
+    public function push_return(array $continuations) {
+        $this->return_stack->push($continuations);
+    }
+
+    /**
+     * Pop a continuation from the return stack.
+     *
+     * @return CodeLabel
+     */
+    public function pop_return() {
+        assert($this->return_stack->count() > 0);
+        return $this->return_stack->pop();
     }
 }
 
