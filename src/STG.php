@@ -69,21 +69,18 @@ abstract class STG {
     }
 
     /**
-     * Get a value from the current environment.
+     * Get a value from the global environment.
      *
-     * @param   Lang\Variable|int    $atom
+     * @param   string          $atom
      * @return  STGClosure|int
      */
-    public function val($atom) {
-        assert(is_int($atom) || $atom instanceof Lang\Variable);
-        if (is_int($atom)) {
-            return $atom;
-        }
+    public function global_var($name) {
+        assert(is_string($name));
 
-        $name = $atom->name();
         if (array_key_exists($name, $this->globals)) {
             return $this->globals[$name];
         }
+
         throw new \LogicException("Unknown global variable '$name'.");
     }
 

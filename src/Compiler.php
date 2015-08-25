@@ -25,7 +25,6 @@ class Compiler {
         $code = "use \\Lechimp\\STG\\STG;\n".
                 "use \\Lechimp\\STG\\CodeLabel;\n".
                 "use \\Lechimp\\STG\\STGClosure;\n".
-                "use \\Lechimp\\STG\\Lang\\Variable;\n".
                 "\n\n";
         
         foreach($program->bindings() as $binding) {
@@ -109,7 +108,7 @@ PHP;
             $code[] =  "{$stg}->push_arg($atom);";
         }
         $var_name = $application->variable()->name();
-        $code[] = "return {$stg}->enter({$stg}->val(new Variable(\"$var_name\")));";
+        $code[] = "return {$stg}->enter({$stg}->global_var(\"$var_name\"));";
         $code = implode("\n        ", $code);
         return array($code, "");
     }
@@ -187,7 +186,7 @@ PHP;
         $stg = self::STG_VAR_NAME;
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return "{$stg}->val(new Variable(\"$var_name\"))"; 
+            return "{$stg}->global_var(\"$var_name\")"; 
         }
         if ($atom instanceof Lang\Literal) {
             return $literal->value();
