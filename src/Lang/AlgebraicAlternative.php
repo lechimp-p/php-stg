@@ -13,4 +13,8 @@ class AlgebraicAlternative extends Alternative {
         $this->id = $id;
         $this->expression = $expression;
     }
+
+    public function id() {
+        return $this->id;
+    }
 }
