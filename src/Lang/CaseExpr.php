@@ -32,6 +32,7 @@ class CaseExpr extends Expression {
                 assert( $alternative instanceof AlgebraicAlternative
                      || $alternative instanceof DefaultAlternative);
             }
+            return $alternative;
         }, $alternatives);
     }
 
