@@ -11,6 +11,7 @@ use Lechimp\STG\Lang\Constructor;
 use Lechimp\STG\Lang\CaseExpr;
 use Lechimp\STG\Lang\AlgebraicAlternative;
 use Lechimp\STG\Compiler;
+use Lechimp\STG\CodeLabel;
 
 class Program1Test extends PHPUnit_Framework_TestCase {
     public function test_program() {
@@ -74,10 +75,22 @@ class Program1Test extends PHPUnit_Framework_TestCase {
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine"); 
-        echo ("\n\n".$compiled["main.php"]."\n\n");
         eval($compiled["main.php"]);
         $machine = new TheMachine();
-        $result = $machine->run();
-        $this->assertEquals(array("B"), $result);
+        $this->result = null;
+        $machine->push_return(array
+            ( "A" => new CodeLabel($this, "returns_A")
+            , "B" => new CodeLabel($this, "returns_B")
+            ));
+        $machine->run();
+        $this->assertEquals("B", $this->result);
+    }
+
+    public function returns_A($_) {
+        $this->result = "A";
+    }
+
+    public function returns_B($_) {
+        $this->result = "B";
     }
 }
