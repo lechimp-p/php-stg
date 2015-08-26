@@ -27,10 +27,10 @@ class GenText extends PHPUnit_Framework_TestCase {
         $gen = new GClass("Lechimp\\STG", "Test", array(), array());
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\\STG\\Test {
+class Lechimp\STG\Test {
 }
 PHP;
-        $this->assertCodeEquals($generated, $expected);
+        $this->assertCodeEquals($expected, $generated);
     }
 
     public function test_extendedClass() {
@@ -40,7 +40,7 @@ PHP;
 class Lechimp\\STG\\Test extends Foo {
 }
 PHP;
-        $this->assertCodeEquals($generated, $expected);
+        $this->assertCodeEquals($expected, $generated);
     }
 
     public function test_noNamespaceClass() {
@@ -50,7 +50,7 @@ PHP;
 class Test {
 }
 PHP;
-        $this->assertCodeEquals($generated, $expected);
+        $this->assertCodeEquals($expected, $generated);
     }
 
     public function test_filledClass() {
@@ -68,7 +68,7 @@ PHP;
             );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\\STG\\Test {
+class Lechimp\STG\Test {
     private $foo;
     protected $bar;
     public $baz;
@@ -80,7 +80,7 @@ class Lechimp\\STG\\Test {
     }
 }
 PHP;
-        $this->assertCodeEquals($generated, $expected);
+        $this->assertCodeEquals($expected, $generated);
     }
 
     public function test_filledMethod() {
@@ -110,7 +110,7 @@ PHP;
             );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\\STG\\Test {
+class Lechimp\STG\Test {
     public function get_bar($foo, array $bar, $baz = "baz") {
         echo $foo;
     } 
@@ -119,7 +119,7 @@ class Lechimp\\STG\\Test {
     }
 }
 PHP;
-        $this->assertCodeEquals($generated, $expected);
+        $this->assertCodeEquals($expected, $generated);
     }
 
 }

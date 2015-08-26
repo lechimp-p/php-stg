@@ -32,6 +32,8 @@ class GClass extends Gen {
         $this->methods = array_map(function(GMethod $m) {
             return $m;
         }, $methods);
+        $this->namespace = $namespace;
+        $this->name = $name;
     }
 
     /**
@@ -39,5 +41,16 @@ class GClass extends Gen {
      */
     public function render($indentation) {
         assert(is_int($indentation));
+        if ($this->namespace) {
+            $qualified_name = $this->namespace."\\".$this->name;
+        }
+        else {
+            $qualified_name = $this->name;
+        }
+        $extends = "";
+        return $this->cat_and_indent($indentation, array
+            ( "class $qualified_name $extends{"
+            , "}"
+            ));
     }
 }
