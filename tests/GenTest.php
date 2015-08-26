@@ -78,6 +78,15 @@ PHP;
                         )
                     )
                 )
+            , array
+                ( new GPublicMethod("get_indentation"
+                    , array()
+                    , array
+                        ( new GStatement(function($indentation) { return
+                            "\$indentation = \"$indentation\""; })
+                        )
+                    )
+                )
             );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
@@ -85,6 +94,9 @@ class Lechimp\\STG\\Test {
     public function get_bar($foo, array $bar, $baz = "baz") {
         echo $foo;
     } 
+    public function get_indentation() {
+        $indentation = "        ";
+    }
 }
 PHP;
         $this->assertCodeEquals($generated, $expected);
