@@ -37,7 +37,7 @@ PHP;
         $gen = new GClass("Lechimp\\STG", "Test", array(), array(), "Foo");
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\\STG\\Test extends Foo {
+class Lechimp\STG\Test extends Foo {
 }
 PHP;
         $this->assertCodeEquals($expected, $generated);
@@ -97,9 +97,7 @@ PHP;
                         ( new GStatement('echo $foo')
                         )
                     )
-                )
-            , array
-                ( new GPublicMethod("get_indentation"
+                , new GPublicMethod("get_indentation"
                     , array()
                     , array
                         ( new GStatement(function($indentation) { return
