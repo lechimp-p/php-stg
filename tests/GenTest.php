@@ -33,6 +33,26 @@ PHP;
         $this->assertCodeEquals($generated, $expected);
     }
 
+    public function test_extendedClass() {
+        $gen = new GClass("Lechimp\\STG", "Test", array(), array(), "Foo");
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+class Lechimp\\STG\\Test extends Foo {
+}
+PHP;
+        $this->assertCodeEquals($generated, $expected);
+    }
+
+    public function test_noNamespaceClass() {
+        $gen = new GClass("", "Test", array(), array());
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+class Test {
+}
+PHP;
+        $this->assertCodeEquals($generated, $expected);
+    }
+
     public function test_filledClass() {
         $gen = new GClass("Lechimp\\STG", "Test"
             , array
