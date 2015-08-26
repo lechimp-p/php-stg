@@ -20,10 +20,10 @@ abstract class GMethod extends Gen {
 
     public function __construct($name, array $arguments, array $statements) {
         assert(is_string($name));
-        $this->arguments = array_map(function(Argument $arg) {
+        $this->arguments = array_map(function(GArgument $arg) {
             return $arg;
         }, $arguments);
-        $this->statements = array_map(function(Statement $st) {
+        $this->statements = array_map(function(GStatement $st) {
             return $st;
         }, $statements);
     } 

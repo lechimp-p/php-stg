@@ -75,6 +75,7 @@ class Program1Test extends PHPUnit_Framework_TestCase {
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine"); 
+        echo ("\n\n".$compiled["main.php"]."\n\n");
         eval($compiled["main.php"]);
         $machine = new TheMachine();
         $this->result = null;

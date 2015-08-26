@@ -26,10 +26,10 @@ class GClass extends Gen {
     public function __construct($namespace, $name, array $properties, array $methods) {
         assert(is_string($namespace));
         assert(is_string($name));
-        $this->properties = array_map(function(Property $p) {
+        $this->properties = array_map(function(GProperty $p) {
             return $p;
         }, $properties);
-        $this->methods = array_map(function(Method $m) {
+        $this->methods = array_map(function(GMethod $m) {
             return $m;
         }, $methods);
     }

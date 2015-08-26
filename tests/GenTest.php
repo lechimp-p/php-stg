@@ -7,6 +7,8 @@ use Lechimp\STG\Gen\GPublicProperty;
 use Lechimp\STG\Gen\GPrivateMethod;
 use Lechimp\STG\Gen\GProtectedMethod;
 use Lechimp\STG\Gen\GPublicMethod;
+use Lechimp\STG\Gen\GArgument;
+use Lechimp\STG\Gen\GStatement;
 
 class GenText extends PHPUnit_Framework_TestCase {
     protected function assertCodeEquals($left, $right) {
@@ -60,4 +62,32 @@ class Lechimp\\STG\\Test {
 PHP;
         $this->assertCodeEquals($generated, $expected);
     }
+
+    public function test_filledMethod() {
+        $gen = new GClass("Lechimp\\STG", "Test"
+            , array()
+            , array
+                ( new GPublicMethod("get_bar"
+                    , array
+                        ( new GArgument(null, "foo")
+                        , new GArgument("array", "bar")
+                        , new GArgument(null, "bar", "\"baz\"")
+                        )
+                    , array
+                        ( new GStatement('echo $foo')
+                        )
+                    )
+                )
+            );
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+class Lechimp\\STG\\Test {
+    public function get_bar($foo, array $bar, $baz = "baz") {
+        echo $foo;
+    } 
+}
+PHP;
+        $this->assertCodeEquals($generated, $expected);
+    }
+
 }
