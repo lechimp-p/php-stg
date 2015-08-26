@@ -120,26 +120,29 @@ class Compiler {
             );
     }
 
-    protected function compile_constructor(Lang\Constructor $constructor) {
+    protected function compile_constructor(array $rc, Lang\Constructor $constructor) {
         $stg = self::STG_VAR_NAME;
         $rvn = '$return_vector';
 
         $id = $constructor->id();
 
-        $code = "$rvn = {$stg}->pop_return();\n"
-              . "        if (array_key_exists(\"$id\", $rvn)) {\n"
-              . "            return {$rvn}[\"$id\"];\n"
-              . "        }\n"
-              . "        else if (array_key_exists(null, $rvn)) {\n"
-              . "            return {$rvn}[null];\n"
-              . "        }\n"
-              . "        else {\n"
-              . "            throw new \\LogicException(\n"
-              . "                \"No matching alternative for constructor '$id'.\"\n"
-              . "            );\n"
-              . "        }\n"
-              ;
-        return array($code, "");
+        return array(array
+            ( g_stg_pop_return_to($rc["stg"], "return_vector)")
+            , g_stmt(function($i) { return
+                 "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
+                ."{$i}    return \$return_vector[\"$id\"];\n"
+                ."{$i}}\n"
+                ."{$i}else if (array_key_exists(null, \$return_vector)) {\n"
+                ."{$i}  return \$return_vector[null];\n"
+                ."{$i}}\n"
+                ."{$i}else {\n"
+                ."{$i}  throw new \\LogicException(\n"
+                ."{$i}      \"No matching alternative for constructor '$id'.\"\n"
+                ."{$i}  );\n"
+                ."{$i}}\n"
+                });
+            )
+            , array());
     }
 
     protected function compile_case_expression(Lang\CaseExpr $case_expression) {
@@ -239,4 +242,8 @@ function g_stg_ebter($stg_name, $where) {
 
 function g_stg_global_var($stg_name, $var_name) {
     return "\${$stg_name}->global_var(\"$var_name\")";
+}
+
+function g_stg_pop_return_to($stg_name, $to) {
+    return new Lechimp\Gen\GStatement(\"\${$to} = \${$stg_name}->pop_return()");
 }
