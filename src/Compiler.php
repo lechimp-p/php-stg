@@ -23,7 +23,7 @@ class Compiler {
         // Constant used when rendering.
         $rc = array
             ( "ns" => "" // Namespace
-            , 'stg' => self::STG_VAR_NAME;  // variable name for stg
+            , 'stg' => self::STG_VAR_NAME  // variable name for stg
             );
 
         $globals = array();
@@ -50,14 +50,15 @@ class Compiler {
             , array() // no props
             , array
                 ( g_public_method( "__construct", array(), array
-                    ( g_stmt(function($ind) { return
-                        "parent::__construct(".g_multiline_dict($ind, $globals_code).");"; })
+                    ( g_stmt(function($ind) use ($globals) { return
+                        "{$ind}parent::__construct(".g_multiline_dict("$ind    ", $globals).");"; })
                     )
-                );
+                ))
+            , "STG"
         );
 
         // Render all classes to a single file.
-        $code .= implode("\n\n", array_map(function(GClass $cl) {
+        $code .= implode("\n\n", array_map(function(Gen\GClass $cl) {
             return $cl->render(0);
         }, $classes));
 
@@ -76,19 +77,20 @@ class Compiler {
             , array
                 (
                 )
-            , array_merge(array
-                ( g_public_method("entry_code", g_stg_args(), array_merge(array 
-                    ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
-                    , g_stmt("//TODO: get free variable NYI!")
-                    )
-                    , array_map(function($argument) {
-                            return g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
-                        }, $lambda->arguments())
-                    , $compiled_expression
-                    )
-                )
-                ,
-                $additional_methods
+            , array_merge
+                ( array
+                    ( g_public_method("entry_code", g_stg_args(), array_merge
+                        ( array 
+                            ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
+                            , g_stmt("//TODO: get free variable NYI!")
+                            )
+                        , array_map(function($argument) use ($rc) {
+                                return g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
+                            }, $lambda->arguments())
+                        , $compiled_expression
+                        )
+                    ))
+                , $additional_methods
                 )
             , "STGClosure"
             );
@@ -110,11 +112,11 @@ class Compiler {
     protected function compile_application(array $rc, Lang\Application $application) {
         $var_name = $application->variable()->name();
         return array
-            ( array_merge(array_map(function($atom) {
-                    return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, atom)); 
+            ( array_merge
+                ( array_map(function($atom) use ($rc) {
+                    return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, $atom));
                 }, $application->atoms())
-                ,
-                g_stg_enter($rc["stg"], g_stg_global_var($rc["stg"], $var_name));
+                , array(g_stg_enter($rc["stg"], g_stg_global_var($rc["stg"], $var_name)))
                 )
             , array()
             );
@@ -127,76 +129,75 @@ class Compiler {
         $id = $constructor->id();
 
         return array(array
-            ( g_stg_pop_return_to($rc["stg"], "return_vector)")
-            , g_stmt(function($i) { return
+            ( g_stg_pop_return_to($rc["stg"], "return_vector")
+            , g_stmt(function($i) use ($id) { return
                  "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
-                ."{$i}    return \$return_vector[\"$id\"];\n"
-                ."{$i}}\n"
-                ."{$i}else if (array_key_exists(null, \$return_vector)) {\n"
-                ."{$i}  return \$return_vector[null];\n"
-                ."{$i}}\n"
-                ."{$i}else {\n"
-                ."{$i}  throw new \\LogicException(\n"
-                ."{$i}      \"No matching alternative for constructor '$id'.\"\n"
-                ."{$i}  );\n"
-                ."{$i}}\n"
-                });
+            ."    {$i}    return \$return_vector[\"$id\"];\n"
+            ."    {$i}}\n"
+            ."    {$i}else if (array_key_exists(null, \$return_vector)) {\n"
+            ."    {$i}    return \$return_vector[null];\n"
+            ."    {$i}}\n"
+            ."    {$i}else {\n"
+            ."    {$i}    throw new \\LogicException(\n"
+            ."    {$i}        \"No matching alternative for constructor '$id'.\"\n"
+            ."    {$i}    );\n"
+            ."    {$i}}\n";
+                })
             )
-            , array());
+            , array()
+            );
     }
 
-    protected function compile_case_expression(Lang\CaseExpr $case_expression) {
-        $stg = self::STG_VAR_NAME;
-        $lthis = '$this';
-        $rvn = '$return_vector';
-
-        $return_vector = array();
+    protected function compile_case_expression(array $rc, Lang\CaseExpr $case_expression) {
         $methods = array();
+        $return_vector = array();
 
         foreach($case_expression->alternatives() as $alternative) {
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = "alternative_default";
-                $return_vector[] = "null => new CodeLabel($lthis, \"$method_name\")";
+                $return_vector[null] = "new CodeLabel($lthis, \"$method_name\")";
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();
                 assert(is_int($value));
                 $method_name = "alternative_$value";
-                $return_vector[] = "$value => new CodeLabel($lthis, \"$method_name\")";
+                $return_vector[$value] = "new CodeLabel(\$this, \"$method_name\")";
             }
             else if ($alternative instanceof Lang\AlgebraicAlternative) {
                 $id = $alternative->id();
                 $method_name = "alternative_$id";
-                $return_vector[] = "\"$id\" => new CodeLabel($lthis, \"$method_name\")";
+                $return_vector[$id] = "new CodeLabel(\$this, \"$method_name\")";
             }
             else {
                 throw new \LogicException("Unknown alternative class ".get_class($alternative));
             }
 
-            list($sub_code, $sub_methods) 
-                = $this->compile_expression($alternative->expression());
-            $methods[] =     "public function $method_name(STG {$stg}) {\n"
-                       ."         ".$sub_code
-                       . "    }\n";
-            $methods[] = $sub_methods;
+            list($m_code, $sub_methods)
+                = $this->compile_expression($rc, $alternative->expression());
+            $methods[] = g_public_method($method_name, g_stg_args(), $m_code);
+            $methods = array_merge($methods, $sub_methods);
         }
 
-        list($sub_code, $sub_methods) 
-            = $this->compile_expression($case_expression->expression()); 
-        $code = "$rvn = array\n            ( "
-                 .implode("\n            , ",$return_vector)."\n"
-                 ."            );\n"
-                 ."        {$stg}->push_return($rvn);\n"
-                 ."        $sub_code";
-        $methods = $sub_methods."\n    ".implode("\n    ", $methods);
-        return array($code, $methods);
+        list($sub_statements, $sub_methods)
+            = $this->compile_expression($rc, $case_expression->expression());
+
+        $statements = array
+            ( g_stmt(function($ind) use ($return_vector) { return 
+                "$ind\$return_vector = ".g_multiline_dict("$ind    ", $return_vector).";";})
+            , g_stg_push_return($rc["stg"], '$return_vector')
+            );
+
+        return array
+            ( array_merge($statements, $sub_statements)
+            , array_merge($methods, $sub_methods)
+            );
     }
 
-    protected function compile_atom(Lang\Atom $atom) {
+    protected function compile_atom(array $rc, Lang\Atom $atom) {
         $stg = self::STG_VAR_NAME;
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return "{$stg}->global_var(\"$var_name\")"; 
+            return g_stg_global_var($stg, $var_name); 
         }
         if ($atom instanceof Lang\Literal) {
             return $literal->value();
@@ -205,39 +206,49 @@ class Compiler {
     }
 } 
 
-function g_class($namespace, $name, $properties, $methods) {
-    return new Lechimp\Gen\GClass($namespace, $name, $properties, $methods);
+function g_class($namespace, $name, $properties, $methods, $extends = null) {
+    return new Gen\GClass($namespace, $name, $properties, $methods, $extends);
 }
 
 function g_public_method($name, $arguments, $statements) {
-    return new Lechimp\Gen\GPublicMethod($name, $arguments, $statements);
+    return new Gen\GPublicMethod($name, $arguments, $statements);
 }
 
 function g_stg_args() {
-    return array(new Lechimp\Gen\GArgument("STG", "stg"));
+    return array(new Gen\GArgument("STG", "stg"));
 }
 
 function g_stmt($code) {
-    return new \Lechimp\Gen\GStatement($code);
+    return new Gen\GStatement($code);
 }
 
 function g_multiline_dict($ind, array $array) {
-    assert(is_int($ind));
-    return implode("\n$ind," , array_map(function($v, $k) {
+    return 
+        "array\n$ind    ( ".
+        implode("\n$ind    , " , array_map(function($v, $k) {
+            if (is_string($k)) {
                 return "\"$k\" => $v";
-           }, $array, array_keys($array)));
+            }
+            if (is_int($k)) {
+                return "$k => $v";
+            }
+            assert($k === null);
+            return "null => $v";
+        }, $array, array_keys($array))).
+        "\n$ind    )";
+        
 }
 
 function g_stg_pop_arg_to($stg_name, $arg_name) {
-    return new Lechimp\Gen\GStatement("\$$arg_name = \${$stg_name}->pop_arg()");
+    return new Gen\GStatement("\$$arg_name = \${$stg_name}->pop_arg()");
 }
 
 function g_stg_push_arg($stg_name, $what) {
-    return new Lechimp\Gen\GStatement("\$$arg_name = \${$stg_name}->push_arg($what)");
+    return new Gen\GStatement("\${$stg_name}->push_arg($what)");
 }
 
-function g_stg_ebter($stg_name, $where) {
-    return new Lechimp\Gen\GStatement("\${$stg_name}->enter($where)");
+function g_stg_enter($stg_name, $where) {
+    return new Gen\GStatement("return \${$stg_name}->enter($where)");
 }
 
 function g_stg_global_var($stg_name, $var_name) {
@@ -245,5 +256,9 @@ function g_stg_global_var($stg_name, $var_name) {
 }
 
 function g_stg_pop_return_to($stg_name, $to) {
-    return new Lechimp\Gen\GStatement(\"\${$to} = \${$stg_name}->pop_return()");
+    return new Gen\GStatement("\${$to} = \${$stg_name}->pop_return()");
+}
+
+function g_stg_push_return($stg_name, $what) {
+    return new Gen\GStatement("\${$stg_name}->push_return($what)");
 }

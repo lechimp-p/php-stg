@@ -14,6 +14,14 @@ use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
 class Program1Test extends PHPUnit_Framework_TestCase {
+    protected function echo_program($program) {
+        echo "\n\n-------- PROGRAM --------\n\n";
+        $prg = split("\n", $program);
+        foreach($prg as $no => $line) {
+            echo sprintf("%3d", $no).": $line\n"; 
+        } 
+    }
+
     public function test_program() {
         /**
          * Represents the following program
@@ -75,7 +83,7 @@ class Program1Test extends PHPUnit_Framework_TestCase {
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine"); 
-        echo ("\n\n".$compiled["main.php"]."\n\n");
+        //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new TheMachine();
         $this->result = null;

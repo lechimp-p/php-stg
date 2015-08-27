@@ -64,6 +64,7 @@ abstract class STG {
      * @return CodeLabel
      */
     public function enter(STGClosure $closure) {
+        //echo "enter: ".get_class($closure)."\n";
         $this->node = $closure;
         return new CodeLabel($closure, "entry_code");
     }
