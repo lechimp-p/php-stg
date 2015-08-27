@@ -73,9 +73,9 @@ class Lechimp\STG\Test {
     protected $bar;
     public $baz;
     private function get_bar() {
-    } 
+    }
     protected function get_foo() {
-    } 
+    }
     public function __construct() {
     }
 }
@@ -91,7 +91,7 @@ PHP;
                     , array
                         ( new GArgument(null, "foo")
                         , new GArgument("array", "bar")
-                        , new GArgument(null, "bar", "\"baz\"")
+                        , new GArgument(null, "baz", "\"baz\"")
                         )
                     , array
                         ( new GStatement('echo $foo')
@@ -101,7 +101,7 @@ PHP;
                     , array()
                     , array
                         ( new GStatement(function($indentation) { return
-                            "\$indentation = \"$indentation\""; })
+                            "$indentation\$indentation = \"$indentation\";"; })
                         )
                     )
                 )
@@ -111,9 +111,9 @@ PHP;
 class Lechimp\STG\Test {
     public function get_bar($foo, array $bar, $baz = "baz") {
         echo $foo;
-    } 
+    }
     public function get_indentation() {
-        $indentation = "        ";
+        $indentation = "    ";
     }
 }
 PHP;
