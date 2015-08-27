@@ -32,5 +32,18 @@ class GArgument extends Gen {
      */
     public function render($indentation) {
         assert(is_int($indentation));
+        if ($this->type !== null) {
+            $type = $this->type." ";
+        }
+        else {
+            $type = "";
+        }
+        if ($this->default !== null) {
+            $default = " = ".$this->default;
+        }
+        else {
+            $default = "";
+        }
+        return $this->indent($indentation, $type.'$'.$this->name.$default);
     }
 }

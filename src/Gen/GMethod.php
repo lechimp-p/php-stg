@@ -36,6 +36,7 @@ abstract class GMethod extends Gen {
         $qualifier = $this->render_qualifier();
         $name = $this->name;
         $arguments = implode(", ", array_map(function(GArgument $arg) {
+            return $arg->render(0);
         }, $this->arguments));
         return $this->cat_and_indent($indentation, array_merge
             ( array ( "$qualifier function $name($arguments) {" )
