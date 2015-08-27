@@ -14,12 +14,12 @@ class GClass extends Gen {
     protected $name;
 
     /**
-     * @var Properties[]
+     * @var GProperty[]
      */
     protected $properties;
 
     /**
-     * @var Method[]
+     * @var GMethod[]
      */
     protected $methods;
 
@@ -60,9 +60,20 @@ class GClass extends Gen {
         else {
             $extends = "";
         }
-        return $this->cat_and_indent($indentation, array
-            ( "class $qualified_name $extends{"
-            , "}"
+        return $this->cat_and_indent($indentation, array_merge
+            ( array( "class $qualified_name $extends{" )
+
+            // Properties
+            , array_map(function(GProperty $prop) {
+                return $prop->render(1);
+            }, $this->properties)
+
+            // Methods
+            , array_map(function(GMethod $method) {
+                return $method->render(1);
+            }, $this->methods)
+            
+            , array( "}" )
             ));
     }
 }

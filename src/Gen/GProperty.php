@@ -19,6 +19,6 @@ abstract class GProperty extends Gen {
      * @inheritdoc
      */
     public function render($indentation) {
-        return $this->render_qualifier().' $'.$this->name.';';
+        return $this->indent($indentation, $this->render_qualifier().' $'.$this->name.';');
     }
 }
