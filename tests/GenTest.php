@@ -72,7 +72,7 @@ class Lechimp\STG\Test {
     private $foo;
     protected $bar;
     public $baz;
-    public function get_bar() {
+    private function get_bar() {
     } 
     protected function get_foo() {
     } 
