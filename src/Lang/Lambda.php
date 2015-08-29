@@ -7,12 +7,12 @@ namespace Lechimp\STG\Lang;
  */
 class Lambda {
     /**
-     * @var Variables[]
+     * @var Variable[]
      */
     private $free_variables;
 
     /**
-     * @var Variables[]
+     * @var Variable[]
      */
     private $arguments;
 
