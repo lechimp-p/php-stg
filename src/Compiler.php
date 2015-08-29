@@ -17,20 +17,16 @@ class Compiler {
      * @param   string          $stg_class_name
      * @return  array           $filename => $content
      */
-    public function compile(Lang\Program $program, $stg_class_name) {
+    public function compile(Lang\Program $program, $stg_class_name, $namespace = "") {
         assert(is_string($stg_class_name));
 
         // Constant used when rendering.
         $rc = array
-            ( "ns" => "" // Namespace
+            ( "ns" => $namespace // Namespace
             , 'stg' => self::STG_VAR_NAME  // variable name for stg
             );
 
         $globals = array();
-        $code = "use \\Lechimp\\STG\\STG;\n".
-                "use \\Lechimp\\STG\\CodeLabel;\n".
-                "use \\Lechimp\\STG\\STGClosure;\n".
-                "\n\n";
 
         $classes = array(); 
         
@@ -80,15 +76,13 @@ class Compiler {
                         "{$ind}parent::__construct(\$globals);"; })
                     ))
                 ))
-            , "STG"
+            , "\\Lechimp\\STG\\STG"
         );
 
         // Render all classes to a single file.
-        $code .= implode("\n\n", array_map(function(Gen\GClass $cl) {
+        return array("main.php" => implode("\n\n", array_map(function(Gen\GClass $cl) {
             return $cl->render(0);
-        }, $classes));
-
-        return array("main.php" => $code);
+        }, $classes)));
     }
 
     protected function compile_lambda(array $rc, Lang\Lambda $lambda, $class_name) {
@@ -126,7 +120,7 @@ class Compiler {
                     )
                 , $additional_methods
                 )
-            , "STGClosure"
+            , "\\Lechimp\\STG\\STGClosure"
             );
     }
 
@@ -191,18 +185,18 @@ class Compiler {
             //       to be changed, as this will name crash on nested case expressions.
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = "alternative_default";
-                $return_vector[null] = "new CodeLabel($lthis, \"$method_name\")";
+                $return_vector[null] = g_code_label($method_name);
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();
                 assert(is_int($value));
                 $method_name = "alternative_$value";
-                $return_vector[$value] = "new CodeLabel(\$this, \"$method_name\")";
+                $return_vector[$value] = g_code_label($method_name);
             }
             else if ($alternative instanceof Lang\AlgebraicAlternative) {
                 $id = $alternative->id();
                 $method_name = "alternative_$id";
-                $return_vector[$id] = "new CodeLabel(\$this, \"$method_name\")";
+                $return_vector[$id] = g_code_label($method_name);
             }
             else {
                 throw new \LogicException("Unknown alternative class ".get_class($alternative));
@@ -251,7 +245,7 @@ function g_public_method($name, $arguments, $statements) {
 }
 
 function g_stg_args() {
-    return array(new Gen\GArgument("STG", "stg"));
+    return array(new Gen\GArgument("\\Lechimp\\STG\\STG", Compiler::STG_VAR_NAME));
 }
 
 function g_stmt($code) {
@@ -310,6 +304,10 @@ function g_stg_pop_return_to($stg_name, $to) {
 
 function g_stg_push_return($stg_name, $what) {
     return new Gen\GStatement("\${$stg_name}->push_return($what)");
+}
+
+function g_code_label($method_name) {
+    return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
 }
 
 function array_flatten(array $array) {
