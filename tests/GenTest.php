@@ -27,8 +27,12 @@ class GenText extends PHPUnit_Framework_TestCase {
         $gen = new GClass("Lechimp\\STG", "Test", array(), array());
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\STG\Test {
+namespace Lechimp\STG {
+
+class Test {
 }
+
+} // namespace Lechimp\STG
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }
@@ -37,8 +41,12 @@ PHP;
         $gen = new GClass("Lechimp\\STG", "Test", array(), array(), "Foo");
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\STG\Test extends Foo {
+namespace Lechimp\STG {
+
+class Test extends Foo {
 }
+
+} // namespace Lechimp\STG
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }
@@ -68,7 +76,9 @@ PHP;
             );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\STG\Test {
+namespace Lechimp\STG {
+
+class Test {
     private $foo;
     protected $bar;
     public $baz;
@@ -79,6 +89,8 @@ class Lechimp\STG\Test {
     public function __construct() {
     }
 }
+
+} // namespace Lechimp\STG
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }
@@ -108,7 +120,9 @@ PHP;
             );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
-class Lechimp\STG\Test {
+namespace Lechimp\STG {
+
+class Test {
     public function get_bar($foo, array $bar, $baz = "baz") {
         echo $foo;
     }
@@ -116,6 +130,8 @@ class Lechimp\STG\Test {
         $indentation = "    ";
     }
 }
+
+} // namespace Lechimp\STG
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }

@@ -49,10 +49,12 @@ class GClass extends Gen {
     public function render($indentation) {
         assert(is_int($indentation));
         if ($this->namespace) {
-            $qualified_name = $this->namespace."\\".$this->name;
+            $namespace_start = array("namespace {$this->namespace} {", "");
+            $namespace_end = array("", "} // namespace {$this->namespace}");
         }
         else {
-            $qualified_name = $this->name;
+            $namespace_start = array();
+            $namespace_end = array();
         }
         if ($this->extends) {
             $extends = "extends ".$this->extends." ";
@@ -61,7 +63,8 @@ class GClass extends Gen {
             $extends = "";
         }
         return $this->cat_and_indent($indentation, array_merge
-            ( array( "class $qualified_name $extends{" )
+            ( $namespace_start
+            , array( "class {$this->name} $extends{" )
 
             // Properties
             , array_map(function(GProperty $prop) {
@@ -74,6 +77,7 @@ class GClass extends Gen {
             }, $this->methods)
             
             , array( "}" )
+            , $namespace_end
             ));
     }
 }
