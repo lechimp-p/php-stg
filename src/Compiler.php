@@ -42,17 +42,43 @@ class Compiler {
             $classes[] = $this->compile_lambda($rc, $binding->lambda(), $class_name);
 
             // Instantiation of globals for STG class.
-            $globals[$var_name] = "new $class_name()";
+            $globals[$var_name] = "new $class_name(\$$var_name)";
         }
         
         // Class for the final stg machine
         $classes[] = g_class( $rc["ns"], $stg_class_name
             , array() // no props
             , array
-                ( g_public_method( "__construct", array(), array
-                    ( g_stmt(function($ind) use ($globals) { return
-                        "{$ind}parent::__construct(".g_multiline_dict("$ind    ", $globals).");"; })
-                    )
+                ( g_public_method( "__construct", array(), array_flatten(array
+
+                    // Create arrays for the free variables of the global closures.
+                    ( array_map(function(Lang\Binding $binding) {
+                        $closure_name = $binding->variable()->name();
+                        return array
+                            ( array(g_stmt("\$$closure_name = array()"))
+                            , array_map(function(Lang\Variable $free_var) use ($closure_name) {
+                                $var_name = $free_var->name();
+                                return g_stmt("\${$closure_name}[\"$var_name\"] = null");
+                            }, $binding->lambda()->free_variables()));
+                    }, $program->bindings())
+
+                    // Create the array containing the globals.
+                    , g_stmt(function($ind) use ($globals) { return
+                        "{$ind}\$globals = ".g_multiline_dict("$ind    ", $globals).";";})
+
+                    // Fill the previously generated arrays with contents from globals.
+                    , array_map(function(Lang\Binding $binding) {
+                        $closure_name = $binding->variable()->name();
+                        return array_map(function(Lang\Variable $free_var) use ($closure_name) {
+                            $var_name = $free_var->name();
+                            return g_stmt("\${$closure_name}[\"$var_name\"] = \$globals[\"$var_name\"]");
+                        }, $binding->lambda()->free_variables());
+                    }, $program->bindings())
+
+                    // Use parents constructor.
+                    , g_stmt(function($ind) use ($globals) { return
+                        "{$ind}parent::__construct(\$globals);"; })
+                    ))
                 ))
             , "STG"
         );
@@ -69,6 +95,9 @@ class Compiler {
         assert(is_string($class_name));
 
         $num_args = count($lambda->arguments());
+        $var_names = array_map(function(Lang\Variable $var) {
+            return '"'.$var->name().'"';
+        }, $lambda->free_variables());
 
         list($compiled_expression, $additional_methods)
              = $this->compile_expression($rc, $lambda->expression());
@@ -79,17 +108,22 @@ class Compiler {
                 )
             , array_merge
                 ( array
-                    ( g_public_method("entry_code", g_stg_args(), array_merge
-                        ( array 
-                            ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
-                            , g_stmt("//TODO: get free variable NYI!")
-                            )
-                        , array_map(function($argument) use ($rc) {
-                                return g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
-                            }, $lambda->arguments())
+                    ( g_public_method("entry_code", g_stg_args(), array_flatten(array
+                        ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
+                        , array_map(function(Lang\Variable $free_var) {
+                            $var_name = $free_var->name();
+                            return g_stmt("\$_$var_name = \$this->free_variables[\"$var_name\"]");
+                        }, $lambda->free_variables())
+                        , array_map(function(Lang\Variable $argument) use ($rc) { return
+                            g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
+                        }, $lambda->arguments())
                         , $compiled_expression
-                        )
-                    ))
+                        )))
+                    , g_public_method("free_variables_names", array(), array
+                        ( g_stmt(function($ind) use ($var_names) { return
+                            "{$ind}return ".g_multiline_array("$ind    ", $var_names).";";
+                        })))
+                    )
                 , $additional_methods
                 )
             , "STGClosure"
@@ -116,7 +150,7 @@ class Compiler {
                 ( array_map(function($atom) use ($rc) {
                     return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, $atom));
                 }, $application->atoms())
-                , array(g_stg_enter($rc["stg"], g_stg_global_var($rc["stg"], $var_name)))
+                , array(g_stg_enter($rc["stg"], "\$_$var_name"))
                 )
             , array()
             );
@@ -153,6 +187,8 @@ class Compiler {
         $return_vector = array();
 
         foreach($case_expression->alternatives() as $alternative) {
+            // TODO: Most probably the generation of names for the methods needs
+            //       to be changed, as this will name crash on nested case expressions.
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = "alternative_default";
                 $return_vector[null] = "new CodeLabel($lthis, \"$method_name\")";
@@ -197,7 +233,7 @@ class Compiler {
         $stg = self::STG_VAR_NAME;
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return g_stg_global_var($stg, $var_name); 
+            return "\$_$var_name"; 
         }
         if ($atom instanceof Lang\Literal) {
             return $literal->value();
@@ -239,6 +275,19 @@ function g_multiline_dict($ind, array $array) {
         
 }
 
+function g_multiline_array($ind, array $array) {
+    return 
+        "array\n$ind    ( ".
+        implode("\n$ind    , " , array_map(function($v) {
+            return "$v";
+        }, $array)).
+        "\n$ind    )";
+}
+
+function g_var($varname) {
+    return "\$$varname";
+}
+
 function g_stg_pop_arg_to($stg_name, $arg_name) {
     return new Gen\GStatement("\$$arg_name = \${$stg_name}->pop_arg()");
 }
@@ -261,4 +310,17 @@ function g_stg_pop_return_to($stg_name, $to) {
 
 function g_stg_push_return($stg_name, $what) {
     return new Gen\GStatement("\${$stg_name}->push_return($what)");
+}
+
+function array_flatten(array $array) {
+    $returns = array();
+    foreach($array as $val) {
+        if (is_array($val)) {
+            $returns = array_merge($returns, array_flatten($val));
+        }
+        else {
+            $returns[] = $val;
+        }
+    }
+    return $returns;
 }

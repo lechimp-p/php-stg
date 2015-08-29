@@ -70,22 +70,6 @@ abstract class STG {
     }
 
     /**
-     * Get a value from the global environment.
-     *
-     * @param   string          $atom
-     * @return  STGClosure|int
-     */
-    public function global_var($name) {
-        assert(is_string($name));
-
-        if (array_key_exists($name, $this->globals)) {
-            return $this->globals[$name];
-        }
-
-        throw new \LogicException("Unknown global variable '$name'.");
-    }
-
-    /**
      * Push an argument on the stack.
      *
      * @param   STGClosure|int  $arg

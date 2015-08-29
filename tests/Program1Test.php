@@ -25,7 +25,7 @@ class Program1Test extends PHPUnit_Framework_TestCase {
     public function test_program() {
         /**
          * Represents the following program
-         * main = \{} \u \{} -> swapAB a
+         * main = \{swapAB, a} \u \{} -> swapAB a
          * a = \{} \n \{} -> A
          * swapAB = \{} \n \{a} -> 
          *     case a of
@@ -36,7 +36,7 @@ class Program1Test extends PHPUnit_Framework_TestCase {
             ( new Binding
                 ( new Variable("main")
                 , new Lambda
-                    ( array()
+                    ( array(new Variable("swapAB"), new Variable("a"))
                     , array()
                     , new Application 
                         ( new Variable("swapAB")
