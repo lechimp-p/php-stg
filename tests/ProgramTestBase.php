@@ -5,7 +5,7 @@ class ProgramTestBase extends PHPUnit_Framework_TestCase {
         echo "\n\n-------- PROGRAM --------\n\n";
         $prg = split("\n", $program);
         foreach($prg as $no => $line) {
-            echo sprintf("%3d", $no).": $line\n"; 
+            echo sprintf("%3d", $no + 1).": $line\n"; 
         } 
     }
 }
