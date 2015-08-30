@@ -139,7 +139,10 @@ class Compiler {
         if ($expression instanceof Lang\LetBinding) {
             return $this->compile_let_binding($rc, $expression);
         }
-        throw new \LogicException("Unknown expression '$expression'.");
+        if ($expression instanceof Lang\LetRecBinding) {
+            return $this->compile_letrec_binding($rc, $expression);
+        }
+        throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
 
     protected function compile_application(array $rc, Lang\Application $application) {
@@ -258,14 +261,14 @@ class Compiler {
                     //       name clashes.
                     $class_name = $binding->variable()->name()."Closure";
                     $name = $binding->variable()->name();
-                    return array_flatten( array
-                        ( g_stmt("\$free_vars = array()")
-                        , array_map(function(Lang\Variable $free_var) {
-                            $name = $free_var->name();
-                            return g_stmt("\$free_vars[\"$name\"] = \$_$name");
+                    return array_flatten
+                        ( g_stmt("\$free_vars_$name = array()")
+                        , array_map(function(Lang\Variable $free_var) use ($name) {
+                            $fname = $free_var->name();
+                            return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$_$fname");
                         }, $binding->lambda()->free_variables())
-                        , g_stmt("\$_$name = new $class_name(\$free_vars)")
-                        ));
+                        , g_stmt("\$_$name = new $class_name(\$free_vars_$name)")
+                        );
                 }, $let_binding->bindings())
                 , $expr_code
                 )
@@ -277,6 +280,52 @@ class Compiler {
                     $class_name = $binding->variable()->name()."Closure";
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $let_binding->bindings()) 
+                , $expr_classes
+                )
+            );
+    }
+
+    protected function compile_letrec_binding(array $rc, Lang\LetRecBinding $letrec_binding) {
+        list($expr_code, $expr_methods, $expr_classes)
+            = $this->compile_expression($rc, $letrec_binding->expression());
+    
+        return array
+            ( array_flatten
+
+                // First create the closures with stubs for free variables
+                ( array_map( function(Lang\Binding $binding) {
+                    // TODO: I need to introduce a correct naming scheme to avoid
+                    //       name clashes.
+                    $class_name = $binding->variable()->name()."Closure";
+                    $name = $binding->variable()->name();
+                    return array_flatten
+                        ( g_stmt("\$free_vars_$name = array()")
+                        , array_map(function(Lang\Variable $free_var) use ($name) {
+                            $fname = $free_var->name();
+                            return g_stmt("\$free_vars_{$name}[\"$fname\"] = null");
+                        }, $binding->lambda()->free_variables())
+                        , g_stmt("\$_$name = new $class_name(\$free_vars_$name)")
+                        );
+                }, $letrec_binding->bindings())
+
+                // Then bind the stubs to the new variables.
+                , array_map( function(Lang\Binding $binding) {
+                    $name = $binding->variable()->name();
+                    return array_map(function(Lang\Variable $free_var) use ($name) {
+                        $fname = $free_var->name();
+                        return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$_$fname");
+                    }, $binding->lambda()->free_variables());
+                }, $letrec_binding->bindings()) 
+                , $expr_code
+                )
+            , $expr_methods
+            , array_flatten
+                ( array_map(function(Lang\Binding $binding) use ($rc) {
+                    // TODO: I need to introduce a correct naming scheme to avoid
+                    //       name clashes.
+                    $class_name = $binding->variable()->name()."Closure";
+                    return $this->compile_lambda($rc, $binding->lambda(), $class_name);
+                }, $letrec_binding->bindings()) 
                 , $expr_classes
                 )
             );
