@@ -257,10 +257,14 @@ class Compiler {
                     //       name clashes.
                     $class_name = $binding->variable()->name()."Closure";
                     $name = $binding->variable()->name();
-                    return array
+                    return array_flatten( array
                         ( g_stmt("\$free_vars = array()")
+                        , array_map(function(Lang\Variable $free_var) {
+                            $name = $free_var->name();
+                            return g_stmt("\$free_vars[\"$name\"] = \$_$name");
+                        }, $binding->lambda()->free_variables())
                         , g_stmt("\$_$name = new $class_name(\$free_vars)")
-                        );
+                        ));
                 }, $let_binding->bindings())
                 , $expr_code
                 ))
