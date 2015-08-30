@@ -17,7 +17,7 @@ class AlgebraicAlternative extends Alternative {
         assert(is_string($id));
         $this->id = $id;
         $this->expression = $expression;
-        $this->variables = array_map(function(Lang\Variable $var) {
+        $this->variables = array_map(function(Variable $var) {
             return $var;
         }, $variables);
     }
