@@ -19,21 +19,20 @@ class Program2Test extends ProgramTestBase {
     public function test_program() {
         /**
          * Represents the following program
-         * main = \{swapAB, a} \u \{} -> swapAB a
-         * a = \{} \n \{} -> A
-         * swapAB = \{} \n \{a} -> 
-         *     case a of
-         *         A -> B
-         *         B -> A   
+         * main = \{extract, a} \u \{} -> extract a
+         * a = \{} \n \{} -> Wrapped 42
+         * extract = \{} \n \{w} -> 
+         *     case w of
+         *         Wrapped v -> v
          */
         $program = new Program(array
             ( new Binding
                 ( new Variable("main")
                 , new Lambda
-                    ( array(new Variable("swapAB"), new Variable("a"))
+                    ( array(new Variable("extract"), new Variable("a"))
                     , array()
                     , new Application 
-                        ( new Variable("swapAB")
+                        ( new Variable("extract")
                         , array
                             ( new Variable("a") 
                             )
@@ -46,28 +45,30 @@ class Program2Test extends ProgramTestBase {
                 , new Lambda
                     ( array()
                     , array()
-                    , new Constructor("A", array())
+                    , new Constructor
+                        ( "Wrapped"
+                        , array( new Literal(42))
+                        )
                     , true
                     )
                 )
             , new Binding
-                ( new Variable("swapAB")
+                ( new Variable("extract")
                 , new Lambda
                     ( array()
-                    , array(new Variable("a"))
+                    , array(new Variable("w"))
                     , new CaseExpr
                         ( new Application
-                            ( new Variable("a")
+                            ( new Variable("w")
                             , array()
                             )
                         , array
                             ( new AlgebraicAlternative
-                                ( "A"
-                                , new Constructor("B", array())
-                                )
-                            , new AlgebraicAlternative
-                                ( "B"
-                                , new Constructor("A", array())
+                                ( "Wrapped"
+                                , new Application
+                                    ( new Variable("w")
+                                    , array()
+                                    )
                                 )
                             )
                         )
@@ -77,23 +78,23 @@ class Program2Test extends ProgramTestBase {
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "Program2"); 
-        //$this->echo_program($compiled["main.php"]);
+        $this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new Program2\TheMachine();
         $this->result = null;
         $machine->push_return(array
-            ( "A" => new CodeLabel($this, "returns_A")
-            , "B" => new CodeLabel($this, "returns_B")
+            ( 42   => new CodeLabel($this, "returns_42")
+            , null => new CodeLabel($this, "returns_other")
             ));
         $machine->run();
-        $this->assertEquals("B", $this->result);
+        $this->assertEquals(42, $this->result);
     }
 
-    public function returns_A($_) {
-        $this->result = "A";
+    public function returns_42($_) {
+        $this->result = 42;
     }
 
-    public function returns_B($_) {
-        $this->result = "B";
+    public function returns_other($_) {
+        $this->result = null;
     }
 }
