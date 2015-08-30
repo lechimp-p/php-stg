@@ -8,10 +8,18 @@ class AlgebraicAlternative extends Alternative {
      */
     protected $id;
 
-    public function __construct($id, Expression $expression) {
+    /**
+     * @var Variable[]
+     */
+    protected $variables;
+
+    public function __construct($id, array $variables, Expression $expression) {
         assert(is_string($id));
         $this->id = $id;
         $this->expression = $expression;
+        $this->variables = array_map(function(Lang\Variable $var) {
+            return $var;
+        }, $variables);
     }
 
     public function id() {
