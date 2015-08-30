@@ -247,10 +247,33 @@ class Compiler {
     }
 
     protected function compile_let_binding(array $rc, Lang\LetBinding $let_binding) {
+        list($expr_code, $expr_methods, $expr_classes)
+            = $this->compile_expression($rc, $let_binding->expression());
+    
         return array
-            ( array()
-            , array()
-            , array()
+            ( array_flatten( array
+                ( array_map( function(Lang\Binding $binding) use ($rc) {
+                    // TODO: I need to introduce a correct naming scheme to avoid
+                    //       name clashes.
+                    $class_name = $binding->variable()->name()."Closure";
+                    $name = $binding->variable()->name();
+                    return array
+                        ( g_stmt("\$free_vars = array()")
+                        , g_stmt("\$_$name = new $class_name(\$free_vars)")
+                        );
+                }, $let_binding->bindings())
+                , $expr_code
+                ))
+            , $expr_methods
+            , array_flatten( array
+                ( array_map(function(Lang\Binding $binding) use ($rc) {
+                    // TODO: I need to introduce a correct naming scheme to avoid
+                    //       name clashes.
+                    $class_name = $binding->variable()->name()."Closure";
+                    return $this->compile_lambda($rc, $binding->lambda(), $class_name);
+                }, $let_binding->bindings()) 
+                , $expr_classes
+                ))
             );
     }
 
