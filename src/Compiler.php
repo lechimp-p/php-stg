@@ -45,7 +45,7 @@ class Compiler {
         $classes[] = g_class( $rc["ns"], $stg_class_name
             , array() // no props
             , array
-                ( g_public_method( "__construct", array(), array_flatten(array
+                ( g_public_method( "__construct", array(), array_flatten
 
                     // Create arrays for the free variables of the global closures.
                     ( array_map(function(Lang\Binding $binding) {
@@ -74,7 +74,7 @@ class Compiler {
                     // Use parents constructor.
                     , g_stmt(function($ind) use ($globals) { return
                         "{$ind}parent::__construct(\$globals);"; })
-                    ))
+                    )
                 ))
             , "\\Lechimp\\STG\\STG"
         );
@@ -96,7 +96,7 @@ class Compiler {
         list($compiled_expression, $additional_methods, $additional_classes)
              = $this->compile_expression($rc, $lambda->expression());
 
-        return array_flatten( array
+        return array_flatten
             ( g_class($rc["ns"], $class_name
                 , array
                     (
@@ -123,7 +123,7 @@ class Compiler {
                     )
                 , "\\Lechimp\\STG\\STGClosure")
             , $additional_classes
-            ));
+            );
     }
 
     protected function compile_expression(array $rc, Lang\Expression $expression) {
@@ -213,12 +213,13 @@ class Compiler {
                 $method_name = "alternative_$id";
                 $return_vector[$id] = g_code_label($method_name);
                 // Pop arguments to constructor and fill them into appropriate variables.
-                $r_code = array_flatten(array
+                $r_code = array_flatten
                     ( g_stg_pop_return_to($rc["stg"], "arg_vector")
                     , array_map(function(Lang\Variable $var) {
                         $name = $var->name();
                         return g_stmt("\$_$name = array_shift(\$arg_vector)");
-                    }, $alternative->variables())));
+                    }, $alternative->variables())
+                    );
             }
             else {
                 throw new \LogicException("Unknown alternative class ".get_class($alternative));
@@ -251,7 +252,7 @@ class Compiler {
             = $this->compile_expression($rc, $let_binding->expression());
     
         return array
-            ( array_flatten( array
+            ( array_flatten
                 ( array_map( function(Lang\Binding $binding) use ($rc) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
@@ -267,9 +268,9 @@ class Compiler {
                         ));
                 }, $let_binding->bindings())
                 , $expr_code
-                ))
+                )
             , $expr_methods
-            , array_flatten( array
+            , array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($rc) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
@@ -277,7 +278,7 @@ class Compiler {
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $let_binding->bindings()) 
                 , $expr_classes
-                ))
+                )
             );
     }
 
@@ -368,15 +369,27 @@ function g_code_label($method_name) {
     return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
 }
 
-function array_flatten(array $array) {
-    $returns = array();
-    foreach($array as $val) {
-        if (is_array($val)) {
-            $returns = array_merge($returns, array_flatten($val));
+function array_flatten() {
+    $args = func_get_args();
+    if (count($args) == 0) {
+        return array();
+    }
+    if (count($args) == 1) {
+        if (is_array($args[0])) {
+            $returns = array();
+            foreach($args[0] as $val) {
+                if (is_array($val)) {
+                    $returns = array_merge($returns, array_flatten($val));
+                }
+                else {
+                    $returns[] = $val;
+                }
+            }
+            return $returns;
         }
         else {
-            $returns[] = $val;
+            return $args[0];
         }
     }
-    return $returns;
+    return array_flatten($args);
 }
