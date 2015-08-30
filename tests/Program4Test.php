@@ -22,7 +22,7 @@ class Program4Test extends ProgramTestBase {
          * Represents the following program
          * main = \{a, extract} \u \{} -> 
          *      let result = \{a, extract} \u \{} -> extract a 
-         *          in result 
+         *      in result 
          * a = \{} \n \{} -> Wrapped 42 23
          * extract = \{} \n \{w} -> 
          *     case w of
