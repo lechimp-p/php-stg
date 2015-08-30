@@ -27,6 +27,6 @@ class AlgebraicAlternative extends Alternative {
     }
 
     public function variables() {
-        return $this->variables();
+        return $this->variables;
     }
 }
