@@ -152,12 +152,18 @@ class Compiler {
 
     protected function compile_constructor(array $rc, Lang\Constructor $constructor) {
         $stg = self::STG_VAR_NAME;
-        $rvn = '$return_vector';
 
         $id = $constructor->id();
 
+        $args_vector = array_map(function(Lang\Atom $atom) use ($rc) {
+            return $this->compile_atom($rc, $atom);
+        }, $constructor->atoms());
+
         return array(array
             ( g_stg_pop_return_to($rc["stg"], "return_vector")
+            , g_stmt(function($ind) use ($args_vector) { return
+                "{$ind}\$args_vector = ".g_multiline_array("$ind    ", $args_vector).";"; })
+            , g_stg_push_return($rc["stg"], '$args_vector')
             , g_stmt(function($i) use ($id) { return
                  "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
             ."    {$i}    return \$return_vector[\"$id\"];\n"
@@ -186,17 +192,26 @@ class Compiler {
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = "alternative_default";
                 $return_vector[null] = g_code_label($method_name);
+                $r_code = array();
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();
                 assert(is_int($value));
                 $method_name = "alternative_$value";
                 $return_vector[$value] = g_code_label($method_name);
+                $r_code = array();
             }
             else if ($alternative instanceof Lang\AlgebraicAlternative) {
                 $id = $alternative->id();
                 $method_name = "alternative_$id";
                 $return_vector[$id] = g_code_label($method_name);
+                // Pop arguments to constructor and fill them into appropriate variables.
+                $r_code = array_flatten(array
+                    ( g_stg_pop_return_to($rc["stg"], "arg_vector")
+                    , array_map(function(Lang\Variable $var) {
+                        $name = $var->name();
+                        return g_stmt("\$_$name = array_shift(\$arg_vector)");
+                    }, $alternative->variables())));
             }
             else {
                 throw new \LogicException("Unknown alternative class ".get_class($alternative));
@@ -204,7 +219,7 @@ class Compiler {
 
             list($m_code, $sub_methods)
                 = $this->compile_expression($rc, $alternative->expression());
-            $methods[] = g_public_method($method_name, g_stg_args(), $m_code);
+            $methods[] = g_public_method($method_name, g_stg_args(), array_merge($r_code, $m_code));
             $methods = array_merge($methods, $sub_methods);
         }
 
@@ -230,7 +245,7 @@ class Compiler {
             return "\$_$var_name"; 
         }
         if ($atom instanceof Lang\Literal) {
-            return $literal->value();
+            return $atom->value();
         }
         throw new \LogicException("Unknown atom '$atom'.");
     }

@@ -23,7 +23,7 @@ class Program2Test extends ProgramTestBase {
          * a = \{} \n \{} -> Wrapped 42
          * extract = \{} \n \{w} -> 
          *     case w of
-         *         Wrapped v -> v
+         *         Wrapped v -> Result v
          */
         $program = new Program(array
             ( new Binding
@@ -65,9 +65,10 @@ class Program2Test extends ProgramTestBase {
                         , array
                             ( new AlgebraicAlternative
                                 ( "Wrapped"
-                                , new Application
-                                    ( new Variable("w")
-                                    , array()
+                                , array( new Variable("w") )
+                                , new Constructor
+                                    ( "Result" 
+                                    , array( new Variable("w") )
                                     )
                                 )
                             )
@@ -83,18 +84,15 @@ class Program2Test extends ProgramTestBase {
         $machine = new Program2\TheMachine();
         $this->result = null;
         $machine->push_return(array
-            ( 42   => new CodeLabel($this, "returns_42")
-            , null => new CodeLabel($this, "returns_other")
+            ( "Result"  => new CodeLabel($this, "returns_result")
             ));
         $machine->run();
         $this->assertEquals(42, $this->result);
     }
 
-    public function returns_42($_) {
-        $this->result = 42;
-    }
-
-    public function returns_other($_) {
-        $this->result = null;
+    public function returns_result($stg) {
+        $return = $stg->pop_return();
+        $this->assertCount(1, $return);
+        $this->result = $return[0];
     }
 }
