@@ -25,4 +25,8 @@ class AlgebraicAlternative extends Alternative {
     public function id() {
         return $this->id;
     }
+
+    public function variables() {
+        return $this->variables();
+    }
 }
