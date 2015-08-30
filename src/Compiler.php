@@ -82,7 +82,7 @@ class Compiler {
         // Render all classes to a single file.
         return array("main.php" => implode("\n\n", array_map(function(Gen\GClass $cl) {
             return $cl->render(0);
-        }, $classes)));
+        }, array_flatten($classes))));
     }
 
     protected function compile_lambda(array $rc, Lang\Lambda $lambda, $class_name) {
@@ -93,35 +93,37 @@ class Compiler {
             return '"'.$var->name().'"';
         }, $lambda->free_variables());
 
-        list($compiled_expression, $additional_methods)
+        list($compiled_expression, $additional_methods, $additional_classes)
              = $this->compile_expression($rc, $lambda->expression());
 
-        return g_class($rc["ns"], $class_name
-            , array
-                (
-                )
-            , array_merge
-                ( array
-                    ( g_public_method("entry_code", g_stg_args(), array_flatten(array
-                        ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
-                        , array_map(function(Lang\Variable $free_var) {
-                            $var_name = $free_var->name();
-                            return g_stmt("\$_$var_name = \$this->free_variables[\"$var_name\"]");
-                        }, $lambda->free_variables())
-                        , array_map(function(Lang\Variable $argument) use ($rc) { return
-                            g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
-                        }, $lambda->arguments())
-                        , $compiled_expression
-                        )))
-                    , g_public_method("free_variables_names", array(), array
-                        ( g_stmt(function($ind) use ($var_names) { return
-                            "{$ind}return ".g_multiline_array("$ind    ", $var_names).";";
-                        })))
+        return array_flatten( array
+            ( g_class($rc["ns"], $class_name
+                , array
+                    (
                     )
-                , $additional_methods
-                )
-            , "\\Lechimp\\STG\\STGClosure"
-            );
+                , array_merge
+                    ( array
+                        ( g_public_method("entry_code", g_stg_args(), array_flatten(array
+                            ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
+                            , array_map(function(Lang\Variable $free_var) {
+                                $var_name = $free_var->name();
+                                return g_stmt("\$_$var_name = \$this->free_variables[\"$var_name\"]");
+                            }, $lambda->free_variables())
+                            , array_map(function(Lang\Variable $argument) use ($rc) { return
+                                g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
+                            }, $lambda->arguments())
+                            , $compiled_expression
+                            )))
+                        , g_public_method("free_variables_names", array(), array
+                            ( g_stmt(function($ind) use ($var_names) { return
+                                "{$ind}return ".g_multiline_array("$ind    ", $var_names).";";
+                            })))
+                        )
+                    , $additional_methods
+                    )
+                , "\\Lechimp\\STG\\STGClosure")
+            , $additional_classes
+            ));
     }
 
     protected function compile_expression(array $rc, Lang\Expression $expression) {
@@ -133,6 +135,9 @@ class Compiler {
         }
         if ($expression instanceof Lang\CaseExpr) {
             return $this->compile_case_expression($rc, $expression);
+        }
+        if ($expression instanceof Lang\LetBinding) {
+            return $this->compile_let_binding($rc, $expression);
         }
         throw new \LogicException("Unknown expression '$expression'.");
     }
@@ -146,6 +151,7 @@ class Compiler {
                 }, $application->atoms())
                 , array(g_stg_enter($rc["stg"], "\$_$var_name"))
                 )
+            , array()
             , array()
             );
     }
@@ -178,6 +184,7 @@ class Compiler {
             ."    {$i}}\n";
                 })
             )
+            , array()
             , array()
             );
     }
@@ -235,6 +242,15 @@ class Compiler {
         return array
             ( array_merge($statements, $sub_statements)
             , array_merge($methods, $sub_methods)
+            , array()
+            );
+    }
+
+    protected function compile_let_binding(array $rc, Lang\LetBinding $let_binding) {
+        return array
+            ( array()
+            , array()
+            , array()
             );
     }
 
