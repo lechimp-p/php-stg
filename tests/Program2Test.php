@@ -20,10 +20,10 @@ class Program2Test extends ProgramTestBase {
         /**
          * Represents the following program
          * main = \{extract, a} \u \{} -> extract a
-         * a = \{} \n \{} -> Wrapped 42
+         * a = \{} \n \{} -> Wrapped 42 23
          * extract = \{} \n \{w} -> 
          *     case w of
-         *         Wrapped v -> Result v
+         *         Wrapped a b -> Result a b
          */
         $program = new Program(array
             ( new Binding
@@ -47,7 +47,10 @@ class Program2Test extends ProgramTestBase {
                     , array()
                     , new Constructor
                         ( "Wrapped"
-                        , array( new Literal(42))
+                        , array
+                            ( new Literal(42)
+                            , new Literal(23)
+                            )
                         )
                     , true
                     )
@@ -65,10 +68,16 @@ class Program2Test extends ProgramTestBase {
                         , array
                             ( new AlgebraicAlternative
                                 ( "Wrapped"
-                                , array( new Variable("w") )
+                                , array
+                                    ( new Variable("a") 
+                                    , new Variable("b") 
+                                    )
                                 , new Constructor
                                     ( "Result" 
-                                    , array( new Variable("w") )
+                                    , array
+                                        ( new Variable("a") 
+                                        , new Variable("b") 
+                                        )
                                     )
                                 )
                             )
@@ -87,12 +96,10 @@ class Program2Test extends ProgramTestBase {
             ( "Result"  => new CodeLabel($this, "returns_result")
             ));
         $machine->run();
-        $this->assertEquals(42, $this->result);
+        $this->assertEquals(array(42, 23), $this->result);
     }
 
     public function returns_result($stg) {
-        $return = $stg->pop_return();
-        $this->assertCount(1, $return);
-        $this->result = $return[0];
+        $this->result = $stg->pop_return();
     }
 }
