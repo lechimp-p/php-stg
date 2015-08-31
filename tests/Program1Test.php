@@ -10,6 +10,7 @@ use Lechimp\STG\Lang\Application;
 use Lechimp\STG\Lang\Constructor;
 use Lechimp\STG\Lang\CaseExpr;
 use Lechimp\STG\Lang\AlgebraicAlternative;
+use Lechimp\STG\Lang\DefaultAlternative;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -25,6 +26,7 @@ class Program1Test extends ProgramTestBase {
          *     case a of
          *         A -> B
          *         B -> A   
+         *         default -> a   
          */
         $program = new Program(array
             ( new Binding
@@ -70,6 +72,12 @@ class Program1Test extends ProgramTestBase {
                                 ( "B"
                                 , array()
                                 , new Constructor("A", array())
+                                )
+                            , new DefaultAlternative 
+                                ( new Application
+                                    ( new Variable("a")
+                                    , array()
+                                    )
                                 )
                             )
                         )
