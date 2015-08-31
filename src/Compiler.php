@@ -183,7 +183,24 @@ class Compiler {
             , g_stmt(function($ind) use ($args_vector) { return
                 "{$ind}\$args_vector = ".g_multiline_array("$ind    ", $args_vector).";"; })
             , g_stg_push_return($rc["stg"], '$args_vector')
-            , g_stmt(function($i) use ($id) { return
+            , g_if_then_else
+                ( "array_key_exists(\"$id\", \$return_vector)"
+                , array
+                    ( g_stmt("\$return_vector[\"$id\"]")
+                    )
+                , array( g_if_then_else
+                    ( "array_key_exists(\"\", \$return_vector)"
+                    , array
+                        ( g_stmt("return \$return_vector[\"\"]")
+                        )
+                    , array
+                        ( g_stmt("throw new \\LogicException(".
+                                    "\"No matching alternative for constructor '$id'\"".
+                                 ")")
+                        )
+                    ))
+                ) 
+/*            , g_stmt(function($i) use ($id) { return
                  "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
             ."    {$i}    return \$return_vector[\"$id\"];\n"
             ."    {$i}}\n"
@@ -192,10 +209,9 @@ class Compiler {
             ."    {$i}}\n"
             ."    {$i}else {\n"
             ."    {$i}    throw new \\LogicException(\n"
-            ."    {$i}        \"No matching alternative for constructor '$id'.\"\n"
             ."    {$i}    );\n"
             ."    {$i}}\n";
-                })
+                })*/
             )
             , array()
             , array()
@@ -400,6 +416,10 @@ function g_stg_args() {
 
 function g_stmt($code) {
     return new Gen\GStatement($code);
+}
+
+function g_if_then_else($if, $then, $else) {
+    return new Gen\GIfThenElse($if, $then, $else);
 }
 
 function g_multiline_dict($ind, array $array) {

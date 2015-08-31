@@ -202,4 +202,67 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
+    public function test_filledMethodIfThenElse() {
+        $gen = new GClass("Lechimp\\STG", "Test"
+            , array()
+            , array
+                ( new GPublicMethod("get_bar"
+                    , array
+                        ( new GArgument(null, "foo")
+                        , new GArgument("array", "bar")
+                        , new GArgument(null, "baz", "\"baz\"")
+                        )
+                    , array
+                        ( new GIfThenElse
+                            ( "\$a == \$b"
+                            , array
+                                ( new GStatement("echo 'equal: '")
+                                , new GStatement("echo \$b")
+                                )
+                            , array
+                                ( new GIfThenElse
+                                    ( "!is_null(\$a)"
+                                    , array
+                                        ( new GStatement("echo 'not equal: '")
+                                        , new GStatement("echo \$a.\" \".\$b")
+                                        )
+                                    , array
+                                        ( new GStatement("echo 'null'")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+namespace Lechimp\STG {
+
+class Test {
+    public function get_bar($foo, array $bar, $baz = "baz") {
+        if ($a == $b) {
+            echo 'equal: ';
+            echo $b;
+        }
+        else {
+            if (!is_null($a)) {
+                echo 'not equal: ';
+                echo $a." ".$b;
+            }
+            else {
+                echo 'null';
+            }
+        }
+    }
+}
+
+} // namespace Lechimp\STG
+PHP;
+        $this->assertCodeEquals($expected, $generated);
+    }
+
+
+
 }
