@@ -388,15 +388,18 @@ function g_stmt($code) {
 function g_multiline_dict($ind, array $array) {
     return 
         "array\n$ind    ( ".
-        implode("\n$ind    , " , array_map(function($v, $k) {
+        implode("\n$ind    , " , array_map(function($v, $k = null) {
+            if (is_null($k) || $k == "") {
+                return "null => $v";
+            }
             if (is_string($k)) {
                 return "\"$k\" => $v";
             }
             if (is_int($k)) {
                 return "$k => $v";
             }
-            assert($k === null);
-            return "null => $v";
+            throw new \LogicException("Can't render multiline dict with key"
+                                     ." of type '".gettype($k));
         }, $array, array_keys($array))).
         "\n$ind    )";
         
