@@ -162,4 +162,44 @@ else {
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }
+
+    public function test_ifThenElse2() {
+        $gen = new GIfThenElse
+            ( "\$a == \$b"
+            , array
+                ( new GStatement("echo 'equal: '")
+                , new GStatement("echo \$b")
+                )
+            , array
+                ( new GIfThenElse
+                    ( "!is_null(\$a)"
+                    , array
+                        ( new GStatement("echo 'not equal: '")
+                        , new GStatement("echo \$a.\" \".\$b")
+                        )
+                    , array
+                        ( new GStatement("echo 'null'")
+                        )
+                    )
+                )
+            );
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+if ($a == $b) {
+    echo 'equal: ';
+    echo $b;
+}
+else {
+    if (!is_null($a)) {
+        echo 'not equal: ';
+        echo $a." ".$b;
+    }
+    else {
+        echo 'null';
+    }
+}
+PHP;
+        $this->assertCodeEquals($expected, $generated);
+    }
+
 }
