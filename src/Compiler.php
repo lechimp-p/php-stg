@@ -60,7 +60,7 @@ class Compiler {
 
                     // Create the array containing the globals.
                     , g_stmt(function($ind) use ($globals) { return
-                        "{$ind}\$globals = ".g_multiline_dict("$ind    ", $globals).";";})
+                        "{$ind}\$globals = ".g_multiline_dict($ind, $globals).";";})
 
                     // Fill the previously generated arrays with contents from globals.
                     , array_map(function(Lang\Binding $binding) {
@@ -125,7 +125,7 @@ class Compiler {
                         // Required method for concrete STGClosures.
                         , g_public_method("free_variables_names", array(), array
                             ( g_stmt(function($ind) use ($var_names) { return
-                                "{$ind}return ".g_multiline_array("$ind    ", $var_names).";";
+                                "{$ind}return ".g_multiline_array($ind, $var_names).";";
                             })))
                         )
                     , $additional_methods
@@ -181,12 +181,12 @@ class Compiler {
         return array(array
             ( g_stg_pop_return_to($rc["stg"], "return_vector")
             , g_stmt(function($ind) use ($args_vector) { return
-                "{$ind}\$args_vector = ".g_multiline_array("$ind    ", $args_vector).";"; })
+                "{$ind}\$args_vector = ".g_multiline_array($ind, $args_vector).";"; })
             , g_stg_push_return($rc["stg"], '$args_vector')
             , g_if_then_else
                 ( "array_key_exists(\"$id\", \$return_vector)"
                 , array
-                    ( g_stmt("\$return_vector[\"$id\"]")
+                    ( g_stmt("return \$return_vector[\"$id\"]")
                     )
                 , array( g_if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
@@ -200,18 +200,6 @@ class Compiler {
                         )
                     ))
                 ) 
-/*            , g_stmt(function($i) use ($id) { return
-                 "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
-            ."    {$i}    return \$return_vector[\"$id\"];\n"
-            ."    {$i}}\n"
-            ."    {$i}else if (array_key_exists(\"\", \$return_vector)) {\n"
-            ."    {$i}    return \$return_vector[\"\"];\n"
-            ."    {$i}}\n"
-            ."    {$i}else {\n"
-            ."    {$i}    throw new \\LogicException(\n"
-            ."    {$i}    );\n"
-            ."    {$i}}\n";
-                })*/
             )
             , array()
             , array()
@@ -223,19 +211,23 @@ class Compiler {
 
         return array(array
             ( g_stg_pop_return_to($rc["stg"], "return_vector")
-            , g_stmt(function($i) use ($value) { return
-                 "{$i}if(array_key_exists($value, \$return_vector)) {\n"
-            ."    {$i}    return \$return_vector[$value];\n"
-            ."    {$i}}\n"
-            ."    {$i}else if (array_key_exists(null, \$return_vector)) {\n"
-            ."    {$i}    return \$return_vector[null];\n"
-            ."    {$i}}\n"
-            ."    {$i}else {\n"
-            ."    {$i}    throw new \\LogicException(\n"
-            ."    {$i}        \"No matching alternative for literal $value.\"\n"
-            ."    {$i}    );\n"
-            ."    {$i}}\n";
-                })
+            , g_if_then_else
+                ( "array_key_exists($value, \$return_vector)"
+                , array
+                    ( g_stmt("return \$return_vector[$value]")
+                    )
+                , array ( g_if_then_else
+                    ( "array_key_exists(\"\", \$return_vector)"
+                    , array
+                        ( g_stmt("return \$return_vector[\"\"]")
+                        )
+                    , array
+                        ( g_stmt("throw new \\LogicException(".
+                                    "\"No matching alternative for literal $value\"".
+                                 ")")
+                        )
+                    ))
+                )
             )
             , array()
             , array()
@@ -296,7 +288,7 @@ class Compiler {
 
         $statements = array
             ( g_stmt(function($ind) use ($return_vector) { return 
-                "$ind\$return_vector = ".g_multiline_dict("$ind    ", $return_vector).";";})
+                "$ind\$return_vector = ".g_multiline_dict($ind, $return_vector).";";})
             , g_stg_push_env($rc["stg"], '$local_env')
             , g_stg_push_return($rc["stg"], '$return_vector')
             );
