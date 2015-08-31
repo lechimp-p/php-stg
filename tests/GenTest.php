@@ -9,6 +9,7 @@ use Lechimp\STG\Gen\GProtectedMethod;
 use Lechimp\STG\Gen\GPublicMethod;
 use Lechimp\STG\Gen\GArgument;
 use Lechimp\STG\Gen\GStatement;
+use Lechimp\STG\Gen\GIfThenElse;
 
 class GenText extends PHPUnit_Framework_TestCase {
     protected function assertCodeEquals($left, $right) {
@@ -136,4 +137,29 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
+    public function test_ifThenElse() {
+        $gen = new GIfThenElse
+            ( "\$a == \$b"
+            , array
+                ( new GStatement("echo 'equal: '")
+                , new GStatement("echo \$b")
+                )
+            , array
+                ( new GStatement("echo 'not equal: '")
+                , new GStatement("echo \$a.\" \".\$b")
+                )
+            );
+        $generated = $gen->render(0);
+        $expected = <<<'PHP'
+if ($a == $b) {
+    echo 'equal: ';
+    echo $b;
+}
+else {
+    echo 'not equal: ';
+    echo $a." ".$b;
+}
+PHP;
+        $this->assertCodeEquals($expected, $generated);
+    }
 }
