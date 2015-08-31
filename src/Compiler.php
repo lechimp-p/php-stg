@@ -187,8 +187,8 @@ class Compiler {
                  "{$i}if(array_key_exists(\"$id\", \$return_vector)) {\n"
             ."    {$i}    return \$return_vector[\"$id\"];\n"
             ."    {$i}}\n"
-            ."    {$i}else if (array_key_exists(null, \$return_vector)) {\n"
-            ."    {$i}    return \$return_vector[null];\n"
+            ."    {$i}else if (array_key_exists(\"\", \$return_vector)) {\n"
+            ."    {$i}    return \$return_vector[\"\"];\n"
             ."    {$i}}\n"
             ."    {$i}else {\n"
             ."    {$i}    throw new \\LogicException(\n"
@@ -407,7 +407,7 @@ function g_multiline_dict($ind, array $array) {
         "array\n$ind    ( ".
         implode("\n$ind    , " , array_map(function($v, $k = null) {
             if (is_null($k) || $k == "") {
-                return "null => $v";
+                return "\"\" => $v";
             }
             if (is_string($k)) {
                 return "\"$k\" => $v";
