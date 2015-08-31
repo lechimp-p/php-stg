@@ -35,19 +35,19 @@ class GIfThenElse extends GStatement {
     public function render($indentation) {
         assert(is_int($indentation));
         $if = $this->if;
-        return $this->cat_and_indent($indentation, array_merge
-            ( array("if ($if) {")
-            , array_map(function(GStatement $stmt) {
-                return $stmt->render(1);
+        return implode("\n", array_merge
+            ( array( $this->indent($indentation, "if ($if) {"))
+            , array_map(function(GStatement $stmt) use ($indentation) {
+                return $stmt->render($indentation + 1);
             }, $this->then)
             , array
-                ( "}"
-                , "else {"
+                ( $this->indent($indentation, "}")
+                , $this->indent($indentation, "else {")
                 )
-            , array_map(function(GStatement $stmt) {
-                return $stmt->render(1);
+            , array_map(function(GStatement $stmt) use ($indentation)  {
+                return $stmt->render($indentation + 1);
             }, $this->else)
-            , array ("}")
+            , array ( $this->indent($indentation, "}") )
             ));
     }
 }

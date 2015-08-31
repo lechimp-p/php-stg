@@ -62,21 +62,21 @@ class GClass extends Gen {
         else {
             $extends = "";
         }
-        return $this->cat_and_indent($indentation, array_merge
+        return implode("\n", array_merge
             ( $namespace_start
-            , array( "class {$this->name} $extends{" )
+            , array( $this->indent($indentation, "class {$this->name} $extends{" ) )
 
             // Properties
-            , array_map(function(GProperty $prop) {
-                return $prop->render(1);
+            , array_map(function(GProperty $prop) use ($indentation) {
+                return $prop->render($indentation + 1);
             }, $this->properties)
 
             // Methods
-            , array_map(function(GMethod $method) {
-                return $method->render(1);
+            , array_map(function(GMethod $method) use ($indentation) {
+                return $method->render($indentation + 1);
             }, $this->methods)
             
-            , array( "}" )
+            , array( $this->indent($indentation, "}") )
             , $namespace_end
             ));
     }

@@ -128,7 +128,7 @@ class Test {
         echo $foo;
     }
     public function get_indentation() {
-        $indentation = "    ";
+        $indentation = "        ";
     }
 }
 

@@ -44,6 +44,6 @@ class GArgument extends Gen {
         else {
             $default = "";
         }
-        return $this->indent($indentation, $type.'$'.$this->name.$default);
+        return $type.'$'.$this->name.$default;
     }
 }

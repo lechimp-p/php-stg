@@ -38,12 +38,12 @@ abstract class GMethod extends Gen {
         $arguments = implode(", ", array_map(function(GArgument $arg) {
             return $arg->render(0);
         }, $this->arguments));
-        return $this->cat_and_indent($indentation, array_merge
-            ( array ( "$qualifier function $name($arguments) {" )
-            , array_map(function(GStatement $stmt) {
-                return $stmt->render(1);
+        return implode("\n", array_merge
+            ( array ( $this->indent($indentation, "$qualifier function $name($arguments) {" ) )
+            , array_map(function(GStatement $stmt) use ($indentation) {
+                return $stmt->render($indentation + 1);
             }, $this->statements)
-            , array ( "}" )
+            , array ( $this->indent($indentation, "}") )
             ));
     } 
 }
