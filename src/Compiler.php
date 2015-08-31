@@ -142,6 +142,9 @@ class Compiler {
         if ($expression instanceof Lang\LetRecBinding) {
             return $this->compile_letrec_binding($rc, $expression);
         }
+        if ($expression instanceof Lang\Literal) {
+            return $this->compile_literal($rc, $expression);
+        }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
 
@@ -160,8 +163,6 @@ class Compiler {
     }
 
     protected function compile_constructor(array $rc, Lang\Constructor $constructor) {
-        $stg = self::STG_VAR_NAME;
-
         $id = $constructor->id();
 
         $args_vector = array_map(function(Lang\Atom $atom) use ($rc) {
@@ -183,6 +184,30 @@ class Compiler {
             ."    {$i}else {\n"
             ."    {$i}    throw new \\LogicException(\n"
             ."    {$i}        \"No matching alternative for constructor '$id'.\"\n"
+            ."    {$i}    );\n"
+            ."    {$i}}\n";
+                })
+            )
+            , array()
+            , array()
+            );
+    }
+
+    protected function compile_literal(array $rc, Lang\Literal $literal) {
+        $value = $literal->value();
+
+        return array(array
+            ( g_stg_pop_return_to($rc["stg"], "return_vector")
+            , g_stmt(function($i) use ($value) { return
+                 "{$i}if(array_key_exists($value, \$return_vector)) {\n"
+            ."    {$i}    return \$return_vector[$value];\n"
+            ."    {$i}}\n"
+            ."    {$i}else if (array_key_exists(null, \$return_vector)) {\n"
+            ."    {$i}    return \$return_vector[null];\n"
+            ."    {$i}}\n"
+            ."    {$i}else {\n"
+            ."    {$i}    throw new \\LogicException(\n"
+            ."    {$i}        \"No matching alternative for literal $value.\"\n"
             ."    {$i}    );\n"
             ."    {$i}}\n";
                 })
