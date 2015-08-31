@@ -87,7 +87,7 @@ class Program7Test extends ProgramTestBase {
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "Program7"); 
-        $this->echo_program($compiled["main.php"]);
+        //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new Program7\TheMachine();
         $this->result = null;
