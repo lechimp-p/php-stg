@@ -105,15 +105,24 @@ class Compiler {
                     ( array
                         ( g_public_method("entry_code", g_stg_args(), array_flatten(array
                             ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
+                            , g_stmt("\$local_env = array()")
+                            
+                            // Get the free variables into the local env. 
                             , array_map(function(Lang\Variable $free_var) {
                                 $var_name = $free_var->name();
-                                return g_stmt("\$_$var_name = \$this->free_variables[\"$var_name\"]");
+                                return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
                             }, $lambda->free_variables())
-                            , array_map(function(Lang\Variable $argument) use ($rc) { return
-                                g_stg_pop_arg_to($rc["stg"], "_".$argument->name());
+
+                            // Get the arguments into the local env.
+                            , array_map(function(Lang\Variable $argument) use ($rc) {
+                                $arg_name = $argument->name();
+                                return g_stg_pop_arg_to($rc["stg"], "local_env[\"$arg_name\"]");
                             }, $lambda->arguments())
+
                             , $compiled_expression
                             )))
+
+                        // Required method for concrete STGClosures.
                         , g_public_method("free_variables_names", array(), array
                             ( g_stmt(function($ind) use ($var_names) { return
                                 "{$ind}return ".g_multiline_array("$ind    ", $var_names).";";
@@ -155,7 +164,7 @@ class Compiler {
                 ( array_map(function($atom) use ($rc) {
                     return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, $atom));
                 }, $application->atoms())
-                , array(g_stg_enter($rc["stg"], "\$_$var_name"))
+                , array(g_stg_enter($rc["stg"], "\$local_env[\"$var_name\"]"))
                 )
             , array()
             , array()
@@ -221,20 +230,26 @@ class Compiler {
         $methods = array();
         $return_vector = array();
 
+        // Return code that needs to be executed for every alternative. It restores
+        // the environment for the alternative.
+        $default_return_code = array
+            ( //g_stg_pop_return_to($rc["stg"], "local_env")
+            );
+
         foreach($case_expression->alternatives() as $alternative) {
             // TODO: Most probably the generation of names for the methods needs
             //       to be changed, as this will name crash on nested case expressions.
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = "alternative_default";
                 $return_vector[null] = g_code_label($method_name);
-                $r_code = array();
+                $r_code = $default_return_code;
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();
                 assert(is_int($value));
                 $method_name = "alternative_$value";
                 $return_vector[$value] = g_code_label($method_name);
-                $r_code = array();
+                $r_code = $default_return_code;
             }
             else if ($alternative instanceof Lang\AlgebraicAlternative) {
                 $id = $alternative->id();
@@ -242,10 +257,11 @@ class Compiler {
                 $return_vector[$id] = g_code_label($method_name);
                 // Pop arguments to constructor and fill them into appropriate variables.
                 $r_code = array_flatten
-                    ( g_stg_pop_return_to($rc["stg"], "arg_vector")
+                    ( $default_return_code
+                    , g_stg_pop_return_to($rc["stg"], "arg_vector")
                     , array_map(function(Lang\Variable $var) {
                         $name = $var->name();
-                        return g_stmt("\$_$name = array_shift(\$arg_vector)");
+                        return g_stmt("\$local_env[\"$name\"] = array_shift(\$arg_vector)");
                     }, $alternative->variables())
                     );
             }
@@ -265,6 +281,8 @@ class Compiler {
         $statements = array
             ( g_stmt(function($ind) use ($return_vector) { return 
                 "$ind\$return_vector = ".g_multiline_dict("$ind    ", $return_vector).";";})
+            //, g_stmt("\$local_env = array()")
+            //, g_stg_push_return($rc["stg"], '$local_env')
             , g_stg_push_return($rc["stg"], '$return_vector')
             );
 
@@ -290,9 +308,9 @@ class Compiler {
                         ( g_stmt("\$free_vars_$name = array()")
                         , array_map(function(Lang\Variable $free_var) use ($name) {
                             $fname = $free_var->name();
-                            return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$_$fname");
+                            return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
                         }, $binding->lambda()->free_variables())
-                        , g_stmt("\$_$name = new $class_name(\$free_vars_$name)")
+                        , g_stmt("\$local_env[\"$name\"] = new $class_name(\$free_vars_$name)")
                         );
                 }, $let_binding->bindings())
                 , $expr_code
@@ -329,7 +347,7 @@ class Compiler {
                             $fname = $free_var->name();
                             return g_stmt("\$free_vars_{$name}[\"$fname\"] = null");
                         }, $binding->lambda()->free_variables())
-                        , g_stmt("\$_$name = new $class_name(\$free_vars_$name)")
+                        , g_stmt("\$local_env[\"$name\"] = new $class_name(\$free_vars_$name)")
                         );
                 }, $letrec_binding->bindings())
 
@@ -338,7 +356,7 @@ class Compiler {
                     $name = $binding->variable()->name();
                     return array_map(function(Lang\Variable $free_var) use ($name) {
                         $fname = $free_var->name();
-                        return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$_$fname");
+                        return g_stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
                     }, $binding->lambda()->free_variables());
                 }, $letrec_binding->bindings()) 
                 , $expr_code
@@ -360,7 +378,7 @@ class Compiler {
         $stg = self::STG_VAR_NAME;
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return "\$_$var_name"; 
+            return "\$local_env[\"$var_name\"]"; 
         }
         if ($atom instanceof Lang\Literal) {
             return $atom->value();
