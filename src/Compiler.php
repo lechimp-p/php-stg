@@ -233,7 +233,7 @@ class Compiler {
         // Return code that needs to be executed for every alternative. It restores
         // the environment for the alternative.
         $default_return_code = array
-            ( //g_stg_pop_return_to($rc["stg"], "local_env")
+            ( g_stg_pop_env_to($rc["stg"], "local_env")
             );
 
         foreach($case_expression->alternatives() as $alternative) {
@@ -281,8 +281,7 @@ class Compiler {
         $statements = array
             ( g_stmt(function($ind) use ($return_vector) { return 
                 "$ind\$return_vector = ".g_multiline_dict("$ind    ", $return_vector).";";})
-            //, g_stmt("\$local_env = array()")
-            //, g_stg_push_return($rc["stg"], '$local_env')
+            , g_stg_push_env($rc["stg"], '$local_env')
             , g_stg_push_return($rc["stg"], '$return_vector')
             );
 
@@ -458,6 +457,14 @@ function g_stg_pop_return_to($stg_name, $to) {
 
 function g_stg_push_return($stg_name, $what) {
     return new Gen\GStatement("\${$stg_name}->push_return($what)");
+}
+
+function g_stg_pop_env_to($stg_name, $to) {
+    return new Gen\GStatement("\${$to} = \${$stg_name}->pop_env()");
+}
+
+function g_stg_push_env($stg_name, $what) {
+    return new Gen\GStatement("\${$stg_name}->push_env($what)");
 }
 
 function g_code_label($method_name) {

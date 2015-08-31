@@ -19,6 +19,11 @@ abstract class STG {
     /**
      * @var \SPLStack
      */
+    protected $env_stack;
+
+    /**
+     * @var \SPLStack
+     */
     protected $update_stack;
 
     /**
@@ -45,6 +50,7 @@ abstract class STG {
         $this->globals = $globals;
         $this->argument_stack = new \SPLStack();
         $this->return_stack = new \SPLStack();
+        $this->env_stack = new \SPLStack();
         $this->update_stack = new \SPLStack();
     }
 
@@ -116,6 +122,26 @@ abstract class STG {
     public function pop_return() {
         assert($this->return_stack->count() > 0);
         return $this->return_stack->pop();
+    }
+
+    /**
+     * Push a environment on the stack.
+     *
+     * @param   array   $continuations
+     * @return  none
+     */
+    public function push_env(array $continuations) {
+        $this->env_stack->push($continuations);
+    }
+
+    /**
+     * Pop a continuation from the return stack.
+     *
+     * @return CodeLabel
+     */
+    public function pop_env() {
+        assert($this->env_stack->count() > 0);
+        return $this->env_stack->pop();
     }
 }
 
