@@ -180,13 +180,13 @@ class Compiler {
 
         return array(array
             ( g_stg_pop_return_to($rc["stg"], "return_vector")
-            , g_stmt(function($ind) use ($args_vector) { return
-                "{$ind}\$args_vector = ".g_multiline_array($ind, $args_vector).";"; })
-            , g_stg_push_return($rc["stg"], '$args_vector')
             , g_if_then_else
                 ( "array_key_exists(\"$id\", \$return_vector)"
                 , array
-                    ( g_stmt("return \$return_vector[\"$id\"]")
+                    ( g_stmt(function($ind) use ($args_vector) { return
+                        "{$ind}\$args_vector = ".g_multiline_array($ind, $args_vector).";"; })
+                    , g_stg_push_return($rc["stg"], '$args_vector')
+                    , g_stmt("return \$return_vector[\"$id\"]")
                     )
                 , array( g_if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
