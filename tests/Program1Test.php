@@ -74,7 +74,8 @@ class Program1Test extends ProgramTestBase {
                                 , new Constructor("A", array())
                                 )
                             , new DefaultAlternative 
-                                ( new Application
+                                ( null
+                                , new Application
                                     ( new Variable("a")
                                     , array()
                                     )
