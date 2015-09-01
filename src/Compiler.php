@@ -24,6 +24,7 @@ class Compiler {
         $rc = array
             ( "ns" => $namespace // Namespace
             , 'stg' => self::STG_VAR_NAME  // variable name for stg
+            , 'index' => 0 // An index to create unique names.
             );
 
         $globals = array();
@@ -32,7 +33,7 @@ class Compiler {
         
         foreach($program->bindings() as $binding) {
             $var_name = $binding->variable()->name();
-            $class_name = ucfirst($var_name)."Closure";
+            $class_name = $this->className($rc, $var_name);
 
             // Closures for global lambdas.
             $classes[] = $this->compile_lambda($rc, $binding->lambda(), $class_name);
@@ -85,7 +86,7 @@ class Compiler {
         }, array_flatten($classes))));
     }
 
-    protected function compile_lambda(array $rc, Lang\Lambda $lambda, $class_name) {
+    protected function compile_lambda(array &$rc, Lang\Lambda $lambda, $class_name) {
         assert(is_string($class_name));
 
         $num_args = count($lambda->arguments());
@@ -114,7 +115,7 @@ class Compiler {
                             }, $lambda->free_variables())
 
                             // Get the arguments into the local env.
-                            , array_map(function(Lang\Variable $argument) use ($rc) {
+                            , array_map(function(Lang\Variable $argument) use (&$rc) {
                                 $arg_name = $argument->name();
                                 return g_stg_pop_arg_to($rc["stg"], "local_env[\"$arg_name\"]");
                             }, $lambda->arguments())
@@ -135,7 +136,7 @@ class Compiler {
             );
     }
 
-    protected function compile_expression(array $rc, Lang\Expression $expression) {
+    protected function compile_expression(array &$rc, Lang\Expression $expression) {
         if ($expression instanceof Lang\Application) {
             return $this->compile_application($rc, $expression);
         }
@@ -157,11 +158,11 @@ class Compiler {
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
 
-    protected function compile_application(array $rc, Lang\Application $application) {
+    protected function compile_application(array &$rc, Lang\Application $application) {
         $var_name = $application->variable()->name();
         return array
             ( array_merge
-                ( array_map(function($atom) use ($rc) {
+                ( array_map(function($atom) use (&$rc) {
                     return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, $atom));
                 }, $application->atoms())
                 , array(g_stg_enter($rc["stg"], "\$local_env[\"$var_name\"]"))
@@ -171,10 +172,10 @@ class Compiler {
             );
     }
 
-    protected function compile_constructor(array $rc, Lang\Constructor $constructor) {
+    protected function compile_constructor(array &$rc, Lang\Constructor $constructor) {
         $id = $constructor->id();
 
-        $args_vector = array_map(function(Lang\Atom $atom) use ($rc) {
+        $args_vector = array_map(function(Lang\Atom $atom) use (&$rc) {
             return $this->compile_atom($rc, $atom);
         }, $constructor->atoms());
 
@@ -206,7 +207,7 @@ class Compiler {
             );
     }
 
-    protected function compile_literal(array $rc, Lang\Literal $literal) {
+    protected function compile_literal(array &$rc, Lang\Literal $literal) {
         $value = $literal->value();
 
         return array(array
@@ -234,7 +235,7 @@ class Compiler {
             );
     }
 
-    protected function compile_case_expression(array $rc, Lang\CaseExpr $case_expression) {
+    protected function compile_case_expression(array &$rc, Lang\CaseExpr $case_expression) {
         $methods = array();
         $return_vector = array();
 
@@ -300,17 +301,22 @@ class Compiler {
             );
     }
 
-    protected function compile_let_binding(array $rc, Lang\LetBinding $let_binding) {
+    protected function compile_let_binding(array &$rc, Lang\LetBinding $let_binding) {
         list($expr_code, $expr_methods, $expr_classes)
             = $this->compile_expression($rc, $let_binding->expression());
+
+        // Cashes fresh class names in the first iteration as they are needed
+        // in the second iteration.
+        $class_names = array();
     
         return array
             ( array_flatten
-                ( array_map( function(Lang\Binding $binding) use ($rc) {
+                ( array_map( function(Lang\Binding $binding) use (&$rc, &$class_names) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
-                    $class_name = $binding->variable()->name()."Closure";
                     $name = $binding->variable()->name();
+                    $class_name = $this->className($rc, $name);
+                    $class_names[] = $class_name;
                     return array_flatten
                         ( g_stmt("\$free_vars_$name = array()")
                         , array_map(function(Lang\Variable $free_var) use ($name) {
@@ -324,10 +330,10 @@ class Compiler {
                 )
             , $expr_methods
             , array_flatten
-                ( array_map(function(Lang\Binding $binding) use ($rc) {
+                ( array_map(function(Lang\Binding $binding) use (&$rc, &$class_names) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
-                    $class_name = $binding->variable()->name()."Closure";
+                    $class_name = array_shift($class_names);
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $let_binding->bindings()) 
                 , $expr_classes
@@ -335,19 +341,24 @@ class Compiler {
             );
     }
 
-    protected function compile_letrec_binding(array $rc, Lang\LetRecBinding $letrec_binding) {
+    protected function compile_letrec_binding(array &$rc, Lang\LetRecBinding $letrec_binding) {
         list($expr_code, $expr_methods, $expr_classes)
             = $this->compile_expression($rc, $letrec_binding->expression());
+
+        // Cashes fresh class names in the first iteration as they are needed
+        // in the third iteration.
+        $class_names = array();
     
         return array
             ( array_flatten
 
                 // First create the closures with stubs for free variables
-                ( array_map( function(Lang\Binding $binding) {
+                ( array_map( function(Lang\Binding $binding) use (&$rc, &$class_names) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
-                    $class_name = $binding->variable()->name()."Closure";
                     $name = $binding->variable()->name();
+                    $class_name = $this->className($rc, $name);
+                    $class_names[] = $class_name;
                     return array_flatten
                         ( g_stmt("\$free_vars_$name = array()")
                         , array_map(function(Lang\Variable $free_var) use ($name) {
@@ -370,10 +381,10 @@ class Compiler {
                 )
             , $expr_methods
             , array_flatten
-                ( array_map(function(Lang\Binding $binding) use ($rc) {
+                ( array_map(function(Lang\Binding $binding) use (&$rc, &$class_names) {
                     // TODO: I need to introduce a correct naming scheme to avoid
                     //       name clashes.
-                    $class_name = $binding->variable()->name()."Closure";
+                    $class_name = array_shift($class_names);
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $letrec_binding->bindings()) 
                 , $expr_classes
@@ -381,7 +392,7 @@ class Compiler {
             );
     }
 
-    protected function compile_atom(array $rc, Lang\Atom $atom) {
+    protected function compile_atom(array &$rc, Lang\Atom $atom) {
         $stg = self::STG_VAR_NAME;
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
@@ -391,6 +402,13 @@ class Compiler {
             return $atom->value();
         }
         throw new \LogicException("Unknown atom '$atom'.");
+    }
+
+    protected function className(array &$rc, $name) {
+        assert(is_string($name));
+        $i = $rc["index"];
+        $rc["index"]++;
+        return ucfirst($name)."_{$i}_Closure";
     }
 } 
 
