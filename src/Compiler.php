@@ -192,7 +192,8 @@ class Compiler {
                 , array( g_if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
                     , array
-                        ( g_stmt("return \$return_vector[\"\"]")
+                        ( g_stg_push_return($rc["stg"], '$this')
+                        , g_stmt("return \$return_vector[\"\"]")
                         )
                     , array
                         ( g_stmt("throw new \\LogicException(".
@@ -220,7 +221,8 @@ class Compiler {
                 , array ( g_if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
                     , array
-                        ( g_stmt("return \$return_vector[\"\"]")
+                        ( g_stg_push_return($rc["stg"], "$value")
+                        , g_stmt("return \$return_vector[\"\"]")
                         )
                     , array
                         ( g_stmt("throw new \\LogicException(".
@@ -251,7 +253,22 @@ class Compiler {
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = $this->methodName($rc, "alternative_default");
                 $return_vector[null] = g_code_label($method_name);
-                $r_code = $default_return_code;
+                $bind_to = $alternative->variable();
+                if ($bind_to === null) {
+                    $r_code = array_flatten
+                        ( $default_return_code
+                        // We won't need the value from the constructor.
+                        , g_stg_pop_return_to($rc["stg"], "null")
+                        );
+                }
+                else {
+                    $var_name = $bind_to->name();
+                    $r_code = array_flatten
+                        ( $default_return_code
+                        // Save value from constructor in local env.
+                        , g_stg_pop_return_to($rc["stg"], "local_env[\"$var_name\"]")
+                        );
+                }
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();

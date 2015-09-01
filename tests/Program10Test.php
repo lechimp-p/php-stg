@@ -46,7 +46,7 @@ class Program10Test extends ProgramTestBase {
                 , new Lambda
                     ( array()
                     , array()
-                    , new Constructor("C", array())
+                    , new Constructor("A", array())
                     , true
                     )
                 )

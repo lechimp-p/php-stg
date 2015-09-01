@@ -105,13 +105,13 @@ abstract class STG {
     }
 
     /**
-     * Push a continuation on the return stack.
+     * Push a continuation or argumens on the return stack.
      *
-     * @param   array   $continuations
+     * @param   mixed   $val
      * @return  none
      */
-    public function push_return(array $continuations) {
-        $this->return_stack->push($continuations);
+    public function push_return($val) {
+        $this->return_stack->push($val);
     }
 
     /**
