@@ -249,20 +249,20 @@ class Compiler {
             // TODO: Most probably the generation of names for the methods needs
             //       to be changed, as this will name crash on nested case expressions.
             if ($alternative instanceof Lang\DefaultAlternative) {
-                $method_name = "alternative_default";
+                $method_name = $this->methodName($rc, "alternative_default");
                 $return_vector[null] = g_code_label($method_name);
                 $r_code = $default_return_code;
             }
             else if ($alternative instanceof Lang\PrimitiveAlternative) {
                 $value = $alternative->literal()->value();
                 assert(is_int($value));
-                $method_name = "alternative_$value";
+                $method_name = $this->methodName($rc, "alternative_$value");
                 $return_vector[$value] = g_code_label($method_name);
                 $r_code = $default_return_code;
             }
             else if ($alternative instanceof Lang\AlgebraicAlternative) {
                 $id = $alternative->id();
-                $method_name = "alternative_$id";
+                $method_name = $this->methodName($rc, "alternative_$id");
                 $return_vector[$id] = g_code_label($method_name);
                 // Pop arguments to constructor and fill them into appropriate variables.
                 $r_code = array_flatten
@@ -409,6 +409,13 @@ class Compiler {
         $i = $rc["index"];
         $rc["index"]++;
         return ucfirst($name)."_{$i}_Closure";
+    }
+
+    protected function methodName(array &$rc, $name) {
+        assert(is_string($name));
+        $i = $rc["index"];
+        $rc["index"]++;
+        return $name."_$i";
     }
 } 
 
