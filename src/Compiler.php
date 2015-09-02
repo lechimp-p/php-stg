@@ -214,29 +214,36 @@ class Compiler {
     protected function compile_literal(array &$rc, Lang\Literal $literal) {
         $value = $literal->value();
 
-        return array(array
+        return array(array_flatten
+            ( g_stmt("\$primitive_value = $value")
+            , $this->compile_primitive_value_jump($rc)
+            )
+            , array()
+            , array()
+            );
+    }
+
+    protected function compile_primitive_value_jump(array &$rc) {
+        return array
             ( g_stg_pop_return_to($rc["stg"], "return_vector")
             , g_if_then_else
-                ( "array_key_exists($value, \$return_vector)"
+                ( "array_key_exists(\$primitive_value, \$return_vector)"
                 , array
-                    ( g_stmt("return \$return_vector[$value]")
+                    ( g_stmt("return \$return_vector[\$primitive_value]")
                     )
                 , array ( g_if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
                     , array
-                        ( g_stg_push_return($rc["stg"], "$value")
+                        ( g_stg_push_return($rc["stg"], "\$primitive_value")
                         , g_stmt("return \$return_vector[\"\"]")
                         )
                     , array
                         ( g_stmt("throw new \\LogicException(".
-                                    "\"No matching alternative for literal $value\"".
+                                    "\"No matching alternative for '\$primitive_value'\"".
                                  ")")
                         )
                     ))
                 )
-            )
-            , array()
-            , array()
             );
     }
 
