@@ -16,7 +16,7 @@ use Lechimp\STG\CodeLabel;
 
 require_once(__DIR__."/ProgramTestBase.php");
 
-class Program9Test extends ProgramTestBase {
+class NestedCaseTest extends ProgramTestBase {
     public function test_program() {
         /**
          * Represents the following program
@@ -122,10 +122,10 @@ class Program9Test extends ProgramTestBase {
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "Program9"); 
+        $compiled = $compiler->compile($program, "TheMachine", "NestedCaseTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new Program9\TheMachine();
+        $machine = new NestedCaseTest\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result"  => new CodeLabel($this, "returns_result")

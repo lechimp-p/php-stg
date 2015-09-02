@@ -16,7 +16,7 @@ use Lechimp\STG\CodeLabel;
 
 require_once(__DIR__."/ProgramTestBase.php");
 
-class Program4Test extends ProgramTestBase {
+class LetWithFreeVariablesTest extends ProgramTestBase {
     public function test_program() {
         /**
          * Represents the following program
@@ -111,10 +111,10 @@ class Program4Test extends ProgramTestBase {
  
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "Program4"); 
+        $compiled = $compiler->compile($program, "TheMachine", "LetWithFreeVariablesTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new Program4\TheMachine();
+        $machine = new LetWithFreeVariablesTest\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result"  => new CodeLabel($this, "returns_result")

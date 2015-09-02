@@ -15,7 +15,7 @@ use Lechimp\STG\CodeLabel;
 
 require_once(__DIR__."/ProgramTestBase.php");
 
-class Program2Test extends ProgramTestBase {
+class ConstructorWithValuesTest extends ProgramTestBase {
     public function test_program() {
         /**
          * Represents the following program
@@ -87,10 +87,10 @@ class Program2Test extends ProgramTestBase {
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "Program2"); 
+        $compiled = $compiler->compile($program, "TheMachine", "ConstructorWithValuesTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new Program2\TheMachine();
+        $machine = new ConstructorWithValuesTest\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result"  => new CodeLabel($this, "returns_result")
