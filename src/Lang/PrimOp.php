@@ -17,10 +17,21 @@ class PrimOp extends Expression {
     private $atoms;
 
     static private $op_ids = array
-        ( "+"
-        , "-"
-        , "*"
-        , "/"
+        ( "IntAddOp"   
+        , "IntSubOp"     
+        , "IntMulOp"
+//        , "IntMulMayOfloOp"
+//        , "IntQuotOp"
+//        , "IntRemOp"
+//        , "IntNegOp"
+//        , "IntAddCOp"
+//        , "IntSubCOp"
+//        , "IntGtOp"
+//        , "IntGeOp"
+//        , "IntEqOp"
+//        , "IntNeOp"
+//        , "IntLtOp"
+//        , "IntLeOp"
         ); 
 
     public function __construct($id, array $atoms) {
