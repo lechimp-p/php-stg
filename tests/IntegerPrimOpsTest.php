@@ -8,6 +8,9 @@ use Lechimp\STG\Lang\PrimOp;
 use Lechimp\STG\Lang\Literal;
 use Lechimp\STG\Lang\LetBinding;
 use Lechimp\STG\Lang\Constructor;
+use Lechimp\STG\Lang\CaseExpr;
+use Lechimp\STG\Lang\DefaultAlternative;
+use Lechimp\STG\Lang\Application;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -19,7 +22,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          * Represents the following program
          * main = 
          *     let v = \{} \u \{} -> 42# +# 23#
-         *     in \{} \u \{} -> Result v
+         *     in  case v of
+         *             a -> Result a
          */
         $program = new Program(array
             ( new Binding
@@ -45,9 +49,20 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                                     )  
                                 )
                             )
-                        , new Constructor
-                            ( "Result"
-                            , array (new Variable("v"))
+                        , new CaseExpr
+                            ( new Application
+                                ( new Variable("v")
+                                , array()
+                                )
+                            , array
+                                ( new DefaultAlternative
+                                    ( new Variable("a")
+                                    , new Constructor
+                                        ( "Result"
+                                        , array (new Variable("a"))
+                                        )
+                                    )
+                                )
                             )
                         )
                     , true
@@ -72,7 +87,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          * Represents the following program
          * main = 
          *     let v = \{} \u \{} -> 42# -# 23#
-         *     in \{} \u \{} -> Result v
+         *     in  case v of
+         *             a -> Result a
          */
         $program = new Program(array
             ( new Binding
@@ -98,9 +114,20 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                                     )  
                                 )
                             )
-                        , new Constructor
-                            ( "Result"
-                            , array (new Variable("v"))
+                        , new CaseExpr
+                            ( new Application
+                                ( new Variable("v")
+                                , array()
+                                )
+                            , array
+                                ( new DefaultAlternative
+                                    ( new Variable("a")
+                                    , new Constructor
+                                        ( "Result"
+                                        , array (new Variable("a"))
+                                        )
+                                    )
+                                )
                             )
                         )
                     , true
@@ -125,7 +152,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          * Represents the following program
          * main = 
          *     let v = \{} \u \{} -> 42# *# 23#
-         *     in \{} \u \{} -> Result v
+         *     in  case v of
+         *             a -> Result a
          */
         $program = new Program(array
             ( new Binding
@@ -151,9 +179,20 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                                     )  
                                 )
                             )
-                        , new Constructor
-                            ( "Result"
-                            , array (new Variable("v"))
+                        , new CaseExpr
+                            ( new Application
+                                ( new Variable("v")
+                                , array()
+                                )
+                            , array
+                                ( new DefaultAlternative
+                                    ( new Variable("a")
+                                    , new Constructor
+                                        ( "Result"
+                                        , array (new Variable("a"))
+                                        )
+                                    )
+                                )
                             )
                         )
                     , true
