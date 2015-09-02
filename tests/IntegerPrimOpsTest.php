@@ -55,10 +55,10 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheAddMachine", "IntegerPrimOpsTest"); 
+        $compiled = $compiler->compile($program, "TheMachine", "IntegerPrimOpsTestAdd"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new IntegerPrimOpsTest\TheAddMachine();
+        $machine = new IntegerPrimOpsTestAdd\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result" => new CodeLabel($this, "returns_result")
@@ -108,10 +108,10 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheSubMachine", "IntegerPrimOpsTest"); 
+        $compiled = $compiler->compile($program, "TheMachine", "IntegerPrimOpsTestSub"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new IntegerPrimOpsTest\TheSubMachine();
+        $machine = new IntegerPrimOpsTestSub\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result" => new CodeLabel($this, "returns_result")
@@ -161,10 +161,10 @@ class IntegerPrimOpsTest extends ProgramTestBase {
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMulMachine", "IntegerPrimOpsTest"); 
+        $compiled = $compiler->compile($program, "TheMachine", "IntegerPrimOpsTestMul"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new IntegerPrimOpsTest\TheMulMachine();
+        $machine = new IntegerPrimOpsTestMul\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result" => new CodeLabel($this, "returns_result")

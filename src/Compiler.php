@@ -436,6 +436,8 @@ class Compiler {
     // PRIM OPS
     //---------------------
 
+    // TODO: STG Paper mentions short circuit possibility.
+
     protected function compile_prim_op(array &$rc, Lang\PrimOp $prim_op) {
         $id = $prim_op->id();
         $method_name = "compile_prim_op_$id";
@@ -443,15 +445,48 @@ class Compiler {
     }
 
     protected function compile_prim_op_IntAddOp(array &$rc, array $atoms) {
-        
+        assert(count($atoms) == 2);
+        list($l, $r) = $atoms;
+        $left = $this->compile_atom($rc, $l);
+        $right = $this->compile_atom($rc, $r);
+        return array
+            ( array_flatten
+                ( g_stmt("\$primitive_value = $left + $right")
+                , $this->compile_primitive_value_jump($rc)
+                )
+            , array()
+            , array()
+            );
     }
 
     protected function compile_prim_op_IntSubOp(array &$rc, array $atoms) {
-        
+         assert(count($atoms) == 2);
+        list($l, $r) = $atoms;
+        $left = $this->compile_atom($rc, $l);
+        $right = $this->compile_atom($rc, $r);
+        return array
+            ( array_flatten
+                ( g_stmt("\$primitive_value = $left - $right")
+                , $this->compile_primitive_value_jump($rc)
+                )
+            , array()
+            , array()
+            );       
     }
 
     protected function compile_prim_op_IntMulOp(array &$rc, array $atoms) {
-        
+        assert(count($atoms) == 2);
+        list($l, $r) = $atoms;
+        $left = $this->compile_atom($rc, $l);
+        $right = $this->compile_atom($rc, $r);
+        return array
+            ( array_flatten
+                ( g_stmt("\$primitive_value = $left * $right")
+                , $this->compile_primitive_value_jump($rc)
+                )
+            , array()
+            , array()
+            );      
     }
 
 /* for copy:
