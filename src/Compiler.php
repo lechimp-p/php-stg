@@ -435,21 +435,21 @@ class Compiler {
     // PRIM OPS
     //---------------------
 
-    protected function compile_prim_op(array $rc, Lang\PrimOp $prim_op) {
+    protected function compile_prim_op(array &$rc, Lang\PrimOp $prim_op) {
         $id = $prim_op->id();
         $method_name = "compile_prim_op_$id";
         return $this->$method_name($rc, $prim_op->atoms());
     }
 
-    protected function compile_prim_op_IntAddOp(array $rc, array $atoms) {
+    protected function compile_prim_op_IntAddOp(array &$rc, array $atoms) {
         
     }
 
-    protected function compile_prim_op_IntSubOp(array $rc, array $atoms) {
+    protected function compile_prim_op_IntSubOp(array &$rc, array $atoms) {
         
     }
 
-    protected function compile_prim_op_IntMulOp(array $rc, array $atoms) {
+    protected function compile_prim_op_IntMulOp(array &$rc, array $atoms) {
         
     }
 
