@@ -39,6 +39,7 @@ class PrimOp extends Expression {
         $this->atoms = array_map(function (Atom $atom) {
             return $atom;
         }, $atoms);
+        $this->id = $id;
     }
 
     public function id() {
