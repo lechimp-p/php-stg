@@ -261,7 +261,7 @@ class Compiler {
                     $r_code = array_flatten
                         ( $default_return_code
                         // We won't need the value from the constructor.
-                        , g_stg_pop_return_to($rc["stg"], "null")
+                        , g_stg_pop_return($rc["stg"])
                         );
                 }
                 else {
@@ -538,6 +538,10 @@ function g_stg_enter($stg_name, $where) {
 
 function g_stg_global_var($stg_name, $var_name) {
     return "\${$stg_name}->global_var(\"$var_name\")";
+}
+
+function g_stg_pop_return($stg_name) {
+    return new Gen\GStatement("\${$stg_name}->pop_return()");
 }
 
 function g_stg_pop_return_to($stg_name, $to) {
