@@ -214,10 +214,11 @@ class Compiler {
     protected function compile_literal(array &$rc, Lang\Literal $literal) {
         $value = $literal->value();
 
-        return array(array_flatten
-            ( g_stmt("\$primitive_value = $value")
-            , $this->compile_primitive_value_jump($rc)
-            )
+        return array    
+            ( array_flatten
+                ( g_stmt("\$primitive_value = $value")
+                , $this->compile_primitive_value_jump($rc)
+                )
             , array()
             , array()
             );
