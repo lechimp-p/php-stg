@@ -155,6 +155,9 @@ class Compiler {
         if ($expression instanceof Lang\Literal) {
             return $this->compile_literal($rc, $expression);
         }
+        if ($expression instanceof Lang\PrimOp) {
+            return $this->compile_prim_op($rc, $expression);
+        }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
 
@@ -420,6 +423,38 @@ class Compiler {
         }
         throw new \LogicException("Unknown atom '$atom'.");
     }
+
+    //---------------------
+    // PRIM OPS
+    //---------------------
+
+    protected function compile_prim_op(array $rc, Lang\PrimOp $prim_op) {
+        $id = $prim_op->id();
+        $method_name = "compile_prim_op_$id";
+        return $this->$method_name($rc, $prim_op->atoms());
+    }
+
+    protected function compile_prim_op_IntAddOp(array $rc, array $atoms) {
+        
+    }
+
+    protected function compile_prim_op_IntSubOp(array $rc, array $atoms) {
+        
+    }
+
+    protected function compile_prim_op_IntMulOp(array $rc, array $atoms) {
+        
+    }
+
+/* for copy:
+    protected function compile_prim_op_IntMulOp(array $rc, array $atoms) {
+        
+    }
+*/
+
+    //---------------------
+    // HELPERS
+    //---------------------
 
     protected function className(array &$rc, $name) {
         assert(is_string($name));
