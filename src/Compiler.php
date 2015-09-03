@@ -110,7 +110,6 @@ class Compiler {
     protected function compile_lambda(array &$rc, Lang\Lambda $lambda, $class_name) {
         assert(is_string($class_name));
 
-        $num_args = count($lambda->arguments());
         $var_names = array_map(function(Lang\Variable $var) {
             return '"'.$var->name().'"';
         }, $lambda->free_variables());
@@ -123,37 +122,44 @@ class Compiler {
                 , array
                     (
                     )
-                , array_merge
-                    ( array
-                        ( g_public_method("entry_code", g_stg_args(), array_flatten(array
-                            ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
-                            , g_stmt("\$local_env = array()")
-                            
-                            // Get the free variables into the local env. 
-                            , array_map(function(Lang\Variable $free_var) {
-                                $var_name = $free_var->name();
-                                return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
-                            }, $lambda->free_variables())
-
-                            // Get the arguments into the local env.
-                            , array_map(function(Lang\Variable $argument) use (&$rc) {
-                                $arg_name = $argument->name();
-                                return g_stg_pop_arg_to($rc["stg"], "local_env[\"$arg_name\"]");
-                            }, $lambda->arguments())
-
+                , array_flatten
+                    ( g_public_method("entry_code", g_stg_args()
+                         , array_merge
+                            ( $this->compile_lambda_entry_code($rc, $lambda)
                             , $compiled_expression
-                            )))
+                            )
+                         )
 
-                        // Required method for concrete STGClosures.
-                        , g_public_method("free_variables_names", array(), array
-                            ( g_stmt(function($ind) use ($var_names) { return
-                                "{$ind}return ".g_multiline_array($ind, $var_names).";";
-                            })))
-                        )
+                    // Required method for concrete STGClosures.
+                    , g_public_method("free_variables_names", array(), array
+                        ( g_stmt(function($ind) use ($var_names) { return
+                            "{$ind}return ".g_multiline_array($ind, $var_names).";";
+                        })))
                     , $additional_methods
                     )
-                , "\\Lechimp\\STG\\STGClosure")
+                , "\\Lechimp\\STG\\STGClosure"
+                )
             , $additional_classes
+            );
+    }
+
+    protected function compile_lambda_entry_code(array &$rc, Lang\Lambda $lambda) {
+        $num_args = count($lambda->arguments());
+        return array_flatten
+            ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
+            , g_stmt("\$local_env = array()")
+
+            // Get the free variables into the local env.
+            , array_map(function(Lang\Variable $free_var) {
+                $var_name = $free_var->name();
+                return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
+            }, $lambda->free_variables())
+
+            // Get the arguments into the local env.
+            , array_map(function(Lang\Variable $argument) use (&$rc) {
+                $arg_name = $argument->name();
+                return g_stg_pop_arg_to($rc["stg"], "local_env[\"$arg_name\"]");
+            }, $lambda->arguments())
             );
     }
 
