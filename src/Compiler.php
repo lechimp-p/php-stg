@@ -297,63 +297,8 @@ class Compiler {
         $methods = array();
         $return_vector = array();
 
-        // Return code that needs to be executed for every alternative. It restores
-        // the environment for the alternative.
-        $default_return_code = array
-            ( g_stg_pop_env_to($rc["stg"], "local_env")
-            );
 
-        foreach($case_expression->alternatives() as $alternative) {
-            if ($alternative instanceof Lang\DefaultAlternative) {
-                $method_name = $this->methodName($rc, "alternative_default");
-                $return_vector[null] = g_code_label($method_name);
-                $bind_to = $alternative->variable();
-                if ($bind_to === null) {
-                    $r_code = array_flatten
-                        ( $default_return_code
-                        // We won't need the value from the constructor.
-                        , g_stg_pop_return($rc["stg"])
-                        );
-                }
-                else {
-                    $var_name = $bind_to->name();
-                    $r_code = array_flatten
-                        ( $default_return_code
-                        // Save value from constructor in local env.
-                        , g_stg_pop_return_to($rc["stg"], "local_env[\"$var_name\"]")
-                        );
-                }
-            }
-            else if ($alternative instanceof Lang\PrimitiveAlternative) {
-                $value = $alternative->literal()->value();
-                assert(is_int($value));
-                $method_name = $this->methodName($rc, "alternative_$value");
-                $return_vector[$value] = g_code_label($method_name);
-                $r_code = $default_return_code;
-            }
-            else if ($alternative instanceof Lang\AlgebraicAlternative) {
-                $id = $alternative->id();
-                $method_name = $this->methodName($rc, "alternative_$id");
-                $return_vector[$id] = g_code_label($method_name);
-                // Pop arguments to constructor and fill them into appropriate variables.
-                $r_code = array_flatten
-                    ( $default_return_code
-                    , g_stg_pop_return_to($rc["stg"], "arg_vector")
-                    , array_map(function(Lang\Variable $var) {
-                        $name = $var->name();
-                        return g_stmt("\$local_env[\"$name\"] = array_shift(\$arg_vector)");
-                    }, $alternative->variables())
-                    );
-            }
-            else {
-                throw new \LogicException("Unknown alternative class ".get_class($alternative));
-            }
-
-            list($m_code, $sub_methods)
-                = $this->compile_expression($rc, $alternative->expression());
-            $methods[] = g_public_method($method_name, g_stg_args(), array_merge($r_code, $m_code));
-            $methods = array_merge($methods, $sub_methods);
-        }
+        $this->compile_alternatives($rc, $case_expression->alternatives(), $return_vector, $methods);
 
         list($sub_statements, $sub_methods)
             = $this->compile_expression($rc, $case_expression->expression());
@@ -361,7 +306,7 @@ class Compiler {
         $statements = array
             ( g_stmt(function($ind) use ($return_vector) { return 
                 "$ind\$return_vector = ".g_multiline_dict($ind, $return_vector).";";})
-            , g_stg_push_env($rc["stg"], '$local_env')
+            , g_stg_push_local_env($rc["stg"])
             , g_stg_push_return($rc["stg"], '$return_vector')
             );
 
@@ -370,6 +315,91 @@ class Compiler {
             , array_merge($methods, $sub_methods)
             , array()
             );
+    }
+
+    protected function compile_alternatives(array &$rc, array $alternatives, array &$return_vector, array &$methods) {
+        foreach($alternatives as $alternative) {
+            $this->compile_alternative($rc, $alternative, $return_vector, $methods);
+        }
+    } 
+    
+    protected function compile_alternative(array &$rc, Lang\Alternative $alternative, array &$return_vector, array &$methods) {
+        if ($alternative instanceof Lang\DefaultAlternative) {
+            list($r_code, $method_name)
+                 = $this->compile_alternative_default($rc, $alternative, $return_vector, $methods);
+        }
+        else if ($alternative instanceof Lang\PrimitiveAlternative) {
+            list($r_code, $method_name)
+                = $this->compile_alternative_primitive($rc, $alternative, $return_vector, $methods);
+        }
+        else if ($alternative instanceof Lang\AlgebraicAlternative) {
+            list($r_code, $method_name)
+                = $this->compile_alternative_algebraic($rc, $alternative, $return_vector, $methods);
+        }
+        else {
+            throw new \LogicException("Unknown alternative class ".get_class($alternative));
+        }
+
+        list($m_code, $sub_methods)
+            = $this->compile_expression($rc, $alternative->expression());
+        $methods[] = g_public_method($method_name, g_stg_args(), array_merge($r_code, $m_code));
+        $methods = array_merge($methods, $sub_methods);
+    }
+
+    // Return code that needs to be executed for every alternative. It restores
+    // the environment for the alternative.
+    protected function compile_alternative_common_return_code(array &$rc) {
+        return array
+            ( g_stg_pop_local_env($rc["stg"])
+            );
+    }
+
+    protected function compile_alternative_default(array &$rc, Lang\DefaultAlternative $alternative, array &$return_vector, array &$methods) {
+        $method_name = $this->methodName($rc, "alternative_default");
+        $return_vector[null] = g_code_label($method_name);
+        $bind_to = $alternative->variable();
+        if ($bind_to === null) {
+            $r_code = array_flatten
+                ( $this->compile_alternative_common_return_code($rc)
+                // We won't need the value from the constructor.
+                , g_stg_pop_return($rc["stg"])
+                );
+        }
+        else {
+            $var_name = $bind_to->name();
+            $r_code = array_flatten
+                ( $this->compile_alternative_common_return_code($rc)
+                // Save value from constructor in local env.
+                , g_stg_pop_return_to_local_env($rc["stg"],$var_name)
+                );
+        }
+        return array($r_code, $method_name);
+    }
+
+
+    protected function compile_alternative_primitive(array &$rc, Lang\PrimitiveAlternative $alternative, array &$return_vector, array &$methods) {
+        $value = $alternative->literal()->value();
+        assert(is_int($value));
+        $method_name = $this->methodName($rc, "alternative_$value");
+        $return_vector[$value] = g_code_label($method_name);
+        $r_code = $this->compile_alternative_common_return_code($rc);
+        return array($r_code, $method_name);
+    }
+
+    protected function compile_alternative_algebraic(array &$rc, Lang\AlgebraicAlternative $alternative, array &$return_vector, array &$methods) {
+        $id = $alternative->id();
+        $method_name = $this->methodName($rc, "alternative_$id");
+        $return_vector[$id] = g_code_label($method_name);
+        // Pop arguments to constructor and fill them into appropriate variables.
+        $r_code = array_flatten
+            ( $this->compile_alternative_common_return_code($rc)
+            , g_stg_pop_return_to($rc["stg"], "arg_vector")
+            , array_map(function(Lang\Variable $var) {
+                $name = $var->name();
+                return g_stmt("\$local_env[\"$name\"] = array_shift(\$arg_vector)");
+            }, $alternative->variables())
+            );
+        return array($r_code, $method_name);
     }
 
     //---------------------
@@ -618,6 +648,14 @@ function g_init_local_env() {
     return g_stmt("\$local_env = array()");
 }
 
+function g_stg_pop_local_env($stg_name) {
+    return g_stg_pop_env_to($stg_name, "local_env");
+}
+
+function g_stg_push_local_env($stg_name) {
+    return g_stg_push_env($stg_name, '$local_env');
+}
+
 function g_free_var_to_local_env($var_name) {
     return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
 }
@@ -653,6 +691,10 @@ function g_stg_pop_return($stg_name) {
 
 function g_stg_pop_return_to($stg_name, $to) {
     return new Gen\GStatement("\${$to} = \${$stg_name}->pop_return()");
+}
+
+function g_stg_pop_return_to_local_env($stg_name, $var_name) {
+    return g_stg_pop_return_to($stg_name, "local_env[\"$var_name\"]");
 }
 
 function g_stg_push_return($stg_name, $what) {
