@@ -63,13 +63,14 @@ class Compiler {
             , array() // no props
             , array
                 ( g_public_method( "__construct", array()
-                                 , $this->compile_machine_construct_stmts($rc, $bindings, $globals))
+                    , $this->compile_machine_construct($rc, $bindings, $globals)
+                    )
                 )
             , "\\Lechimp\\STG\\STG"
         );
     }
 
-    protected function compile_machine_construct_stmts(array &$rc, array $bindings, array $globals) {
+    protected function compile_machine_construct(array &$rc, array $bindings, array $globals) {
         return array_flatten
 
             // Create arrays for the free variables of the global closures.
