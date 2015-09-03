@@ -197,11 +197,11 @@ class Compiler {
     protected function compile_application(array &$rc, Lang\Application $application) {
         $var_name = $application->variable()->name();
         return array
-            ( array_merge
+            ( array_flatten
                 ( array_map(function($atom) use (&$rc) {
                     return g_stg_push_arg($rc["stg"], $this->compile_atom($rc, $atom));
                 }, $application->atoms())
-                , array(g_stg_enter($rc["stg"], "\$local_env[\"$var_name\"]"))
+                , g_stg_enter_local_env($rc["stg"], $var_name)
                 )
             , array()
             , array()
@@ -637,6 +637,11 @@ function g_stg_push_arg($stg_name, $what) {
 function g_stg_enter($stg_name, $where) {
     return new Gen\GStatement("return \${$stg_name}->enter($where)");
 }
+
+function g_stg_enter_local_env($stg_name, $var_name) {
+    return g_stg_enter($stg_name, "\$local_env[\"$var_name\"]");
+}
+
 
 function g_stg_global_var($stg_name, $var_name) {
     return "\${$stg_name}->global_var(\"$var_name\")";
