@@ -28,19 +28,9 @@ class Compiler {
             );
 
         $globals = array();
-
         $classes = array(); 
-        
-        foreach($program->bindings() as $binding) {
-            $var_name = $binding->variable()->name();
-            $class_name = $this->className($rc, $var_name);
 
-            // Closures for global lambdas.
-            $classes[] = $this->compile_lambda($rc, $binding->lambda(), $class_name);
-
-            // Instantiation of globals for STG class.
-            $globals[$var_name] = "new $class_name(\$$var_name)";
-        }
+        $this->compile_globals($rc, $program->bindings(), $globals, $classes);
         
         // Class for the final stg machine
         $classes[] = g_class( $rc["ns"], $stg_class_name
@@ -84,6 +74,19 @@ class Compiler {
         return array("main.php" => implode("\n\n", array_map(function(Gen\GClass $cl) {
             return $cl->render(0);
         }, array_flatten($classes))));
+    }
+
+    protected function compile_globals(array &$rc, array $bindings, array &$globals, array &$classes) {
+        foreach($bindings as $binding) {
+            $var_name = $binding->variable()->name();
+            $class_name = $this->className($rc, $var_name);
+
+            // Closures for global lambdas.
+            $classes[] = $this->compile_lambda($rc, $binding->lambda(), $class_name);
+
+            // Instantiation of globals for STG class.
+            $globals[$var_name] = "new $class_name(\$$var_name)";
+        }
     }
 
     protected function compile_lambda(array &$rc, Lang\Lambda $lambda, $class_name) {
