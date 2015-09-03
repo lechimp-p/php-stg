@@ -33,42 +33,7 @@ class Compiler {
         $this->compile_globals($rc, $program->bindings(), $globals, $classes);
         
         // Class for the final stg machine
-        $classes[] = g_class( $rc["ns"], $stg_class_name
-            , array() // no props
-            , array
-                ( g_public_method( "__construct", array(), array_flatten
-
-                    // Create arrays for the free variables of the global closures.
-                    ( array_map(function(Lang\Binding $binding) {
-                        $closure_name = $binding->variable()->name();
-                        return array
-                            ( array(g_stmt("\$$closure_name = array()"))
-                            , array_map(function(Lang\Variable $free_var) use ($closure_name) {
-                                $var_name = $free_var->name();
-                                return g_stmt("\${$closure_name}[\"$var_name\"] = null");
-                            }, $binding->lambda()->free_variables()));
-                    }, $program->bindings())
-
-                    // Create the array containing the globals.
-                    , g_stmt(function($ind) use ($globals) { return
-                        "{$ind}\$globals = ".g_multiline_dict($ind, $globals).";";})
-
-                    // Fill the previously generated arrays with contents from globals.
-                    , array_map(function(Lang\Binding $binding) {
-                        $closure_name = $binding->variable()->name();
-                        return array_map(function(Lang\Variable $free_var) use ($closure_name) {
-                            $var_name = $free_var->name();
-                            return g_stmt("\${$closure_name}[\"$var_name\"] = \$globals[\"$var_name\"]");
-                        }, $binding->lambda()->free_variables());
-                    }, $program->bindings())
-
-                    // Use parents constructor.
-                    , g_stmt(function($ind) use ($globals) { return
-                        "{$ind}parent::__construct(\$globals);"; })
-                    )
-                ))
-            , "\\Lechimp\\STG\\STG"
-        );
+        $classes[] = $this->compile_machine($rc, $stg_class_name, $program->bindings(), $globals);
 
         // Render all classes to a single file.
         return array("main.php" => implode("\n\n", array_map(function(Gen\GClass $cl) {
@@ -87,6 +52,45 @@ class Compiler {
             // Instantiation of globals for STG class.
             $globals[$var_name] = "new $class_name(\$$var_name)";
         }
+    }
+
+    protected function compile_machine(array &$rc, $stg_class_name, array $bindings, array $globals) {
+        return g_class( $rc["ns"], $stg_class_name
+            , array() // no props
+            , array
+                ( g_public_method( "__construct", array(), array_flatten
+
+                    // Create arrays for the free variables of the global closures.
+                    ( array_map(function(Lang\Binding $binding) {
+                        $closure_name = $binding->variable()->name();
+                        return array
+                            ( array(g_stmt("\$$closure_name = array()"))
+                            , array_map(function(Lang\Variable $free_var) use ($closure_name) {
+                                $var_name = $free_var->name();
+                                return g_stmt("\${$closure_name}[\"$var_name\"] = null");
+                            }, $binding->lambda()->free_variables()));
+                    }, $bindings)
+
+                    // Create the array containing the globals.
+                    , g_stmt(function($ind) use ($globals) { return
+                        "{$ind}\$globals = ".g_multiline_dict($ind, $globals).";";})
+
+                    // Fill the previously generated arrays with contents from globals.
+                    , array_map(function(Lang\Binding $binding) {
+                        $closure_name = $binding->variable()->name();
+                        return array_map(function(Lang\Variable $free_var) use ($closure_name) {
+                            $var_name = $free_var->name();
+                            return g_stmt("\${$closure_name}[\"$var_name\"] = \$globals[\"$var_name\"]");
+                        }, $binding->lambda()->free_variables());
+                    }, $bindings)
+
+                    // Use parents constructor.
+                    , g_stmt(function($ind) use ($globals) { return
+                        "{$ind}parent::__construct(\$globals);"; })
+                    )
+                ))
+            , "\\Lechimp\\STG\\STG"
+        );
     }
 
     protected function compile_lambda(array &$rc, Lang\Lambda $lambda, $class_name) {
