@@ -259,8 +259,6 @@ class Compiler {
             );
 
         foreach($case_expression->alternatives() as $alternative) {
-            // TODO: Most probably the generation of names for the methods needs
-            //       to be changed, as this will name crash on nested case expressions.
             if ($alternative instanceof Lang\DefaultAlternative) {
                 $method_name = $this->methodName($rc, "alternative_default");
                 $return_vector[null] = g_code_label($method_name);
@@ -340,8 +338,6 @@ class Compiler {
         return array
             ( array_flatten
                 ( array_map( function(Lang\Binding $binding) use (&$rc, &$class_names) {
-                    // TODO: I need to introduce a correct naming scheme to avoid
-                    //       name clashes.
                     $name = $binding->variable()->name();
                     $class_name = $this->className($rc, $name);
                     $class_names[] = $class_name;
@@ -359,8 +355,6 @@ class Compiler {
             , $expr_methods
             , array_flatten
                 ( array_map(function(Lang\Binding $binding) use (&$rc, &$class_names) {
-                    // TODO: I need to introduce a correct naming scheme to avoid
-                    //       name clashes.
                     $class_name = array_shift($class_names);
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $let_binding->bindings()) 
@@ -382,8 +376,6 @@ class Compiler {
 
                 // First create the closures with stubs for free variables
                 ( array_map( function(Lang\Binding $binding) use (&$rc, &$class_names) {
-                    // TODO: I need to introduce a correct naming scheme to avoid
-                    //       name clashes.
                     $name = $binding->variable()->name();
                     $class_name = $this->className($rc, $name);
                     $class_names[] = $class_name;
@@ -410,8 +402,6 @@ class Compiler {
             , $expr_methods
             , array_flatten
                 ( array_map(function(Lang\Binding $binding) use (&$rc, &$class_names) {
-                    // TODO: I need to introduce a correct naming scheme to avoid
-                    //       name clashes.
                     $class_name = array_shift($class_names);
                     return $this->compile_lambda($rc, $binding->lambda(), $class_name);
                 }, $letrec_binding->bindings()) 
