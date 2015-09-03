@@ -20,7 +20,7 @@ class Compiler {
     public function compile(Lang\Program $program, $stg_class_name, $namespace = "") {
         assert(is_string($stg_class_name));
 
-        // Constant used when rendering.
+        // State and constants used when rendering.
         $rc = array
             ( "ns" => $namespace // Namespace
             , 'stg' => self::STG_VAR_NAME  // variable name for stg
