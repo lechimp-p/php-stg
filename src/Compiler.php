@@ -41,6 +41,10 @@ class Compiler {
         }, array_flatten($classes))));
     }
 
+    //---------------------
+    // THE MACHINE
+    //---------------------
+
     protected function compile_globals(array &$rc, array $bindings, array &$globals, array &$classes) {
         foreach($bindings as $binding) {
             $var_name = $binding->variable()->name();
@@ -98,6 +102,10 @@ class Compiler {
             );
     }
 
+    //---------------------
+    // LAMBDAS
+    //---------------------
+
     protected function compile_lambda(array &$rc, Lang\Lambda $lambda, $class_name) {
         assert(is_string($class_name));
 
@@ -148,6 +156,10 @@ class Compiler {
             );
     }
 
+    //---------------------
+    // EXPRESSIONS
+    //---------------------
+
     protected function compile_expression(array &$rc, Lang\Expression $expression) {
         if ($expression instanceof Lang\Application) {
             return $this->compile_application($rc, $expression);
@@ -173,6 +185,10 @@ class Compiler {
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
 
+    //---------------------
+    // APPLICATIONS
+    //---------------------
+
     protected function compile_application(array &$rc, Lang\Application $application) {
         $var_name = $application->variable()->name();
         return array
@@ -186,6 +202,10 @@ class Compiler {
             , array()
             );
     }
+
+    //---------------------
+    // CONSTRUCTORS
+    //---------------------
 
     protected function compile_constructor(array &$rc, Lang\Constructor $constructor) {
         $id = $constructor->id();
@@ -223,6 +243,10 @@ class Compiler {
             );
     }
 
+    //---------------------
+    // LITERALS
+    //---------------------
+
     protected function compile_literal(array &$rc, Lang\Literal $literal) {
         $value = $literal->value();
 
@@ -259,6 +283,10 @@ class Compiler {
                 )
             );
     }
+
+    //---------------------
+    // CASE EXPRESSIONS
+    //---------------------
 
     protected function compile_case_expression(array &$rc, Lang\CaseExpr $case_expression) {
         $methods = array();
@@ -339,6 +367,10 @@ class Compiler {
             );
     }
 
+    //---------------------
+    // LET BINDINGS
+    //---------------------
+
     protected function compile_let_binding(array &$rc, Lang\LetBinding $let_binding) {
         list($expr_code, $expr_methods, $expr_classes)
             = $this->compile_expression($rc, $let_binding->expression());
@@ -374,6 +406,10 @@ class Compiler {
                 )
             );
     }
+
+    //---------------------
+    // LET REC BINDINGS
+    //---------------------
 
     protected function compile_letrec_binding(array &$rc, Lang\LetRecBinding $letrec_binding) {
         list($expr_code, $expr_methods, $expr_classes)
@@ -421,6 +457,10 @@ class Compiler {
                 )
             );
     }
+
+    //---------------------
+    // ATOMS
+    //---------------------
 
     protected function compile_atom(array &$rc, Lang\Atom $atom) {
         $stg = self::STG_VAR_NAME;
