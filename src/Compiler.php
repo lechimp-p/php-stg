@@ -147,18 +147,16 @@ class Compiler {
         $num_args = count($lambda->arguments());
         return array_flatten
             ( g_stmt("assert(\${$rc['stg']}->count_args() >= $num_args)")
-            , g_stmt("\$local_env = array()")
+            , g_init_local_env()
 
             // Get the free variables into the local env.
             , array_map(function(Lang\Variable $free_var) {
-                $var_name = $free_var->name();
-                return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
+                return g_free_var_to_local_env($free_var->name());
             }, $lambda->free_variables())
 
             // Get the arguments into the local env.
             , array_map(function(Lang\Variable $argument) use (&$rc) {
-                $arg_name = $argument->name();
-                return g_stg_pop_arg_to($rc["stg"], "local_env[\"$arg_name\"]");
+                return g_stg_pop_arg_to_local_env($rc["stg"], $argument->name());
             }, $lambda->arguments())
             );
     }
@@ -616,8 +614,20 @@ function g_var($varname) {
     return "\$$varname";
 }
 
+function g_init_local_env() {
+    return g_stmt("\$local_env = array()");
+}
+
+function g_free_var_to_local_env($var_name) {
+    return g_stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
+}
+
 function g_stg_pop_arg_to($stg_name, $arg_name) {
     return new Gen\GStatement("\$$arg_name = \${$stg_name}->pop_arg()");
+}
+
+function g_stg_pop_arg_to_local_env($stg_name, $arg_name) {
+    return g_stg_pop_arg_to($stg_name, "local_env[\"$arg_name\"]");
 }
 
 function g_stg_push_arg($stg_name, $what) {
