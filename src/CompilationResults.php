@@ -42,12 +42,22 @@ class CompilationResults {
         return $this;
     }
 
+    public function flushClasses() {
+        $this->classes = array();
+        return $this;
+    }
+
     public function methods() {
         return $this->methods;
     }
 
     public function addMethod(Gen\GMethod $method) {
         $this->methods[] = $method;
+        return $this;
+    }
+
+    public function flushMethods() {
+        $this->methods = array();
         return $this;
     }
 
@@ -60,6 +70,11 @@ class CompilationResults {
         assert(is_string($initializer));
         assert(!array_key_exists($name, $this->globals));
         $this->globals[$name] = $initializer;
+        return $this;
+    }
+
+    public function flushGlobals() {
+        $this->globals = array();
         return $this;
     }
 
@@ -77,6 +92,11 @@ class CompilationResults {
             return $stmt;
         }, $stmts);
         $this->statements = array_merge($this->statements, $stmts);
+    }
+
+    public function flushStatements() {
+        $this->statements = array();
+        return $this;
     }
 
     public function add(CompilationResults $res) {
