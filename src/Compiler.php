@@ -21,6 +21,15 @@ class Compiler {
     }
 
     /**
+     * Create a compilation results object 
+     *
+     * @return CompilationResults 
+     */
+    protected function results() {
+        return new CompilationResults();
+    }
+
+    /**
      * Compile a program to a bunch of PHP files using the STG to execute the
      * defined program.
      *
@@ -33,39 +42,48 @@ class Compiler {
 
         $g = $this->code_generator($namespace, self::STG_VAR_NAME); 
 
-        $globals = array();
-        $classes = array(); 
-
-        $this->compile_globals($g, $program->bindings(), $globals, $classes);
+        $results_globals = $this->compile_globals($g, $program->bindings());
         
         // Class for the final stg machine
-        $classes[] = $this->compile_machine($g, $stg_class_name, $program->bindings(), $globals);
+        $results_machine = $this->compile_machine($g, $stg_class_name, $program->bindings(), $results_globals->globals());
+
+        $results = $results_globals->combine($results_machine);
+        assert(count($results->methods()) == 0);
+        assert(count($results->statements()) == 0);
 
         // Render all classes to a single file.
         return array("main.php" => implode("\n\n", array_map(function(Gen\GClass $cl) {
             return $cl->render(0);
-        }, array_flatten($classes))));
+        }, $results->classes())));
     }
 
     //---------------------
     // THE MACHINE
     //---------------------
 
-    protected function compile_globals(Gen $g, array $bindings, array &$globals, array &$classes) {
-        foreach($bindings as $binding) {
+    protected function compile_globals(Gen $g, array $bindings) {
+        $results = $this->results();
+        array_map(function(Lang\Binding $binding) use ($g, $results) {
             $var_name = $binding->variable()->name();
             $class_name = $g->class_name($var_name);
 
-            // Closures for global lambdas.
-            $classes[] = $this->compile_lambda($g, $binding->lambda(), $class_name);
+            $sub_result = $this->compile_lambda($g, $binding->lambda(), $class_name);
+            assert(count($sub_result->methods()) == 0);
+            assert(count($sub_result->globals()) == 0);
+            assert(count($sub_result->statements()) == 0);
 
-            // Instantiation of globals for STG class.
-            $globals[$var_name] = "new $class_name(\$$var_name)";
-        }
+            $results->add($sub_result);
+            // This line (the $var_name) depends on code generated in machine_construct.
+            $results->addGlobal($var_name, "new $class_name(\$$var_name)");
+
+        }, $bindings);
+        return $results;
     }
 
     protected function compile_machine(Gen $g, $stg_class_name, array $bindings, array $globals) {
-        return $g->_class( $stg_class_name
+        $results = $this->results();
+        $results->addClass($g->_class
+            ( $stg_class_name
             , array() // no props
             , array
                 ( $g->public_method( "__construct", array()
@@ -73,7 +91,8 @@ class Compiler {
                     )
                 )
             , "\\Lechimp\\STG\\STG"
-        );
+            ));
+        return $results;
     }
 
     protected function compile_machine_construct(Gen $g, array $bindings, array $globals) {
@@ -123,30 +142,34 @@ class Compiler {
         list($compiled_expression, $additional_methods, $additional_classes)
              = $this->compile_expression($g, $lambda->expression());
 
-        return array_flatten
-            ( $g->_class( $class_name
-                , array
-                    (
-                    )
-                , array_flatten
-                    ( $g->public_method("entry_code", $g->stg_args()
-                         , array_merge
-                            ( $this->compile_lambda_entry_code($g, $lambda)
-                            , $compiled_expression
-                            )
-                         )
-
-                    // Required method for concrete STGClosures.
-                    , $g->public_method("free_variables_names", array(), array
-                        ( $g->stmt(function($ind) use ($g, $var_names) { return
-                            "{$ind}return ".$g->multiline_array($ind, $var_names).";";
-                        })))
-                    , $additional_methods
-                    )
-                , "\\Lechimp\\STG\\STGClosure"
+        $results = $this->results();
+        $results->addClass( $g->_class
+            ( $class_name
+            , array
+                (
                 )
-            , $additional_classes
-            );
+            , array_flatten
+                ( $g->public_method("entry_code", $g->stg_args()
+                     , array_merge
+                        ( $this->compile_lambda_entry_code($g, $lambda)
+                        , $compiled_expression
+                        )
+                     )
+
+                // Required method for concrete STGClosures.
+                , $g->public_method("free_variables_names", array(), array
+                    ( $g->stmt(function($ind) use ($g, $var_names) { return
+                        "{$ind}return ".$g->multiline_array($ind, $var_names).";";
+                    })))
+                , $additional_methods
+                )
+            , "\\Lechimp\\STG\\STGClosure"
+            ));
+
+        foreach($additional_classes as $cls) {
+            $results->add($cls);
+        }
+        return $results;
     }
 
     protected function compile_lambda_entry_code(Gen $g, Lang\Lambda $lambda) {
