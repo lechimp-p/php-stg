@@ -5,6 +5,9 @@ namespace Lechimp\STG;
 /**
  * Compiles expressions from the stg language to php-based STG
  * code.
+ *
+ * Only deals with high level question, as 'put var in local environment'
+ * while Gen-class deals with the creation of actual php code.
  */
 class Compiler {
     const STG_VAR_NAME = 'stg';
