@@ -43,8 +43,9 @@ class CompilationResults {
     }
 
     public function flushClasses() {
+        $cls = $this->classes;
         $this->classes = array();
-        return $this;
+        return $cls;
     }
 
     public function methods() {
@@ -57,8 +58,9 @@ class CompilationResults {
     }
 
     public function flushMethods() {
+        $methods = $this->methods;
         $this->methods = array();
-        return $this;
+        return $methods;
     }
 
     public function globals() {
@@ -74,8 +76,9 @@ class CompilationResults {
     }
 
     public function flushGlobals() {
+        $globals = $this->globals;
         $this->globals = array();
-        return $this;
+        return $globals;
     }
 
     public function statements() {
@@ -95,8 +98,9 @@ class CompilationResults {
     }
 
     public function flushStatements() {
+        $stmts = $this->statements;
         $this->statements = array();
-        return $this;
+        return $stmts;
     }
 
     public function add(CompilationResults $res) {
