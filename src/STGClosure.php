@@ -44,6 +44,16 @@ abstract class STGClosure {
     abstract public function free_variables_names();
 
     /**
+     * Black hole entry code.
+     *
+     * This is used entry code when this closure is just evaluated.
+     *
+     * @param   STG $stg
+     */
+    public function black_hole(STG $stg) {
+    }
+
+    /**
      * Get a free variable.
      *
      * @param   string          $name
