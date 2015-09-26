@@ -473,7 +473,7 @@ class Compiler {
                             $fname = $free_var->name();
                             return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
                         }, $binding->lambda()->free_variables())
-                        , $g->stmt("\$local_env[\"$name\"] = new $class_name(\$free_vars_$name)")
+                        , $g->to_local_env($name, "new $class_name(\$free_vars_$name)")
                         );
                 }, $let_binding->bindings())))
             ->adds(array_flatten
@@ -506,7 +506,7 @@ class Compiler {
                             $fname = $free_var->name();
                             return $g->stmt("\$free_vars_{$name}[\"$fname\"] = null");
                         }, $binding->lambda()->free_variables())
-                        , $g->stmt("\$local_env[\"$name\"] = new $class_name(\$free_vars_$name)")
+                        , $g->to_local_env($name, "new $class_name(\$free_vars_$name)")
                         );
                 }, $letrec_binding->bindings())
 
@@ -515,7 +515,7 @@ class Compiler {
                     $name = $binding->variable()->name();
                     return array_map(function(Lang\Variable $free_var) use ($g, $name) {
                         $fname = $free_var->name();
-                        return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
+                        return $g->stmt("\$free_vars_{$name}[\"$fname\"] = ".$g->local_env($fname));
                     }, $binding->lambda()->free_variables());
                 }, $letrec_binding->bindings())))
             ->adds( array_flatten
@@ -534,7 +534,7 @@ class Compiler {
     protected function compile_atom(Gen $g, Lang\Atom $atom) {
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return $g->from_local_env($var_name); 
+            return $g->local_env($var_name); 
         }
         if ($atom instanceof Lang\Literal) {
             return $atom->value();

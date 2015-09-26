@@ -92,7 +92,7 @@ class Gen {
         return $this->stmt("\$local_env = array()");
     }
 
-    public function from_local_env($var_name) {
+    public function local_env($var_name) {
         return "\$local_env[\"$var_name\"]"; 
     }
 
