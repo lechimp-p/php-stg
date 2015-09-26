@@ -438,7 +438,7 @@ class Compiler {
             , $g->stg_pop_return_to("arg_vector")
             , array_map(function(Lang\Variable $var) use ($g) {
                 $name = $var->name();
-                return $g->stmt("\$local_env[\"$name\"] = array_shift(\$arg_vector)");
+                return $g->to_local_env($name, "array_shift(\$arg_vector)");
             }, $alternative->variables())
             ));
 

@@ -96,6 +96,10 @@ class Gen {
         return "\$local_env[\"$var_name\"]"; 
     }
 
+    public function to_local_env($var_name, $expr) {
+        return $this->stmt("\$local_env[\"$var_name\"] = $expr");
+    }
+
     public function stg_pop_local_env() {
         return $this->stg_pop_env_to("local_env");
     }
@@ -105,7 +109,7 @@ class Gen {
     }
 
     public function free_var_to_local_env($var_name) {
-        return $this->stmt("\$local_env[\"$var_name\"] = \$this->free_variables[\"$var_name\"]");
+        return $this->to_local_env($var_name, "\$this->free_variables[\"$var_name\"]");
     }
 
     public function stg_pop_arg_to($arg_name) {
