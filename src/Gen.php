@@ -92,6 +92,10 @@ class Gen {
         return $this->stmt("\$local_env = array()");
     }
 
+    public function from_local_env($var_name) {
+        return "\$local_env[\"$var_name\"]"; 
+    }
+
     public function stg_pop_local_env() {
         return $this->stg_pop_env_to("local_env");
     }

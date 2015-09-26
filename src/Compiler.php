@@ -535,7 +535,7 @@ class Compiler {
         // ToDo: replace this by a method from the Gen.
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
-            return "\$local_env[\"$var_name\"]"; 
+            return $g->from_local_env($var_name); 
         }
         if ($atom instanceof Lang\Literal) {
             return $atom->value();
