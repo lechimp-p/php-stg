@@ -31,11 +31,6 @@ abstract class STG {
      */
     protected $globals;
 
-    /**
-     * @var STGClosure
-     */
-    protected $node;
-
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
             assert(is_string($key));
@@ -75,7 +70,6 @@ abstract class STG {
         // See Gen::stg_enter.
         // This offers the flexibility to use another STG (for debugging...)
         // with similar generated code though.
-        $this->node = $closure;
         return $closure->entry_code;
     }
 
