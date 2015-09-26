@@ -74,7 +74,7 @@ class Compiler {
 
             $results->add($sub_result);
             // This line (the $var_name) depends on code generated in machine_construct.
-            $results->addGlobal($var_name, "new $class_name(\$$var_name)");
+            $results->add_global($var_name, "new $class_name(\$$var_name)");
 
         }, $bindings);
         return $results;
@@ -82,7 +82,7 @@ class Compiler {
 
     protected function compile_machine(Gen $g, $stg_class_name, array $bindings, array $globals) {
         $results = $this->results();
-        $results->addClass($g->_class
+        $results->add_class($g->_class
             ( $stg_class_name
             , array() // no props
             , array
@@ -139,11 +139,10 @@ class Compiler {
             return '"'.$var->name().'"';
         }, $lambda->free_variables());
 
-        list($compiled_expression, $additional_methods, $additional_classes)
-             = $this->compile_expression($g, $lambda->expression());
+        $sub_result = $this->compile_expression($g, $lambda->expression());
 
         $results = $this->results();
-        $results->addClass( $g->_class
+        $results->add_class( $g->_class
             ( $class_name
             , array
                 (
@@ -152,7 +151,7 @@ class Compiler {
                 ( $g->public_method("entry_code", $g->stg_args()
                      , array_merge
                         ( $this->compile_lambda_entry_code($g, $lambda)
-                        , $compiled_expression
+                        , $sub_result->flush_statements()
                         )
                      )
 
@@ -161,14 +160,12 @@ class Compiler {
                     ( $g->stmt(function($ind) use ($g, $var_names) { return
                         "{$ind}return ".$g->multiline_array($ind, $var_names).";";
                     })))
-                , $additional_methods
+                , $sub_result->flush_methods()
                 )
             , "\\Lechimp\\STG\\STGClosure"
             ));
 
-        foreach($additional_classes as $cls) {
-            $results->add($cls);
-        }
+        $results->add($sub_result);
         return $results;
     }
 
@@ -224,16 +221,15 @@ class Compiler {
 
     protected function compile_application(Gen $g, Lang\Application $application) {
         $var_name = $application->variable()->name();
-        return array
-            ( array_flatten
-                ( array_map(function($atom) use ($g) {
-                    return $g->stg_push_arg($this->compile_atom($g, $atom));
-                }, $application->atoms())
-                , $g->stg_enter_local_env($var_name)
-                )
-            , array()
-            , array()
-            );
+
+        $results = $this->results();
+        $results->add_statements( array_flatten
+            ( array_map(function($atom) use ($g) {
+                return $g->stg_push_arg($this->compile_atom($g, $atom));
+            }, $application->atoms())
+            , $g->stg_enter_local_env($var_name)
+            ));
+        return $results;
     }
 
     //---------------------
@@ -247,7 +243,8 @@ class Compiler {
             return $this->compile_atom($g, $atom);
         }, $constructor->atoms());
 
-        return array(array
+        $results = $this->results();
+        $results->add_statements(array
             ( $g->stg_pop_return_to("return_vector")
             , $g->if_then_else
                 ( "array_key_exists(\"$id\", \$return_vector)"
@@ -270,10 +267,8 @@ class Compiler {
                         )
                     ))
                 ) 
-            )
-            , array()
-            , array()
-            );
+            ));
+        return $results;
     }
 
     //---------------------
@@ -283,14 +278,12 @@ class Compiler {
     protected function compile_literal(Gen $g, Lang\Literal $literal) {
         $value = $literal->value();
 
-        return array    
-            ( array_flatten
-                ( $g->stmt("\$primitive_value = $value")
-                , $this->compile_primitive_value_jump($g)
-                )
-            , array()
-            , array()
-            );
+        $results = $this->results();
+        $results->add_statements( array_flatten
+            ( $g->stmt("\$primitive_value = $value")
+            , $this->compile_primitive_value_jump($g)
+            ));
+        return $results;
     }
 
     protected function compile_primitive_value_jump(Gen $g) {
@@ -322,56 +315,51 @@ class Compiler {
     //---------------------
 
     protected function compile_case_expression(Gen $g, Lang\CaseExpr $case_expression) {
-        $methods = array();
         $return_vector = array();
 
+        $alternatives_results 
+            = $this->compile_alternatives($g, $case_expression->alternatives(), $return_vector);
+        assert(count($alternatives_results->classes()) == 0);
+        assert(count($alternatives_results->globals()) == 0);
+        assert(count($alternatives_results->statements()) == 0);
 
-        $this->compile_alternatives($g, $case_expression->alternatives(), $return_vector, $methods);
-
-        list($sub_statements, $sub_methods)
+        $sub_results
             = $this->compile_expression($g, $case_expression->expression());
 
-        $statements = array
+        $results = $this->results();
+        $results->add_statements( array
             ( $g->stmt(function($ind) use ($g, $return_vector) { return 
                 "$ind\$return_vector = ".$g->multiline_dict($ind, $return_vector).";";})
             , $g->stg_push_local_env()
             , $g->stg_push_return('$return_vector')
-            );
-
-        return array
-            ( array_merge($statements, $sub_statements)
-            , array_merge($methods, $sub_methods)
-            , array()
-            );
+            ));
+ 
+        $results->add($alternatives_results);
+        $results->add($sub_results);
+        return $results;
     }
 
-    protected function compile_alternatives(Gen $g, array $alternatives, array &$return_vector, array &$methods) {
+    protected function compile_alternatives(Gen $g, array $alternatives, array &$return_vector) {
+        $results = $this->results();
         foreach($alternatives as $alternative) {
-            $this->compile_alternative($g, $alternative, $return_vector, $methods);
+            $results->add($this->compile_alternative($g, $alternative, $return_vector));
         }
+        return $results;
     } 
     
-    protected function compile_alternative(Gen $g, Lang\Alternative $alternative, array &$return_vector, array &$methods) {
+    protected function compile_alternative(Gen $g, Lang\Alternative $alternative, array &$return_vector) {
         if ($alternative instanceof Lang\DefaultAlternative) {
-            list($r_code, $method_name)
-                 = $this->compile_alternative_default($g, $alternative, $return_vector, $methods);
+            return $this->compile_alternative_default($g, $alternative, $return_vector);
         }
         else if ($alternative instanceof Lang\PrimitiveAlternative) {
-            list($r_code, $method_name)
-                = $this->compile_alternative_primitive($g, $alternative, $return_vector, $methods);
+            return $this->compile_alternative_primitive($g, $alternative, $return_vector);
         }
         else if ($alternative instanceof Lang\AlgebraicAlternative) {
-            list($r_code, $method_name)
-                = $this->compile_alternative_algebraic($g, $alternative, $return_vector, $methods);
+            return $this->compile_alternative_algebraic($g, $alternative, $return_vector);
         }
         else {
             throw new \LogicException("Unknown alternative class ".get_class($alternative));
         }
-
-        list($m_code, $sub_methods)
-            = $this->compile_expression($g, $alternative->expression());
-        $methods[] = $g->public_method($method_name, $g->stg_args(), array_merge($r_code, $m_code));
-        $methods = array_merge($methods, $sub_methods);
     }
 
     // Return code that needs to be executed for every alternative. It restores
@@ -382,52 +370,86 @@ class Compiler {
             );
     }
 
-    protected function compile_alternative_default(Gen $g, Lang\DefaultAlternative $alternative, array &$return_vector, array &$methods) {
+    protected function compile_alternative_method(Gen $g, $method_name, CompilationResults $results) {
+    }
+
+    protected function compile_alternative_default(Gen $g, Lang\DefaultAlternative $alternative, array &$return_vector) {
+        $results = $this->results();
+
         $method_name = $g->method_name("alternative_default");
         $return_vector[null] = $g->code_label($method_name);
-        $bind_to = $alternative->variable();
-        if ($bind_to === null) {
-            $r_code = array_flatten
+
+        if ($alternative->variable() === null) {
+            $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // We won't need the value from the constructor.
                 , $g->stg_pop_return()
-                );
+                ));
         }
         else {
-            $var_name = $bind_to->name();
-            $r_code = array_flatten
+            $var_name = $alternative->variable()->name();
+            $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // Save value from constructor in local env.
                 , $g->stg_pop_return_to_local_env($var_name)
-                );
+                ));
         }
-        return array($r_code, $method_name);
+
+        $results->add($this->compile_expression($g, $alternative->expression()));
+        $results->add_method($g->public_method
+            ( $method_name
+            , $g->stg_args()
+            , $results->flush_statements()
+            ));
+        
+        return $results; 
     }
 
 
-    protected function compile_alternative_primitive(Gen $g, Lang\PrimitiveAlternative $alternative, array &$return_vector, array &$methods) {
+    protected function compile_alternative_primitive(Gen $g, Lang\PrimitiveAlternative $alternative, array &$return_vector) {
+        $results = $this->results();
+
         $value = $alternative->literal()->value();
         assert(is_int($value));
         $method_name = $g->method_name("alternative_$value");
         $return_vector[$value] = $g->code_label($method_name);
-        $r_code = $this->compile_alternative_common_return_code($g);
-        return array($r_code, $method_name);
+
+        $results->add_statements($this->compile_alternative_common_return_code($g));
+
+        $results->add($this->compile_expression($g, $alternative->expression()));
+        $results->add_method($g->public_method
+            ( $method_name
+            , $g->stg_args()
+            , $results->flush_statements()
+            ));
+        
+        return $results; 
     }
 
-    protected function compile_alternative_algebraic(Gen $g, Lang\AlgebraicAlternative $alternative, array &$return_vector, array &$methods) {
+    protected function compile_alternative_algebraic(Gen $g, Lang\AlgebraicAlternative $alternative, array &$return_vector) {
+        $results = $this->results();
+
         $id = $alternative->id();
         $method_name = $g->method_name("alternative_$id");
         $return_vector[$id] = $g->code_label($method_name);
         // Pop arguments to constructor and fill them into appropriate variables.
-        $r_code = array_flatten
+        $results->add_statements(array_flatten
             ( $this->compile_alternative_common_return_code($g)
             , $g->stg_pop_return_to("arg_vector")
             , array_map(function(Lang\Variable $var) use ($g) {
                 $name = $var->name();
                 return $g->stmt("\$local_env[\"$name\"] = array_shift(\$arg_vector)");
             }, $alternative->variables())
-            );
-        return array($r_code, $method_name);
+            ));
+
+        $results->add($this->compile_expression($g, $alternative->expression()));
+        $results->add_method($g->public_method
+            ( $method_name
+            , $g->stg_args()
+            , $results->flush_statements()
+            ));
+        
+        return $results;
     }
 
     //---------------------
@@ -435,15 +457,12 @@ class Compiler {
     //---------------------
 
     protected function compile_let_binding(Gen $g, Lang\LetBinding $let_binding) {
-        list($expr_code, $expr_methods, $expr_classes)
-            = $this->compile_expression($g, $let_binding->expression());
-
         // Cashes fresh class names in the first iteration as they are needed
         // in the second iteration.
         $class_names = array();
-    
-        return array
-            ( array_flatten
+
+        return $this->results()
+            ->add_statements(array_flatten
                 ( array_map( function(Lang\Binding $binding) use ($g, &$class_names) {
                     $name = $binding->variable()->name();
                     $class_name = $g->class_name($name);
@@ -456,18 +475,13 @@ class Compiler {
                         }, $binding->lambda()->free_variables())
                         , $g->stmt("\$local_env[\"$name\"] = new $class_name(\$free_vars_$name)")
                         );
-                }, $let_binding->bindings())
-                , $expr_code
-                )
-            , $expr_methods
-            , array_flatten
+                }, $let_binding->bindings())))
+            ->adds(array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
                     $class_name = array_shift($class_names);
                     return $this->compile_lambda($g, $binding->lambda(), $class_name);
-                }, $let_binding->bindings()) 
-                , $expr_classes
-                )
-            );
+                }, $let_binding->bindings())))
+            ->add($this->compile_expression($g, $let_binding->expression()));
     }
 
     //---------------------
@@ -475,16 +489,12 @@ class Compiler {
     //---------------------
 
     protected function compile_letrec_binding(Gen $g, Lang\LetRecBinding $letrec_binding) {
-        list($expr_code, $expr_methods, $expr_classes)
-            = $this->compile_expression($g, $letrec_binding->expression());
-
         // Cashes fresh class names in the first iteration as they are needed
         // in the third iteration.
         $class_names = array();
     
-        return array
-            ( array_flatten
-
+        return $this->results()
+            ->add_statements( array_flatten
                 // First create the closures with stubs for free variables
                 ( array_map( function(Lang\Binding $binding) use ($g, &$class_names) {
                     $name = $binding->variable()->name();
@@ -507,18 +517,14 @@ class Compiler {
                         $fname = $free_var->name();
                         return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
                     }, $binding->lambda()->free_variables());
-                }, $letrec_binding->bindings()) 
-                , $expr_code
-                )
-            , $expr_methods
-            , array_flatten
+                }, $letrec_binding->bindings())))
+            ->adds( array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
                     $class_name = array_shift($class_names);
                     return $this->compile_lambda($g, $binding->lambda(), $class_name);
                 }, $letrec_binding->bindings()) 
-                , $expr_classes
-                )
-            );
+                ))
+            ->add($this->compile_expression($g, $letrec_binding->expression()));
     }
 
     //---------------------
@@ -526,7 +532,7 @@ class Compiler {
     //---------------------
 
     protected function compile_atom(Gen $g, Lang\Atom $atom) {
-        $stg = self::STG_VAR_NAME;
+        // ToDo: replace this by a method from the Gen.
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
             return "\$local_env[\"$var_name\"]"; 
@@ -554,14 +560,11 @@ class Compiler {
         list($l, $r) = $atoms;
         $left = $this->compile_atom($g, $l);
         $right = $this->compile_atom($g, $r);
-        return array
-            ( array_flatten
+        return $this->results()
+            ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left + $right")
                 , $this->compile_primitive_value_jump($g)
-                )
-            , array()
-            , array()
-            );
+                ));
     }
 
     protected function compile_prim_op_IntSubOp(Gen $g, array $atoms) {
@@ -569,14 +572,11 @@ class Compiler {
         list($l, $r) = $atoms;
         $left = $this->compile_atom($g, $l);
         $right = $this->compile_atom($g, $r);
-        return array
-            ( array_flatten
+        return $this->results()
+            ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left - $right")
                 , $this->compile_primitive_value_jump($g)
-                )
-            , array()
-            , array()
-            );       
+                ));       
     }
 
     protected function compile_prim_op_IntMulOp(Gen $g, array $atoms) {
@@ -584,14 +584,11 @@ class Compiler {
         list($l, $r) = $atoms;
         $left = $this->compile_atom($g, $l);
         $right = $this->compile_atom($g, $r);
-        return array
-            ( array_flatten
+        return $this->results()
+            ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left * $right")
                 , $this->compile_primitive_value_jump($g)
-                )
-            , array()
-            , array()
-            );      
+                ));
     }
 
 /* for copy:
