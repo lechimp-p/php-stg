@@ -71,8 +71,12 @@ abstract class STG {
      */
     public function enter(STGClosure $closure) {
         //echo "enter: ".get_class($closure)."\n";
+        // That may be superfluous as we just return the label.
+        // See Gen::stg_enter.
+        // This offers the flexibility to use another STG (for debugging...)
+        // with similar generated code though.
         $this->node = $closure;
-        return new CodeLabel($closure, "entry_code");
+        return $closure->entry_code;
     }
 
     /**

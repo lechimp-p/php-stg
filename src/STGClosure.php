@@ -12,6 +12,11 @@ abstract class STGClosure {
     protected $free_variables;
 
     /**
+     * @var CodeLabel
+     */
+    public $entry_code;
+
+    /**
      * ATTENTION: The dictionary of free variables is passed by reference.
      *            to make recursive definitions possible.
      */
@@ -20,6 +25,7 @@ abstract class STGClosure {
         assert(count($free_variables_names) == count($free_variables));
         assert(sort($free_variables_names) == sort(array_keys($free_variables)));
         $this->free_variables = &$free_variables;
+        $this->entry_code = new CodeLabel($this, "entry_code");
     }
 
     /**
