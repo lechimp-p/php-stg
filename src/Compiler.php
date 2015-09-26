@@ -532,7 +532,6 @@ class Compiler {
     //---------------------
 
     protected function compile_atom(Gen $g, Lang\Atom $atom) {
-        // ToDo: replace this by a method from the Gen.
         if ($atom instanceof Lang\Variable) {
             $var_name = $atom->name();
             return $g->from_local_env($var_name); 
