@@ -172,7 +172,12 @@ class Compiler {
     protected function compile_lambda_entry_code(Gen $g, Lang\Lambda $lambda) {
         $num_args = count($lambda->arguments());
         return array_flatten
-            ( $g->init_local_env()
+            // Make the entry code of the closure point to the black hole.
+            ( $lambda->updatable()
+                ? array( $g->stmt("\$this->entry_code = ".$g->code_label("black_hole")))
+                : array()
+
+            , $g->init_local_env()
 
             // Get the free variables into the local env.
             , array_map(function(Lang\Variable $free_var) use ($g) {

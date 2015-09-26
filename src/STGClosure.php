@@ -51,6 +51,7 @@ abstract class STGClosure {
      * @param   STG $stg
      */
     public function black_hole(STG $stg) {
+        throw new Exceptions\BlackHole();
     }
 
     /**
