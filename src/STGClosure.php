@@ -49,7 +49,7 @@ abstract class STGClosure {
      * @param   string          $name
      * @return  STGClosure|int
      */
-    public function free_variables($name) {
+    public function free_variable($name) {
         assert(is_string($name));
         if (array_key_exists($name, $this->free_variables)) {
             throw new \LogicException("Unknown free variable '$name' in closure '"
