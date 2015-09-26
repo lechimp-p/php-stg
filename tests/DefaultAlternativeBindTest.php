@@ -47,7 +47,7 @@ class DefaultAlternativeBindTest extends ProgramTestBase {
                     ( array()
                     , array()
                     , new Constructor("A", array())
-                    , true
+                    , false 
                     )
                 )
             , new Binding

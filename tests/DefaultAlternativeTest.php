@@ -49,7 +49,7 @@ class DefaultAlternativeTest extends ProgramTestBase {
                     ( array()
                     , array()
                     , new Constructor("C", array())
-                    , true
+                    , false 
                     )
                 )
             , new Binding
