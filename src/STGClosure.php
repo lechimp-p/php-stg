@@ -34,14 +34,14 @@ abstract class STGClosure {
      * @param   STG     $stg
      * @return  CodeLabel
      */
-    abstract function entry_code(STG $stg);
+    abstract public function entry_code(STG $stg);
 
     /**
      * Get a list of the free variables of the closure.
      *
      * @return  string[]    
      */
-    abstract function free_variables_names();
+    abstract public function free_variables_names();
 
     /**
      * Get a free variable.
