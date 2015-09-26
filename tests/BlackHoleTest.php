@@ -17,7 +17,7 @@ use Lechimp\STG\CodeLabel;
 
 require_once(__DIR__."/ProgramTestBase.php");
 
-class BasicTest extends ProgramTestBase {
+class BlackHoleTest extends ProgramTestBase {
     /**
      * @expectedException Lechimp\STG\Exceptions\BlackHole
      */
