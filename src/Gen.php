@@ -161,6 +161,22 @@ class Gen {
         return new Gen\GStatement("\${$this->stg_name}->push_env($what)");
     }
 
+    public function stg_push_argument_register($what) {
+        return new Gen\GStatement("\${$this->stg_name}->push_argument_register($what)");
+    }
+
+    public function stg_pop_argument_register() {
+        return new Gen\GStatement("\${$this->stg_name}->pop_argument_register()");
+    }
+
+    public function stg_pop_argument_register_to($to) {
+        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_argument_register()");
+    }
+
+    public function stg_pop_argument_register_to_local_env($name) {
+        return new Gen\GStatement($this->local_env($name)." = \${$this->stg_name}->pop_argument_register()");
+    }
+
     public function code_label($method_name) {
         return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
     }

@@ -121,6 +121,6 @@ class LetRecTest extends ProgramTestBase {
     }
 
     public function returns_result($stg) {
-        $this->result = $stg->pop_return();
+        $this->result = $stg->pop_argument_register();
     }
 }

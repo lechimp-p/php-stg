@@ -256,13 +256,13 @@ class Compiler {
                 , array
                     ( $g->stmt(function($ind) use ($g, $args_vector) { return
                         "{$ind}\$args_vector = ".$g->multiline_array($ind, $args_vector).";"; })
-                    , $g->stg_push_return('$args_vector')
+                    , $g->stg_push_argument_register('$args_vector')
                     , $g->stmt("return \$return_vector[\"$id\"]")
                     )
                 , array( $g->if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
                     , array
-                        ( $g->stg_push_return('$this')
+                        ( $g->stg_push_argument_register('$this')
                         , $g->stmt("return \$return_vector[\"\"]")
                         )
                     , array
@@ -302,7 +302,7 @@ class Compiler {
                 , array ( $g->if_then_else
                     ( "array_key_exists(\"\", \$return_vector)"
                     , array
-                        ( $g->stg_push_return("\$primitive_value")
+                        ( $g->stg_push_argument_register("\$primitive_value")
                         , $g->stmt("return \$return_vector[\"\"]")
                         )
                     , array
@@ -388,7 +388,7 @@ class Compiler {
             $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // We won't need the value from the constructor.
-                , $g->stg_pop_return()
+                , $g->stg_pop_argument_register()
                 ));
         }
         else {
@@ -396,7 +396,7 @@ class Compiler {
             $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // Save value from constructor in local env.
-                , $g->stg_pop_return_to_local_env($var_name)
+                , $g->stg_pop_argument_register_to_local_env($var_name)
                 ));
         }
 
@@ -440,7 +440,7 @@ class Compiler {
         // Pop arguments to constructor and fill them into appropriate variables.
         $results->add_statements(array_flatten
             ( $this->compile_alternative_common_return_code($g)
-            , $g->stg_pop_return_to("arg_vector")
+            , $g->stg_pop_argument_register_to("arg_vector")
             , array_map(function(Lang\Variable $var) use ($g) {
                 $name = $var->name();
                 return $g->to_local_env($name, "array_shift(\$arg_vector)");

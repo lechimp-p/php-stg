@@ -31,6 +31,11 @@ abstract class STG {
      */
     protected $globals;
 
+    /**
+     * @var mixed 
+     */
+    protected $argument_register;
+
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
             assert(is_string($key));
@@ -47,6 +52,7 @@ abstract class STG {
         $this->return_stack = new \SPLStack();
         $this->env_stack = new \SPLStack();
         $this->update_stack = new \SPLStack();
+        $this->argument_register = null;
     }
 
     /**
@@ -140,5 +146,29 @@ abstract class STG {
     public function pop_env() {
         assert($this->env_stack->count() > 0);
         return $this->env_stack->pop();
+    }
+
+    /**
+     * Store some arguments in the argument register.
+     *
+     * @param   mixed $args
+     * @return  null
+     */
+    public function push_argument_register($args) {
+        assert($args !== null);
+        assert($this->argument_register === null);
+        $this->argument_register = $args;
+    }
+
+    /**
+     * Get the arguments stored in the argument register.
+     *
+     * @return  array
+     */
+    public function pop_argument_register() {
+        assert($this->argument_register !== null);
+        $args = $this->argument_register;
+        $this->argument_register = null;
+        return $args;
     }
 }
