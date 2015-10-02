@@ -83,7 +83,7 @@ class ConstructorWithValuesTest extends ProgramTestBase {
         $compiled = $compiler->compile($program, "TheMachine", "ConstructorWithValuesTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = $l->constructorWithValuesTest\TheMachine();
+        $machine = new ConstructorWithValuesTest\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result"  => new CodeLabel($this, "returns_result")
