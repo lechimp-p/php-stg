@@ -63,6 +63,11 @@ abstract class STG {
      */
     protected $b_stack_size = null;
 
+    /**
+     * @var STGClosure
+     */
+    protected $node;
+
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
             assert(is_string($key));
@@ -101,6 +106,7 @@ abstract class STG {
      */
     public function run() {
         $label = new CodeLabel($this->globals["main"], "entry_code");
+        $this->node = $this->globals["main"];
         while($label !== null) {
             $label = $label->jump($this); 
         }
@@ -117,6 +123,7 @@ abstract class STG {
         // See Gen::stg_enter.
         // This offers the flexibility to use another STG (for debugging...)
         // with similar generated code though.
+        $this->node = $closure;
         return $closure->entry_code;
     }
 
@@ -124,11 +131,23 @@ abstract class STG {
      * Push an argument on the stack.
      *
      * @param   Closures\Standard|int  $arg
-     * @return  none
+     * @return  null 
      */
     public function push_a_stack($argument) {
         assert(is_int($argument) || $argument instanceof Closures\Standard);
         $this->a_stack[$this->a_top++] = $argument;
+    }
+
+    /**
+     * Add the values found in the argument to the argument stack.
+     *
+     * @param   \SPLStack $args
+     * @return  null
+     */
+    public function push_args(\SPLStack $args) {
+        while($args->count() > 0) {
+            $stg->push_arg($args->pop());
+        }
     }
 
     /**
@@ -202,5 +221,45 @@ abstract class STG {
     public function get_register() {
         assert($this->register !== null);
         return $this->register;
+    }
+
+    /*
+     * Push an update frame.
+     *
+     * @return null
+     */
+    public function push_update_frame() {
+        assert($this->argument_register === null);
+        $this->update_stack->push(array
+            ( $this->node
+            , $this->argument_stack
+            , $this->return_stack
+            , $this->env_stack
+            ));
+        $this->argument_stack = new \SPLStack();
+        $this->return_stack = new \SPLStack();
+        $this->env_stack = new \SPLStack();
+    }
+
+    /**
+     * Perform an update for a partial application.
+     *
+     * @return CodeLabel
+     */
+    public function update_partial_application() {
+        list($node, $argument_stack, $return_stack, $env_stack)
+            = $this->update_stack->pop();
+        $node->in_place_update($this->node, $argument_stack
+                              , $return_stack, $env_stack);
+    }
+
+
+    /**
+     * Perform an update.
+     *
+     * @return CodeLabel
+     */
+    public function update() {
+        throw new \Exception("UPDATE");
     }
 }

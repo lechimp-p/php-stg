@@ -124,6 +124,10 @@ class Gen {
         return new Gen\GStatement("\${$this->stg_name}->push_a_stack($what)");
     }
 
+    public function stg_args_smaller_than($amount) {
+        return "\${$this->stg_name}->count_args() < $amount";
+    }
+
     public function stg_enter($where) {
         return new Gen\GStatement("return \${$this->stg_name}->enter($where)");
     }
@@ -131,7 +135,6 @@ class Gen {
     public function stg_enter_local_env($var_name) {
         return $this->stg_enter("\$local_env[\"$var_name\"]");
     }
-
 
     public function stg_global_var($var_name) {
         return "\${$this->stg_name}->global_var(\"$var_name\")";
@@ -151,6 +154,10 @@ class Gen {
 
     public function stg_push_return($what) {
         return new Gen\GStatement("\${$this->stg_name}->push_b_stack($what)");
+    }
+
+    public function stg_return_stack_empty() {
+        return "\${$this->stg_name}->count_return() == 0";
     }
 
     public function stg_pop_env_to($to) {
@@ -181,8 +188,24 @@ class Gen {
         return new Gen\GStatement("\${$to}= \${$this->stg_name}->get_register()");
     }
 
+    public function stg_push_update_frame() {
+        return new Gen\GStatement("\${$this->stg_name}->push_update_frame()");
+    }
+
+    public function stg_trigger_update() {
+        return new Gen\GStatement("return ".$this->stg_code_label("update"));
+    }
+
+    public function stg_trigger_update_partial_application() {
+        return new Gen\GStatement("return ".$this->stg_code_label("update_partial_application"));
+    }
+
     public function code_label($method_name) {
         return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
+    }
+
+    public function stg_code_label($method_name) {
+        return "new \\Lechimp\\STG\\CodeLabel(\${$this->stg_name}, \"$method_name\")";
     }
 
     //---------------------

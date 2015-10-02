@@ -37,6 +37,12 @@ abstract class Standard {
         $this->free_variables = &$free_variables;
         $this->entry_code = new CodeLabel($this, "entry_code");
         $this->updated = null;
+
+        // For partial update.
+        $this->function_closure = null;
+        $this->argument_stack = null;
+        $this->return_stack = null;
+        $this->env_stack = null;
     }
 
     /**
@@ -95,4 +101,60 @@ abstract class Standard {
         $this->updated = $updated;
         $this->free_variables = null;
     } 
+
+    // In place update with partial application.
+    //
+    // The paper assumes, that we manage the pointers to closures ourselves, thus
+    // we could update a closure in place. This is not the case in this PHP scenario,
+    // as we want to take advantage of the garbage collection of PHP. Therefore we
+    // perform an in place update with this closure by effectively having a two in 
+    // one object. We could also use an indirection in entry_code, but we use this
+    // mechanism as it closer resembles the paper. First make it run, care about
+    // style and performance later.
+
+    /**
+     * @var STGClosure|null
+     */
+    protected $function_closure;
+
+    /**
+     * @var \SPLStack|null
+     */
+    protected $argument_stack;
+
+    /**
+     * @var \SPLStack|null
+     */
+    protected $return_stack;
+
+    /**
+     * @var \SPLStack|null
+     */
+    protected $env_stack;
+
+    public function partial_application_entry_code(STG $stg) {
+        assert($this->argument_stack instanceof SPLStack);
+        $this->stg->push_args($this->argument_stack);
+
+        assert($this->return_stack instanceof SPLStack);
+        $this->stg->push_returns($this->return_stack);
+
+        assert($this->env_stack instanceof SPLStack);
+        $this->stg->push_envs($this->env_stack);
+    }
+
+    public function in_place_update( STGClosure $function_closure
+                                   , \SPLStack $argument_stack
+                                   , \SPLStack $return_stack
+                                   , \SPLStack $env_stack
+                                   ) {
+        assert($this->function_closure === null);
+        assert($this->argument_stack === null);
+        assert($this->return_stack === null);
+        assert($this->env_stack === null);
+        $this->argument_stack = $argument_stack;
+        $this->return_stack = $return_stack;
+        $this->env_stack = $env_stack;
+        $this->entry_code = new CodeLabel($this, "partial_application_entry_code");
+    }
 }

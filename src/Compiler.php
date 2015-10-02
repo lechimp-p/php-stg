@@ -172,10 +172,7 @@ class Compiler {
     protected function compile_lambda_entry_code(Gen $g, Lang\Lambda $lambda) {
         $num_args = count($lambda->arguments());
         return array_flatten
-            // Make the entry code of the closure point to the black hole.
-            ( $lambda->updatable()
-                ? array( $g->stmt("\$this->entry_code = ".$g->code_label("black_hole")))
-                : array()
+            ( $this->compile_arguments_check($g, $lambda)
 
             , $g->init_local_env()
 
@@ -188,6 +185,22 @@ class Compiler {
             , array_map(function(Lang\Variable $argument) use ($g) {
                 return $g->stg_pop_arg_to_local_env($argument->name());
             }, $lambda->arguments())
+
+            // Make the entry code of the closure point to the black hole.
+            , $lambda->updatable()
+                ? array
+                    ( $g->stmt("\$this->entry_code = ".$g->code_label("black_hole"))
+                    , $g->stg_push_update_frame()
+                    )
+                : array()
+            );
+    }
+
+    protected function compile_arguments_check(Gen $g, Lang\Lambda $lambda) {
+        return $g->if_then_else
+            ( $g->stg_args_smaller_than(count($lambda->arguments()))
+            , array($g->stg_trigger_update_partial_application())
+            , array()
             );
     }
 
