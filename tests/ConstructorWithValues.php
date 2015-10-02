@@ -1,15 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\AlgebraicAlternative;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -17,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class ConstructorWithValuesTest extends ProgramTestBase {
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{extract, a} \u \{} -> extract a
@@ -25,58 +18,58 @@ class ConstructorWithValuesTest extends ProgramTestBase {
          *     case w of
          *         Wrapped a b -> Result a b
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
-                    ( array(new Variable("extract"), new Variable("a"))
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
+                    ( array($l->variable("extract"), $l->variable("a"))
                     , array()
-                    , new Application 
-                        ( new Variable("extract")
+                    , $l->application 
+                        ( $l->variable("extract")
                         , array
-                            ( new Variable("a") 
+                            ( $l->variable("a") 
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("a")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("a")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new Constructor
+                    , $l->constructor
                         ( "Wrapped"
                         , array
-                            ( new Literal(42)
-                            , new Literal(23)
+                            ( $l->literal(42)
+                            , $l->literal(23)
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("extract")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("extract")
+                , $l->lambda
                     ( array()
-                    , array(new Variable("w"))
-                    , new CaseExpr
-                        ( new Application
-                            ( new Variable("w")
+                    , array($l->variable("w"))
+                    , $l->case_expr
+                        ( $l->application
+                            ( $l->variable("w")
                             , array()
                             )
                         , array
-                            ( new AlgebraicAlternative
+                            ( $l->algebraic_alternative
                                 ( "Wrapped"
                                 , array
-                                    ( new Variable("a") 
-                                    , new Variable("b") 
+                                    ( $l->variable("a") 
+                                    , $l->variable("b") 
                                     )
-                                , new Constructor
+                                , $l->constructor
                                     ( "Result" 
                                     , array
-                                        ( new Variable("a") 
-                                        , new Variable("b") 
+                                        ( $l->variable("a") 
+                                        , $l->variable("b") 
                                         )
                                     )
                                 )
@@ -90,7 +83,7 @@ class ConstructorWithValuesTest extends ProgramTestBase {
         $compiled = $compiler->compile($program, "TheMachine", "ConstructorWithValuesTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new ConstructorWithValuesTest\TheMachine();
+        $machine = $l->constructorWithValuesTest\TheMachine();
         $this->result = null;
         $machine->push_return(array
             ( "Result"  => new CodeLabel($this, "returns_result")

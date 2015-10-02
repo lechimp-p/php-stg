@@ -1,16 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\LetBinding;
-use Lechimp\STG\Lang\AlgebraicAlternative;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -18,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class NestedCaseTest extends ProgramTestBase {
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{extract, a} \u \{} -> extract a
@@ -31,87 +23,87 @@ class NestedCaseTest extends ProgramTestBase {
          *     of
          *         Wrapped a -> Result a
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
-                    ( array(new Variable("extract"), new Variable("a"))
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
+                    ( array($l->variable("extract"), $l->variable("a"))
                     , array()
-                    , new Application 
-                        ( new Variable("extract")
+                    , $l->application 
+                        ( $l->variable("extract")
                         , array
-                            ( new Variable("a") 
+                            ( $l->variable("a") 
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("a")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("a")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new LetBinding
+                    , $l->let
                         ( array
-                            ( new Binding
-                                ( new Variable("w")
-                                , new Lambda
+                            ( $l->binding
+                                ( $l->variable("w")
+                                , $l->lambda
                                     ( array()
                                     , array()
-                                    , new Constructor
+                                    , $l->constructor
                                         ( "Wrapped"
                                         , array
-                                            ( new Literal(42)
+                                            ( $l->literal(42)
                                             )
                                         )
                                     , true
                                     )
                                 )
                             )
-                        , new Constructor
+                        , $l->constructor
                             ( "Wrapped"
                             , array
-                                ( new Variable("w") 
+                                ( $l->variable("w") 
                                 )
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("extract")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("extract")
+                , $l->lambda
                     ( array()
-                    , array(new Variable("w"))
-                    , new CaseExpr
-                        ( new CaseExpr
-                            ( new Application
-                                ( new Variable("w")
+                    , array($l->variable("w"))
+                    , $l->case_expr
+                        ( $l->case_expr
+                            ( $l->application
+                                ( $l->variable("w")
                                 , array()
                                 )
                             , array
-                                ( new AlgebraicAlternative
+                                ( $l->algebraic_alternative
                                     ( "Wrapped"
                                     , array
-                                        ( new Variable("a") 
+                                        ( $l->variable("a") 
                                         )
-                                    , new Application
-                                        ( new Variable("a") 
+                                    , $l->application
+                                        ( $l->variable("a") 
                                         , array()
                                         )
                                     )
                                 )
                             )
                         , array
-                            ( new AlgebraicAlternative
+                            ( $l->algebraic_alternative
                                 ( "Wrapped"
                                 , array
-                                    ( new Variable("a") 
+                                    ( $l->variable("a") 
                                     )
-                                , new Constructor
+                                , $l->constructor
                                     ( "Result" 
                                     , array
-                                        ( new Variable("a") 
+                                        ( $l->variable("a") 
                                         )
                                     )
                                 )

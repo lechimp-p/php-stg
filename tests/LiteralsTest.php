@@ -1,16 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\AlgebraicAlternative;
-use Lechimp\STG\Lang\PrimitiveAlternative;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -18,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class LiteralsTest extends ProgramTestBase {
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{swap12, a} \u \{} -> swap12 a
@@ -27,48 +19,48 @@ class LiteralsTest extends ProgramTestBase {
          *         1 -> 2
          *         2 -> 1   
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
-                    ( array(new Variable("swap12"), new Variable("a"))
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
+                    ( array($l->variable("swap12"), $l->variable("a"))
                     , array()
-                    , new Application 
-                        ( new Variable("swap12")
+                    , $l->application 
+                        ( $l->variable("swap12")
                         , array
-                            ( new Variable("a") 
+                            ( $l->variable("a") 
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("a")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("a")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new Literal(1)
+                    , $l->literal(1)
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("swap12")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("swap12")
+                , $l->lambda
                     ( array()
-                    , array(new Variable("a"))
-                    , new CaseExpr
-                        ( new Application
-                            ( new Variable("a")
+                    , array($l->variable("a"))
+                    , $l->case_expr
+                        ( $l->application
+                            ( $l->variable("a")
                             , array()
                             )
                         , array
-                            ( new PrimitiveAlternative
-                                ( new Literal(1)
-                                , new Literal(2)
+                            ( $l->primitive_alternative
+                                ( $l->literal(1)
+                                , $l->literal(2)
                                 )
-                            , new PrimitiveAlternative
-                                ( new Literal(2)
-                                , new Literal(1)
+                            , $l->primitive_alternative
+                                ( $l->literal(2)
+                                , $l->literal(1)
                                 )
                             )
                         )

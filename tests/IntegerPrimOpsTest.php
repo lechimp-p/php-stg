@@ -1,16 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\LetBinding;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\DefaultAlternative;
-use Lechimp\STG\Lang\Application;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -18,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class IntegerPrimOpsTest extends ProgramTestBase {
     public function test_add() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = 
@@ -25,41 +17,41 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new LetBinding
+                    , $l->let
                         ( array
-                            ( new Binding
-                                ( new Variable("v")
-                                , new Lambda
+                            ( $l->binding
+                                ( $l->variable("v")
+                                , $l->lambda
                                     ( array()
                                     , array()
-                                    , new PrimOp
+                                    , $l->prim_op
                                         ( "IntAddOp"
                                         , array
-                                            ( new Literal(42)
-                                            , new Literal(23)
+                                            ( $l->literal(42)
+                                            , $l->literal(23)
                                             )
                                         )
                                     , true
                                     )  
                                 )
                             )
-                        , new CaseExpr
-                            ( new Application
-                                ( new Variable("v")
+                        , $l->case_expr
+                            ( $l->application
+                                ( $l->variable("v")
                                 , array()
                                 )
                             , array
-                                ( new DefaultAlternative
-                                    ( new Variable("a")
-                                    , new Constructor
+                                ( $l->default_alternative
+                                    ( $l->variable("a")
+                                    , $l->constructor
                                         ( "Result"
-                                        , array (new Variable("a"))
+                                        , array ($l->variable("a"))
                                         )
                                     )
                                 )
@@ -83,6 +75,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
     }
 
     public function test_sub() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = 
@@ -90,41 +84,41 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new LetBinding
+                    , $l->let
                         ( array
-                            ( new Binding
-                                ( new Variable("v")
-                                , new Lambda
+                            ( $l->binding
+                                ( $l->variable("v")
+                                , $l->lambda
                                     ( array()
                                     , array()
-                                    , new PrimOp
+                                    , $l->prim_op
                                         ( "IntSubOp"
                                         , array
-                                            ( new Literal(42)
-                                            , new Literal(23)
+                                            ( $l->literal(42)
+                                            , $l->literal(23)
                                             )
                                         )
                                     , true
                                     )  
                                 )
                             )
-                        , new CaseExpr
-                            ( new Application
-                                ( new Variable("v")
+                        , $l->case_expr
+                            ( $l->application
+                                ( $l->variable("v")
                                 , array()
                                 )
                             , array
-                                ( new DefaultAlternative
-                                    ( new Variable("a")
-                                    , new Constructor
+                                ( $l->default_alternative
+                                    ( $l->variable("a")
+                                    , $l->constructor
                                         ( "Result"
-                                        , array (new Variable("a"))
+                                        , array ($l->variable("a"))
                                         )
                                     )
                                 )
@@ -148,6 +142,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
     }
 
     public function test_mul() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = 
@@ -155,41 +151,41 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new LetBinding
+                    , $l->let
                         ( array
-                            ( new Binding
-                                ( new Variable("v")
-                                , new Lambda
+                            ( $l->binding
+                                ( $l->variable("v")
+                                , $l->lambda
                                     ( array()
                                     , array()
-                                    , new PrimOp
+                                    , $l->prim_op
                                         ( "IntMulOp"
                                         , array
-                                            ( new Literal(42)
-                                            , new Literal(23)
+                                            ( $l->literal(42)
+                                            , $l->literal(23)
                                             )
                                         )
                                     , true
                                     )  
                                 )
                             )
-                        , new CaseExpr
-                            ( new Application
-                                ( new Variable("v")
+                        , $l->case_expr
+                            ( $l->application
+                                ( $l->variable("v")
                                 , array()
                                 )
                             , array
-                                ( new DefaultAlternative
-                                    ( new Variable("a")
-                                    , new Constructor
+                                ( $l->default_alternative
+                                    ( $l->variable("a")
+                                    , $l->constructor
                                         ( "Result"
-                                        , array (new Variable("a"))
+                                        , array ($l->variable("a"))
                                         )
                                     )
                                 )

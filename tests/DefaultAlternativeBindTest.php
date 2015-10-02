@@ -1,16 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\AlgebraicAlternative;
-use Lechimp\STG\Lang\DefaultAlternative;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -18,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class DefaultAlternativeBindTest extends ProgramTestBase {
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> swapAB a
@@ -26,45 +18,45 @@ class DefaultAlternativeBindTest extends ProgramTestBase {
          *     case a of
          *         b -> b
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
-                    ( array(new Variable("swapAB"), new Variable("a"))
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
+                    ( array($l->variable("swapAB"), $l->variable("a"))
                     , array()
-                    , new Application 
-                        ( new Variable("swapAB")
+                    , $l->application 
+                        ( $l->variable("swapAB")
                         , array
-                            ( new Variable("a") 
+                            ( $l->variable("a") 
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("a")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("a")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new Constructor("A", array())
+                    , $l->constructor("A", array())
                     , false 
                     )
                 )
-            , new Binding
-                ( new Variable("swapAB")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("swapAB")
+                , $l->lambda
                     ( array()
-                    , array(new Variable("a"))
-                    , new CaseExpr
-                        ( new Application
-                            ( new Variable("a")
+                    , array($l->variable("a"))
+                    , $l->case_expr
+                        ( $l->application
+                            ( $l->variable("a")
                             , array()
                             )
                         , array
-                            ( new DefaultAlternative 
-                                ( new Variable("b")
-                                , new Application
-                                    ( new Variable("b")
+                            ( $l->default_alternative 
+                                ( $l->variable("b")
+                                , $l->application
+                                    ( $l->variable("b")
                                     , array()
                                     )
                                 )

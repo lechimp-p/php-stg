@@ -1,17 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\LetBinding;
-use Lechimp\STG\Lang\LetRecBinding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\DefaultAlternative;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -22,6 +11,8 @@ class BlackHoleTest extends ProgramTestBase {
      * @expectedException Lechimp\STG\Exceptions\BlackHole
      */
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{} \u \{} -> 
@@ -30,29 +21,29 @@ class BlackHoleTest extends ProgramTestBase {
          *                      b -> b
          *      in a 
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new LetRecBinding
+                    , $l->letrec
                         ( array
-                            ( new Binding
-                                ( new Variable("a")
-                                , new Lambda
-                                    ( array( new Variable("a") )
+                            ( $l->binding
+                                ( $l->variable("a")
+                                , $l->lambda
+                                    ( array( $l->variable("a") )
                                     , array()
-                                    , new CaseExpr
-                                        ( new Application
-                                            ( new Variable("a")
+                                    , $l->case_expr
+                                        ( $l->application
+                                            ( $l->variable("a")
                                             , array()
                                             )
                                         , array
-                                            ( new DefaultAlternative
-                                                ( new Variable("b")
-                                                , new Application
-                                                    ( new Variable("b")
+                                            ( $l->default_alternative
+                                                ( $l->variable("b")
+                                                , $l->application
+                                                    ( $l->variable("b")
                                                     , array()
                                                     )
                                                 )
@@ -62,8 +53,8 @@ class BlackHoleTest extends ProgramTestBase {
                                     )
                                 )
                             )
-                        , new Application 
-                            ( new Variable("a")
+                        , $l->application 
+                            ( $l->variable("a")
                             , array()
                             )
                         )

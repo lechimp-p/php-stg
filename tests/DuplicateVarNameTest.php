@@ -1,17 +1,6 @@
 <?php
 
-use Lechimp\STG\Lang\Program;
-use Lechimp\STG\Lang\Binding;
-use Lechimp\STG\Lang\Variable;
-use Lechimp\STG\Lang\Lambda;
-use Lechimp\STG\Lang\PrimOp;
-use Lechimp\STG\Lang\Literal;
-use Lechimp\STG\Lang\Application;
-use Lechimp\STG\Lang\Constructor;
-use Lechimp\STG\Lang\CaseExpr;
-use Lechimp\STG\Lang\AlgebraicAlternative;
-use Lechimp\STG\Lang\DefaultAlternative;
-use Lechimp\STG\Lang\LetBinding;
+use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
 
@@ -19,6 +8,8 @@ require_once(__DIR__."/ProgramTestBase.php");
 
 class DuplicateVarNameTest extends ProgramTestBase {
     public function test_program() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> 
@@ -32,85 +23,85 @@ class DuplicateVarNameTest extends ProgramTestBase {
          *         B -> A   
          *         default -> a   
          */
-        $program = new Program(array
-            ( new Binding
-                ( new Variable("main")
-                , new Lambda
-                    ( array(new Variable("swapAB"), new Variable("a"))
+        $program = $l->program(array
+            ( $l->binding
+                ( $l->variable("main")
+                , $l->lambda
+                    ( array($l->variable("swapAB"), $l->variable("a"))
                     , array()
-                    , new LetBinding
+                    , $l->let
                         ( array
-                            ( new Binding
-                                ( new Variable("b")
-                                , new Lambda
-                                    ( array(new Variable("a"))
+                            ( $l->binding
+                                ( $l->variable("b")
+                                , $l->lambda
+                                    ( array($l->variable("a"))
                                     , array()
-                                    , new Application 
-                                        ( new Variable("a")
+                                    , $l->application 
+                                        ( $l->variable("a")
                                         , array ()
                                         )
                                     , true
                                     )
                                 )
-                            , new Binding
-                                ( new Variable("a")
-                                , new Lambda
-                                    ( array(new Variable("swapAB"))
-                                    , array(new Variable("c"))
-                                    , new Application
-                                        ( new Variable("swapAB")
+                            , $l->binding
+                                ( $l->variable("a")
+                                , $l->lambda
+                                    ( array($l->variable("swapAB"))
+                                    , array($l->variable("c"))
+                                    , $l->application
+                                        ( $l->variable("swapAB")
                                         , array
-                                            ( new Variable("c")
+                                            ( $l->variable("c")
                                             )
                                         )
                                     , true
                                     )
                                 )
                             )
-                        , new Application 
-                            ( new Variable("a")
+                        , $l->application 
+                            ( $l->variable("a")
                             , array
-                                ( new Variable("b") 
+                                ( $l->variable("b") 
                                 )
                             )
                         )
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("a")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("a")
+                , $l->lambda
                     ( array()
                     , array()
-                    , new Constructor("A", array())
+                    , $l->constructor("A", array())
                     , true
                     )
                 )
-            , new Binding
-                ( new Variable("swapAB")
-                , new Lambda
+            , $l->binding
+                ( $l->variable("swapAB")
+                , $l->lambda
                     ( array()
-                    , array(new Variable("a"))
-                    , new CaseExpr
-                        ( new Application
-                            ( new Variable("a")
+                    , array($l->variable("a"))
+                    , $l->case_expr
+                        ( $l->application
+                            ( $l->variable("a")
                             , array()
                             )
                         , array
-                            ( new AlgebraicAlternative
+                            ( $l->algebraic_alternative
                                 ( "A"
                                 , array()
-                                , new Constructor("B", array())
+                                , $l->constructor("B", array())
                                 )
-                            , new AlgebraicAlternative
+                            , $l->algebraic_alternative
                                 ( "B"
                                 , array()
-                                , new Constructor("A", array())
+                                , $l->constructor("A", array())
                                 )
-                            , new DefaultAlternative 
+                            , $l->default_alternative 
                                 ( null
-                                , new Application
-                                    ( new Variable("a")
+                                , $l->application
+                                    ( $l->variable("a")
                                     , array()
                                     )
                                 )

@@ -9,7 +9,7 @@ namespace Lechimp\STG\Lang;
  * flexibility in the objects used for lang construction.
  */
 class Lang {
-    public function algebraic_alternative($id, array $variables, Expresson $expression) {
+    public function algebraic_alternative($id, array $variables, Expression $expression) {
         return new AlgebraicAlternative($id, $variables, $expression);
     }
 
@@ -50,7 +50,7 @@ class Lang {
     }
 
     public function prim_op($id, array $atoms) {
-        return new Atom($id, $atoms);
+        return new PrimOp($id, $atoms);
     }
 
     public function primitive_alternative(Literal $literal, Expression $expression) {
