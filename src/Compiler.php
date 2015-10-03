@@ -162,7 +162,7 @@ class Compiler {
                     })))
                 , $sub_result->flush_methods()
                 )
-            , "\\Lechimp\\STG\\STGClosure"
+            , "\\Lechimp\\STG\\Closures\\Standard"
             ));
 
         $results->add($sub_result);

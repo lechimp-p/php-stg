@@ -39,12 +39,12 @@ abstract class STG {
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
             assert(is_string($key));
-            assert($value instanceof STGClosure);
+            assert($value instanceof Closures\Standard);
         }
         if (!array_key_exists("main", $globals)) {
             throw new \LogicException("Missing global 'main'.");
         }
-        if (!$globals["main"] instanceof STGClosure) {
+        if (!$globals["main"] instanceof Closures\Standard) {
             throw new \LogicException("Expected 'main' to be a closure.");
         }
         $this->globals = $globals;
@@ -70,7 +70,7 @@ abstract class STG {
      *
      * @return CodeLabel
      */
-    public function enter(STGClosure $closure) {
+    public function enter(Closures\Standard $closure) {
         //echo "enter: ".get_class($closure)."\n";
         // That may be superfluous as we just return the label.
         // See Gen::stg_enter.
@@ -82,18 +82,18 @@ abstract class STG {
     /**
      * Push an argument on the stack.
      *
-     * @param   STGClosure|int  $arg
+     * @param   Closures\Standard|int  $arg
      * @return  none
      */
     public function push_arg($argument) {
-        assert(is_int($argument) || $argument instanceof STGClosure);
+        assert(is_int($argument) || $argument instanceof Closures\Standard);
         $this->argument_stack->push($argument); 
     }
 
     /**
      * Pop an argument from the stack.
      *
-     * @return  STGClosure|int
+     * @return  Closures\Standard|int
      */
     public function pop_arg() {
         return $this->argument_stack->pop();
