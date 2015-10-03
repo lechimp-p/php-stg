@@ -6,84 +6,135 @@ use Lechimp\STG\CodeLabel;
 
 require_once(__DIR__."/ProgramTestBase.php");
 
-class BasicTest extends ProgramTestBase {
+class UpdateTest extends ProgramTestBase {
     public function test_program() {
         $l = new Lang();
 
         /**
          * Represents the following program
-         * main = \{swapAB, a} \u \{} -> swapAB a
-         * a = \{} \n \{} -> A
-         * swapAB = \{} \n \{a} -> 
-         *     case a of
-         *         A -> B
-         *         B -> A   
-         *         default -> a   
+         * main = \{} \n \{} ->
+         *  letrec v = \{} \n \{c} -> V c
+         *         a = \{v} \u \{} -> v 42
+         *         t = \{a} \n \{} -> T a a
+         *  in case t of
+         *      T a b -> case a of
+         *          V v1 -> case b of
+         *              V v2 -> Result v1 v2
          */
         $program = $l->program(array
             ( $l->binding
                 ( $l->variable("main")
                 , $l->lambda
-                    ( array($l->variable("swapAB"), $l->variable("a"))
+                    ( array()
                     , array()
-                    , $l->application 
-                        ( $l->variable("swapAB")
-                        , array
-                            ( $l->variable("a") 
+                    , $l->letrec(array
+                        ( $l->binding
+                            ( $l->variable("v")
+                            , $l->lambda
+                                ( array()
+                                , array($l->variable("c"))
+                                , $l->constructor
+                                    ( "V"
+                                    , array
+                                        ( $l->variable("c")
+                                        )
+                                    )
+                                , false 
+                                )
+                            )
+                        , $l->binding
+                            ( $l->variable("a")
+                            , $l->lambda
+                                ( array($l->variable("v"))
+                                , array()
+                                , $l->application
+                                    ( $l->variable("v")
+                                    , array($l->literal(42))
+                                    )
+                                , true
+                                )
+                            )
+                        , $l->binding
+                            ( $l->variable("t")
+                            , $l->lambda
+                                ( array($l->variable("a"))
+                                , array()
+                                , $l->constructor
+                                    ( "T"
+                                    , array
+                                        ( $l->variable("a")
+                                        , $l->variable("a")
+                                        )
+                                    )
+                                , false 
+                                )
                             )
                         )
-                    , true
-                    )
-                )
-            , $l->binding
-                ( $l->variable("a")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->constructor("A", array())
-                    , true
-                    )
-                )
-            , $l->binding
-                ( $l->variable("swapAB")
-                , $l->lambda
-                    ( array()
-                    , array($l->variable("a"))
-                    , $l->case_expr
-                        ( $l->application
-                            ( $l->variable("a")
-                            , array()
-                            )
-                        , array
-                            ( $l->algebraic_alternative
-                                ( "A"
+            /*  This part is:
+             *  in case t of
+             *      T a b -> case a of
+             *          V v1 -> case b of
+             *              V v2 -> Result v1 v2
+             */
+                        , $l->case_expr
+                            ( $l->application
+                                ( $l->variable("t")
                                 , array()
-                                , $l->constructor("B", array())
                                 )
-                            , $l->algebraic_alternative
-                                ( "B"
-                                , array()
-                                , $l->constructor("A", array())
-                                )
-                            , $l->default_alternative 
-                                ( null
-                                , $l->application
-                                    ( $l->variable("a")
-                                    , array()
+                            , array
+                                ( $l->algebraic_alternative
+                                    ( "T"
+                                    , array
+                                        ( $l->variable("a")
+                                        , $l->variable("b")
+                                        )
+                                    , $l->case_expr
+                                        ( $l->application
+                                            ( $l->variable("a")
+                                            , array()
+                                            )
+                                        , array
+                                            ( $l->algebraic_alternative
+                                                ( "V"
+                                                , array($l->variable("v1"))
+                                                , $l->case_expr
+                                                    ( $l->application
+                                                        ( $l->variable("b")
+                                                        , array()
+                                                        )
+                                                    , array
+                                                        ( $l->algebraic_alternative
+                                                            ( "V"
+                                                            , array($l->variable("v2"))
+                                                            , $l->constructor
+                                                                ( "Result"
+                                                                , array
+                                                                    ( $l->variable("v1")
+                                                                    , $l->variable("v2")
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
                                     )
                                 )
                             )
                         )
-                    , false
+                        , false 
                     )
                 )
             ));
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "BasicTest"); 
+        $compiled = $compiler->compile($program, "TheMachine", "UpdateTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new BasicTest\TheMachine();
+        $machine = new UpdateTest\TheMachine();
         $result = $this->machine_result($machine);
-        $this->assertEquals("B", $result[1]);
+        $this->assertEquals("Result", $result[1]);
+        $this->assertEquals(42, $result[2]);
+        $this->assertEquals(42, $result[3]);
     }
 }
