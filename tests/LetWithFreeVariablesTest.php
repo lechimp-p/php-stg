@@ -107,15 +107,8 @@ class LetWithFreeVariablesTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new LetWithFreeVariablesTest\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "Result"  => new CodeLabel($this, "returns_result")
-            ));
-        $machine->run();
-        $this->assertEquals(array(42, 23), $this->result);
-    }
-
-    public function returns_result($stg) {
-        $this->result = $stg->pop_argument_register();
+        $result = $this->machine_result($machine);
+        $this->assertEquals(42, $result[2]);
+        $this->assertEquals(23, $result[3]);
     }
 }

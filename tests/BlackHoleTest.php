@@ -68,13 +68,6 @@ class BlackHoleTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new BlackHoleTest\TheMachine();
-        $machine->push_return(array
-            ( "Undefined" => new CodeLabel($this, "returns_Undefined")
-            ));
-        $machine->run();
-    }
-
-    public function returns_Undefined($_) {
-        $this->assertFalse(true);
+        $result = $this->machine_result($machine);
     } 
 }

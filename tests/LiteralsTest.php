@@ -73,20 +73,7 @@ class LiteralsTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new LiteralsTest\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( 1 => new CodeLabel($this, "returns_1")
-            , 2 => new CodeLabel($this, "returns_2")
-            ));
-        $machine->run();
-        $this->assertEquals(2, $this->result);
-    }
-
-    public function returns_1($_) {
-        $this->result = 1;
-    }
-
-    public function returns_2($_) {
-        $this->result = 2;
+        $result = $this->machine_result($machine);
+        $this->assertEquals(2, $result[0]);
     }
 }

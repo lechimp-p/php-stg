@@ -83,25 +83,7 @@ class DefaultAlternativeTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new DefaultAlternativeTest\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "A" => new CodeLabel($this, "returns_A")
-            , "B" => new CodeLabel($this, "returns_B")
-            , "C" => new CodeLabel($this, "returns_C")
-            ));
-        $machine->run();
-        $this->assertEquals("C", $this->result);
-    }
-
-    public function returns_A($_) {
-        $this->result = "A";
-    }
-
-    public function returns_B($_) {
-        $this->result = "B";
-    }
-
-    public function returns_C($_) {
-        $this->result = "C";
+        $result = $this->machine_result($machine);
+        $this->assertEquals("C", $result[1]);
     }
 }

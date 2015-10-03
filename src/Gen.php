@@ -177,6 +177,10 @@ class Gen {
         return new Gen\GStatement($this->local_env($name)." = \${$this->stg_name}->pop_argument_register()");
     }
 
+    public function stg_get_argument_register_to($to) {
+        return new Gen\GStatement("\${$to}= \${$this->stg_name}->get_argument_register()");
+    }
+
     public function code_label($method_name) {
         return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
     }

@@ -82,20 +82,7 @@ class LetTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new LetTest\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "A" => new CodeLabel($this, "returns_A")
-            , "B" => new CodeLabel($this, "returns_B")
-            ));
-        $machine->run();
-        $this->assertEquals("B", $this->result);
-    }
-
-    public function returns_A($_) {
-        $this->result = "A";
-    }
-
-    public function returns_B($_) {
-        $this->result = "B";
+        $result = $this->machine_result($machine);
+        $this->assertEquals("B", $result[1]);
     }
 }

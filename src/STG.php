@@ -161,7 +161,7 @@ abstract class STG {
     }
 
     /**
-     * Get the arguments stored in the argument register.
+     * Get the arguments stored in the argument register and clean it.
      *
      * @return  array
      */
@@ -170,5 +170,15 @@ abstract class STG {
         $args = $this->argument_register;
         $this->argument_register = null;
         return $args;
+    }
+
+    /**
+     * Get the arguments stored in the argument register.
+     *
+     * @return  array
+     */
+    public function get_argument_register() {
+        assert($this->argument_register !== null);
+        return $this->argument_register;
     }
 }

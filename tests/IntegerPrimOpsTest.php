@@ -66,12 +66,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new IntegerPrimOpsTestAdd\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "Result" => new CodeLabel($this, "returns_result")
-            ));
-        $machine->run();
-        $this->assertEquals(array(42 + 23), $this->result);
+        $result = $this->machine_result($machine);
+        $this->assertEquals(42 + 23, $result[2]);
     }
 
     public function test_sub() {
@@ -133,12 +129,8 @@ class IntegerPrimOpsTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new IntegerPrimOpsTestSub\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "Result" => new CodeLabel($this, "returns_result")
-            ));
-        $machine->run();
-        $this->assertEquals(array(42 - 23), $this->result);
+        $result = $this->machine_result($machine);
+        $this->assertEquals(42 - 23, $result[2]);
     }
 
     public function test_mul() {
@@ -200,16 +192,7 @@ class IntegerPrimOpsTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new IntegerPrimOpsTestMul\TheMachine();
-        $this->result = null;
-        $machine->push_return(array
-            ( "Result" => new CodeLabel($this, "returns_result")
-            ));
-        $machine->run();
-        $this->assertEquals(array(42 * 23), $this->result);
-    }
-
-
-    public function returns_result($stg) {
-        $this->result = $stg->pop_argument_register();
+        $result = $this->machine_result($machine);
+        $this->assertEquals(42 * 23, $result[2]);
     }
 }
