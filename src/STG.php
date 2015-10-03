@@ -99,6 +99,7 @@ abstract class STG {
         $this->b_top = 0;
         $this->b_bottom = 0;
         $this->register = null;
+        $this->label_update = new CodeLabel($this, "update");
     }
 
     /**
@@ -182,7 +183,7 @@ abstract class STG {
     /**
      * Pop a continuation, environment or update frame from the b stack.
      *
-     * @return CodeLabel
+     * @return mixed 
      */
     public function pop_b_stack() {
         assert($this->b_stack->count() > 0);
@@ -239,6 +240,15 @@ abstract class STG {
         $this->argument_stack = new \SPLStack();
         $this->return_stack = new \SPLStack();
         $this->env_stack = new \SPLStack();
+        $this->push_return($this->label_update);
+    }
+
+    /**
+     * Pop an update frame.
+     */
+    protected function pop_update_frame() {
+        assert($this->update_stack->count() !== 0);
+        return $this->update_stack->pop();
     }
 
     /**
@@ -258,7 +268,9 @@ abstract class STG {
      *
      * @return CodeLabel
      */
-    public function update() {
-        throw new \Exception("UPDATE");
+    public function update($_) {
+        // Just restore the update frame, we will create a real implementation
+        // later on.
+        throw new \Exception("UPDATE"); 
     }
 }
