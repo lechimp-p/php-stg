@@ -254,13 +254,19 @@ abstract class STG {
     /**
      * Perform an update for a partial application.
      *
+     * TODO: There are no actual tests for this.
+     *
      * @return CodeLabel
      */
     public function update_partial_application() {
         list($node, $argument_stack, $return_stack, $env_stack)
             = $this->update_stack->pop();
-        $node->in_place_update($this->node, $argument_stack
-                              , $return_stack, $env_stack);
+        $node->update(new Closures\PartialApplication
+                            ( $this->node
+                            , $argument_stack
+                            , $return_stack
+                            , $env_stack
+                            ));
     }
 
     /**
