@@ -253,7 +253,6 @@ abstract class STG {
                               , $return_stack, $env_stack);
     }
 
-
     /**
      * Perform an update.
      *
