@@ -12,10 +12,10 @@ class UpdateTest extends ProgramTestBase {
 
         /**
          * Represents the following program
-         * main = \{} \n \{} ->
-         *  letrec v = \{} \n \{c} -> V c
+         * main = \{} \u \{} ->
+         *  letrec v = \{} \u \{c} -> V c
          *         a = \{v} \u \{} -> v 42
-         *         t = \{a} \n \{} -> T a a
+         *         t = \{a} \u \{} -> T a a
          *  in case t of
          *      T a b -> case a of
          *          V v1 -> case b of
@@ -39,7 +39,7 @@ class UpdateTest extends ProgramTestBase {
                                         ( $l->variable("c")
                                         )
                                     )
-                                , false 
+                                , true
                                 )
                             )
                         , $l->binding
@@ -66,7 +66,7 @@ class UpdateTest extends ProgramTestBase {
                                         , $l->variable("a")
                                         )
                                     )
-                                , false 
+                                , true 
                                 )
                             )
                         )
