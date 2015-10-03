@@ -6,7 +6,7 @@ use Lechimp\STG\STG;
 use Lechimp\STG\Exceptions\BlackHole;
 use Lechimp\STG\CodeLabel;
 
-class PartialApplication {
+class PartialApplication extends Standard {
     /**
      * @var STGClosure|null
      */

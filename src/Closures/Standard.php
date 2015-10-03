@@ -103,5 +103,6 @@ abstract class Standard {
         assert($this->updated === null);
         $this->updated = $updated;
         $this->free_variables = null;
+        $this->entry_code = $updated->entry_code;
     } 
 }

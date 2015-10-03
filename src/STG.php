@@ -146,8 +146,9 @@ abstract class STG {
      * @return  null
      */
     public function push_args(\SPLStack $args) {
-        while($args->count() > 0) {
-            $stg->push_arg($args->pop());
+        $cnt = $args->count();
+        for ($i = $cnt-1; $i >= 0; $i--) {
+            $stg->push_arg($args[$i]);
         }
     }
 
@@ -277,6 +278,11 @@ abstract class STG {
     public function update($_) {
         // Just restore the update frame, we will create a real implementation
         // later on.
-        throw new \Exception("UPDATE"); 
+        $update_frame = $this->pop_update_frame();
+        $this->push_args($update_frame[1]);
+        $this->push_returns($update_frame[2]);
+        $this->push_envs($update_frame[3]);
+        $update_frame[0]->update(new Closures\WHNF($this->get_argument_register()));
+        return $this->pop_return();
     }
 }
