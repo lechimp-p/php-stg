@@ -271,7 +271,7 @@ abstract class STG {
     }
 
     /**
-     * Perform an update.
+     * Perform an update for a WHNF.
      *
      * @return CodeLabel
      */
