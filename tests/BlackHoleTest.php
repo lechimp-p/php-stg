@@ -23,21 +23,17 @@ class BlackHoleTest extends ProgramTestBase {
          */
         $program = $l->prg(array
             ( "main" => $l->lam_n
-                ( $l->letrec
-                    ( array
-                        ( $l->binding
-                            ( $l->variable("a")
-                            , $l->lam_f
-                                ( array("a")
-                                , $l->cse
-                                    ( $l->app("a")
-                                    , array
-                                        ( "default b" => $l->app("b")
-                                        )
-                                    )
+                ( $l->ltr( array
+                    ( "a" => $l->lam_f
+                        ( array("a")
+                        , $l->cse
+                            ( $l->app("a")
+                            , array
+                                ( "default b" => $l->app("b")
                                 )
                             )
                         )
+                    )
                     , $l->app("a")
                     )
                 )

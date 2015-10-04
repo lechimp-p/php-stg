@@ -21,11 +21,7 @@ class Lang {
      * @return  Program
      */
     public function prg(array $bindings) {
-        $bnds = array();
-        foreach($bindings as $key => $value) {
-            assert(is_string($key));
-            $bnds[] = $this->binding($this->to_var($key), $value);
-        }
+        $bnds = $this->to_bindings($bindings);
         return $this->program($bnds);
     }
 
@@ -164,6 +160,18 @@ class Lang {
         return $this->constructor($name, $this->to_vars($args));
     }
 
+    /**
+     * Give an dictionary with bindings and an expression and get a LetRecBinding.
+     *
+     * @param   array       $bindings
+     * @param   Expression  $expr
+     * @return  LetRecBinding
+     */
+    public function ltr(array $bindings, Expression $expr) {
+        $bnds = $this->to_bindings($bindings);
+        return $this->letrec($bnds, $expr);
+    }
+
     // TRIVIAL FACTORIES 
 
     public function algebraic_alternative($id, array $variables, Expression $expression) {
@@ -236,5 +244,14 @@ class Lang {
         return array_map(function($n) {
             return $this->to_var($n);
         }, $arr);
+    }
+
+    private function to_bindings(array &$bindings) {
+        $bnds = array();
+        foreach($bindings as $key => $value) {
+            assert(is_string($key));
+            $bnds[] = $this->binding($this->to_var($key), $value);
+        }
+        return $bnds;
     }
 }
