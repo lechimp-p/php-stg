@@ -36,7 +36,8 @@ class PartialApplication extends Standard {
                                , \SPLStack $return_stack
                                , \SPLStack $env_stack
                                ) {
-        parent::__construct(array());
+        $a = array();
+        parent::__construct($a);
 
         // For partial update.
         $this->function_closure = $function_closure;
@@ -46,16 +47,15 @@ class PartialApplication extends Standard {
     }
 
     public function entry_code(STG $stg) {
-        assert($this->argument_stack instanceof SPLStack);
-        $this->stg->push_args($this->argument_stack);
-
-        assert($this->return_stack instanceof SPLStack);
+        $this->stg->push_front_args($this->argument_stack);
         $this->stg->push_returns($this->return_stack);
-
-        assert($this->env_stack instanceof SPLStack);
         $this->stg->push_envs($this->env_stack);
 
-        return $this->function_closure->entry_code;
+        return $stg->enter($this->function_closure->entry_code);
+    }
+
+    public function free_variables_names() {
+        return array();
     }
 }
 

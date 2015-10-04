@@ -148,7 +148,30 @@ abstract class STG {
     public function push_args(\SPLStack $args) {
         $cnt = $args->count();
         for ($i = $cnt-1; $i >= 0; $i--) {
-            $stg->push_arg($args[$i]);
+            $this->push_arg($args[$i]);
+        }
+    }
+
+    /**
+     * Add the values found in the argument to the front of the argument stack.
+     *
+     * @param   \SPLStack $args
+     * @return  null
+     */
+    public function push_front_args(\SPLStack $args) {
+        // TODO: This is bad for performance, aight? I might need another data
+        // structure for the stacks...
+        $tmp = $this->argument_stack;
+        $this->argument_stack = new \SPLStack();
+        
+        $cnt = $args->count();
+        for ($i = $cnt-1; $i >= 0; $i--) {
+            $this->push_arg($args[$i]);
+        }
+        
+        $cnt = $tmp->count();
+        for ($i = $cnt-1; $i >= 0; $i--) {
+            $this->push_arg($tmp[$i]);
         }
     }
 
@@ -261,13 +284,18 @@ abstract class STG {
      */
     public function update_partial_application() {
         list($node, $argument_stack, $return_stack, $env_stack)
-            = $this->update_stack->pop();
+            = $this->pop_update_frame();
+
+        $this->push_front_args($argument_stack);
+        $this->push_returns($return_stack);
+        $this->push_envs($env_stack);
         $node->update(new Closures\PartialApplication
                             ( $this->node
                             , $argument_stack
                             , $return_stack
                             , $env_stack
                             ));
+        return $this->enter($this->node);
     }
 
     /**
@@ -278,11 +306,12 @@ abstract class STG {
     public function update($_) {
         // Just restore the update frame, we will create a real implementation
         // later on.
-        $update_frame = $this->pop_update_frame();
-        $this->push_args($update_frame[1]);
-        $this->push_returns($update_frame[2]);
-        $this->push_envs($update_frame[3]);
-        $update_frame[0]->update(new Closures\WHNF($this->get_argument_register()));
+        list($node, $argument_stack, $return_stack, $env_stack)
+            = $this->pop_update_frame();
+        $this->push_args($argument_stack);
+        $this->push_returns($return_stack);
+        $this->push_envs($env_stack);
+        $node->update(new Closures\WHNF($this->get_argument_register()));
         return $this->pop_return();
     }
 }
