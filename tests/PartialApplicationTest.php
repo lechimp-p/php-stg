@@ -18,63 +18,26 @@ class PartialApplicationTest extends ProgramTestBase {
          *         v  = \{vt} \n \{}  -> vt 23
          *  in v 
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->letrec(array
-                        ( $l->binding
-                            ( $l->variable("tc")
-                            , $l->lambda
-                                ( array()
-                                , array
-                                    ( $l->variable("a")
-                                    , $l->variable("b")
-                                    )
-                                , $l->constructor
-                                    ( "T"
-                                    , array
-                                        ( $l->variable("a")
-                                        , $l->variable("b")
-                                        )
-                                    )
-                                , false 
-                                )
-                            )
-                        , $l->binding
-                            ( $l->variable("vt")
-                            , $l->lambda
-                                ( array($l->variable("tc"))
-                                , array()
-                                , $l->application
-                                    ( $l->variable("tc")
-                                    , array($l->literal(42))
-                                    )
-                                , true 
-                                )
-                            )
-                        , $l->binding
-                            ( $l->variable("v")
-                            , $l->lambda
-                                ( array($l->variable("vt"))
-                                , array()
-                                , $l->application
-                                    ( $l->variable("vt")
-                                    , array($l->literal(23))
-                                    )
-                                , false 
-                                )
-                            )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->ltr(array
+                    ( "tc" => $l->lam_a
+                        ( array("a", "b")
+                        , $l->con("T", "a", "b")
+                        , false 
                         )
-                        , $l->application
-                            ( $l->variable("v")
-                            , array()
-                            )
+                    , "vt" => $l->lam_f
+                        ( array("tc")
+                        , $l->app("tc", $l->lit(42)) 
                         )
-                    , false 
+                    , "v" => $l->lam_f
+                        ( array("vt")
+                        , $l->app("vt", $l->lit(23))
+                        )
                     )
+                    , $l->app("v")
+                    )
+                , false 
                 )
             ));
         $compiler = new Compiler();
