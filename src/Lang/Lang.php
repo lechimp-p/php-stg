@@ -172,6 +172,16 @@ class Lang {
         return $this->letrec($bnds, $expr);
     }
 
+    /**
+     * Get a literal.
+     *
+     * @param   mixed   $value
+     * @return  Literal
+     */
+    public function lit($value) {
+        return $this->literal($value);
+    }
+
     // TRIVIAL FACTORIES 
 
     public function algebraic_alternative($id, array $variables, Expression $expression) {

@@ -18,66 +18,24 @@ class ConstructorWithValuesTest extends ProgramTestBase {
          *     case w of
          *         Wrapped a b -> Result a b
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array($l->variable("extract"), $l->variable("a"))
-                    , array()
-                    , $l->application 
-                        ( $l->variable("extract")
-                        , array
-                            ( $l->variable("a") 
-                            )
-                        )
-                    , true
+        $program = $l->prg(array
+            ( "main" => $l->lam_f
+                    ( array("extract", "a")
+                    , $l->app("extract", "a")
                     )
-                )
-            , $l->binding
-                ( $l->variable("a")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->constructor
-                        ( "Wrapped"
-                        , array
-                            ( $l->literal(42)
-                            , $l->literal(23)
-                            )
-                        )
-                    , true
+            , "a" => $l->lam_n
+                    ( $l->con("Wrapped", $l->lit(42), $l->lit(23))
                     )
-                )
-            , $l->binding
-                ( $l->variable("extract")
-                , $l->lambda
-                    ( array()
-                    , array($l->variable("w"))
-                    , $l->case_expr
-                        ( $l->application
-                            ( $l->variable("w")
-                            , array()
-                            )
+            , "extract" => $l->lam_a
+                    ( array("w")
+                    , $l->cse
+                        ( $l->app("w")
                         , array
-                            ( $l->algebraic_alternative
-                                ( "Wrapped"
-                                , array
-                                    ( $l->variable("a") 
-                                    , $l->variable("b") 
-                                    )
-                                , $l->constructor
-                                    ( "Result" 
-                                    , array
-                                        ( $l->variable("a") 
-                                        , $l->variable("b") 
-                                        )
-                                    )
-                                )
+                            ( "Wrapped a b" => $l->con("Result", "a", "b")
                             )
                         )
                     , false
                     )
-                )
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "ConstructorWithValuesTest"); 
