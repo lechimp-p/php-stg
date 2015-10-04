@@ -29,6 +29,34 @@ class Lang {
         return $this->program($bnds);
     }
 
+    /**
+     * Provide an array of free variables, an array of arguments and an expression
+     * and get a lambda.
+     *
+     * One can optionaly provide an updatable-flag, which defaults to true.
+     *
+     * @param   string[]    $free_vars
+     * @param   string[]    $args
+     * @param   Expression  $expr
+     * @param   bool|null   $updatable defaults to true
+     * @return  Lambda
+     */
+    public function lam(array $free_vars, array $args, Expression $expr, $updatable = true) {
+        assert(is_bool($updatable));
+        return $this->lambda( $this->to_vars($free_vars)
+                            , $this->to_vars($args)
+                            , $expr
+                            , $updatable
+                            );
+    }
+
+    private function to_vars(array &$arr) {
+        return array_map(function($n) {
+            assert(is_string($n));
+            return $this->variable($n);
+        }, $arr);
+    }
+
     public function algebraic_alternative($id, array $variables, Expression $expression) {
         return new AlgebraicAlternative($id, $variables, $expression);
     }
