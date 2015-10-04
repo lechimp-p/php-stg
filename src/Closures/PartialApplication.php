@@ -47,11 +47,11 @@ class PartialApplication extends Standard {
     }
 
     public function entry_code(STG $stg) {
-        $this->stg->push_front_args($this->argument_stack);
-        $this->stg->push_returns($this->return_stack);
-        $this->stg->push_envs($this->env_stack);
+        $stg->push_front_args($this->argument_stack);
+        $stg->push_returns($this->return_stack);
+        $stg->push_envs($this->env_stack);
 
-        return $stg->enter($this->function_closure->entry_code);
+        return $stg->enter($this->function_closure);
     }
 
     public function free_variables_names() {

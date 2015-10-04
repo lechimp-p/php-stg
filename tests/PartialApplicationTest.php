@@ -13,9 +13,9 @@ class PartialApplicationTest extends ProgramTestBase {
         /**
          * Represents the following program
          * main = \{} \n \{} ->
-         *  letrec tc = \{} \n \{a,b} -> T a b
+         *  letrec tc = \{} \u \{a,b} -> T a b
          *         vt = \{tc} \u \{}  -> tc 42
-         *         v  = \{vt} \n \{}  -> vt 23
+         *         v  = \{vt} \u \{}  -> vt 23
          *  in v 
          */
         $program = $l->prg(array
@@ -24,7 +24,6 @@ class PartialApplicationTest extends ProgramTestBase {
                     ( "tc" => $l->lam_a
                         ( array("a", "b")
                         , $l->con("T", "a", "b")
-                        , false 
                         )
                     , "vt" => $l->lam_f
                         ( array("tc")
@@ -57,10 +56,10 @@ class PartialApplicationTest extends ProgramTestBase {
         /**
          * Represents the following program
          * main = \{} \n \{} ->
-         *  letrec tc = \{} \n \{a,b} -> T a b
+         *  letrec tc = \{} \u \{a,b} -> T a b
          *         vt = \{tc} \u \{}  -> tc 42
-         *         v1 = \{vt} \n \{}  -> vt 23
-         *         v2 = \{vt} \n \{}  -> vt 5 
+         *         v1 = \{vt} \u \{}  -> vt 23
+         *         v2 = \{vt} \u \{}  -> vt 5 
          *  in case v1 of
          *      T a b -> case v2 of
          *          T c d -> T4 a b c d
@@ -72,7 +71,6 @@ class PartialApplicationTest extends ProgramTestBase {
                     ( "tc" => $l->lam_a
                         ( array("a", "b")
                         , $l->con("T", "a", "b")
-                        , false 
                         )
                     , "vt" => $l->lam_f
                         ( array("tc")

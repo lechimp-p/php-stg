@@ -286,15 +286,18 @@ abstract class STG {
         list($node, $argument_stack, $return_stack, $env_stack)
             = $this->pop_update_frame();
 
+        // Remove update code label, introduced in push_update_frame,
+        // as we do the update now, not in constructor.
+        $this->pop_return();
+        $node->update(new Closures\PartialApplication
+                            ( $this->node
+                            , clone $this->argument_stack
+                            , clone $this->return_stack
+                            , clone $this->env_stack
+                            ));
         $this->push_front_args($argument_stack);
         $this->push_returns($return_stack);
         $this->push_envs($env_stack);
-        $node->update(new Closures\PartialApplication
-                            ( $this->node
-                            , $argument_stack
-                            , $return_stack
-                            , $env_stack
-                            ));
         return $this->enter($this->node);
     }
 
