@@ -18,52 +18,24 @@ class DefaultAlternativeBindTest extends ProgramTestBase {
          *     case a of
          *         b -> b
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array($l->variable("swapAB"), $l->variable("a"))
-                    , array()
-                    , $l->application 
-                        ( $l->variable("swapAB")
-                        , array
-                            ( $l->variable("a") 
-                            )
-                        )
-                    , true
-                    )
+        $program = $l->prg(array
+            ( "main" => $l->lam_f
+                ( array("swapAB", "a")
+                , $l->app("swapAB", "a")
                 )
-            , $l->binding
-                ( $l->variable("a")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->constructor("A", array())
-                    , false 
-                    )
+            , "a" => $l->lam_n
+                ( $l->con("A")
+                , false 
                 )
-            , $l->binding
-                ( $l->variable("swapAB")
-                , $l->lambda
-                    ( array()
-                    , array($l->variable("a"))
-                    , $l->case_expr
-                        ( $l->application
-                            ( $l->variable("a")
-                            , array()
-                            )
-                        , array
-                            ( $l->default_alternative 
-                                ( $l->variable("b")
-                                , $l->application
-                                    ( $l->variable("b")
-                                    , array()
-                                    )
-                                )
-                            )
+            , "swapAB" => $l->lam_a
+                ( array("a")
+                , $l->cse
+                    ( $l->app("a")
+                    , array
+                        ( "default b" => $l->app("b")
                         )
-                    , false
                     )
+                , false
                 )
             ));
         $compiler = new Compiler();
