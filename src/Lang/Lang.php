@@ -173,6 +173,18 @@ class Lang {
     }
 
     /**
+     * Give an dictionary with bindings and an expression and get a LetBinding.
+     *
+     * @param   array       $bindings
+     * @param   Expression  $expr
+     * @return  LetRecBinding
+     */
+    public function lt(array $bindings, Expression $expr) {
+        $bnds = $this->to_bindings($bindings);
+        return $this->let($bnds, $expr);
+    }
+
+    /**
      * Get a literal.
      *
      * @param   mixed   $value

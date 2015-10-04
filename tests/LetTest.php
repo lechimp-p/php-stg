@@ -20,62 +20,27 @@ class LetTest extends ProgramTestBase {
          *                  B -> A   
          *      in swapAB a
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->let
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("a")
-                                , $l->lambda
-                                    ( array()
-                                    , array()
-                                    , $l->constructor("A", array())
-                                    , true
-                                    )
-                                )
-                                , $l->binding
-                                    ( $l->variable("swapAB")
-                                    , $l->lambda
-                                        ( array()
-                                        , array($l->variable("a"))
-                                        , $l->case_expr
-                                            ( $l->application
-                                                ( $l->variable("a")
-                                                , array()
-                                                )
-                                            , array
-                                                ( $l->algebraic_alternative
-                                                    ( "A"
-                                                    , array()
-                                                    , $l->constructor("B", array())
-                                                    )
-                                                , $l->algebraic_alternative
-                                                    ( "B"
-                                                    , array()
-                                                    , $l->constructor("A", array())
-                                                    )
-                                                )
-                                            )
-                                        , false
-                                        )
-                                    )
-                                )
-                        , $l->application 
-                            ( $l->variable("swapAB")
-                            , array
-                                ( $l->variable("a") 
-                                )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->lt( array
+                    ( "a" => $l->lam_n
+                            ( $l->con("A")
                             )
-                        )
-                    , true
+                    , "swapAB" => $l->lam_a
+                            ( array("a")
+                            , $l->cse
+                                ( $l->app("a")
+                                , array
+                                    ( "A" => $l->con("B")
+                                    , "B" => $l->con("A")
+                                    )
+                                )
+                            , false
+                            )
+                    )
+                    , $l->app("swapAB", "a")
                     )
                 )
-            , 
-
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "LetTest"); 
