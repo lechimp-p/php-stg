@@ -185,7 +185,7 @@ class Gen {
     }
 
     public function stg_get_register_to($to) {
-        return new Gen\GStatement("\${$to}= \${$this->stg_name}->get_register()");
+        return new Gen\GStatement("\${$to} = \${$this->stg_name}->get_register()");
     }
 
     public function stg_push_update_frame() {
