@@ -103,12 +103,13 @@ class Lang {
     /**
      * Provide an expression and a dictionary with alternative and get a CaseExpr.
      *
-     * The alternatives dictionary is interpreted as such: The keys are arrays, where
-     * the first entry stands for the pattern for the alternative and the other entries
-     * are strings that are used to bind variables in the pattern. If the pattern is
-     * empty it is an default alternative. If pattern is a string, it is an algebraic
-     * alternative. If the pattern is a literal, it is an primitive alternative. The key
-     * could also be a string and is then interpreted as an array with one entry.
+     * The alternatives dictionary is interpreted as such: The keys are strings
+     * delimited with spaces, which are split to an array. The first entry stands
+     * for the pattern for the alternative and the other entries are names that
+     * are used to bind variables in the pattern. If the pattern is 'default' it
+     * is an default alternative. If pattern is an undelimited string, it is an
+     * algebraic alternative. If the pattern is a literal it is an primitive 
+     * alternative.
      *
      * @param   Expression  $expr
      * @param   array       $alternatives
@@ -117,14 +118,12 @@ class Lang {
     public function cse(Expression $expr, array $alternatives) {
         $alts = array();
         foreach ($alternatives as $key => $value) {
-            if (is_string($key)) {
-                $key = array($key);
-            }
-            assert(is_array($key));
+            assert(is_string($key));
+            $key = split(" ", $key);
             assert(count($key) > 0);
             $pattern = array_shift($key);
 
-            if ($pattern === "") {
+            if ($pattern === "default") {
                 if (count($key) == 1) {
                     $var = $this->variable(array_shift($key));
                 }

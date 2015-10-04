@@ -33,9 +33,9 @@ class BasicTest extends ProgramTestBase {
                 , $l->cse
                     ( $l->app("a")
                     , array
-                        ( "A" => $l->con("B")
-                        , "B" => $l->con("A")
-                        , ""  => $l->app("a")
+                        ( "A"       => $l->con("B")
+                        , "B"       => $l->con("A")
+                        , "default" => $l->app("a")
                         )
                     )
                 , false

@@ -21,44 +21,24 @@ class BlackHoleTest extends ProgramTestBase {
          *                      b -> b
          *      in a 
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->letrec
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("a")
-                                , $l->lambda
-                                    ( array( $l->variable("a") )
-                                    , array()
-                                    , $l->case_expr
-                                        ( $l->application
-                                            ( $l->variable("a")
-                                            , array()
-                                            )
-                                        , array
-                                            ( $l->default_alternative
-                                                ( $l->variable("b")
-                                                , $l->application
-                                                    ( $l->variable("b")
-                                                    , array()
-                                                    )
-                                                )
-                                            )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->letrec
+                    ( array
+                        ( $l->binding
+                            ( $l->variable("a")
+                            , $l->lam_f
+                                ( array("a")
+                                , $l->cse
+                                    ( $l->app("a")
+                                    , array
+                                        ( "default b" => $l->app("b")
                                         )
-                                    , true
                                     )
                                 )
                             )
-                        , $l->application 
-                            ( $l->variable("a")
-                            , array()
-                            )
                         )
-                    , true
+                    , $l->app("a")
                     )
                 )
             ));
