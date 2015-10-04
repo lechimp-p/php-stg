@@ -34,23 +34,12 @@ class BasicTest extends ProgramTestBase {
             , "swapAB" => $l->lam
                 ( array()
                 , array("a")
-                , $l->case_expr
+                , $l->cse
                     ( $l->app("a")
                     , array
-                        ( $l->algebraic_alternative
-                            ( "A"
-                            , array()
-                            , $l->constructor("B", array())
-                            )
-                        , $l->algebraic_alternative
-                            ( "B"
-                            , array()
-                            , $l->constructor("A", array())
-                            )
-                        , $l->default_alternative 
-                            ( null
-                            , $l->app("a")
-                            )
+                        ( "A" => $l->constructor("B", array())
+                        , "B" => $l->constructor("A", array())
+                        , ""  => $l->app("a")
                         )
                     )
                 , false

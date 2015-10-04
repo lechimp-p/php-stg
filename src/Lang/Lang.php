@@ -64,6 +64,55 @@ class Lang {
         return $this->application($this->to_var($variable), $this->to_vars($args));
     }
 
+    /**
+     * Provide an expression and a dictionary with alternative and get a CaseExpr.
+     *
+     * The alternatives dictionary is interpreted as such: The keys are arrays, where
+     * the first entry stands for the pattern for the alternative and the other entries
+     * are strings that are used to bind variables in the pattern. If the pattern is
+     * empty it is an default alternative. If pattern is a string, it is an algebraic
+     * alternative. If the pattern is a literal, it is an primitive alternative. The key
+     * could also be a string and is then interpreted as an array with one entry.
+     *
+     * @param   Expression  $expr
+     * @param   array       $alternatives
+     * @return  CaseExpr
+     */
+    public function cse(Expression $expr, array $alternatives) {
+        $alts = array();
+        foreach ($alternatives as $key => $value) {
+            if (is_string($key)) {
+                $key = array($key);
+            }
+            assert(is_array($key));
+            assert(count($key) > 0);
+            $pattern = array_shift($key);
+
+            if ($pattern === "") {
+                if (count($key) == 1) {
+                    $var = $this->variable(array_shift($key));
+                }
+                else {
+                    assert(count($key) == 0);
+                    $var = null;
+                }
+                $alts[] = $this->default_alternative( $var, $value);
+            }
+            else if (is_string($pattern)) {
+                $alts[] = $this->algebraic_alternative( $pattern
+                                                      , $this->to_vars($key)
+                                                      , $value
+                                                      );
+            }
+            else {
+                assert($pattern instanceof Atom);
+                assert(count($key) == 0); 
+                $alts[] = $this->primitive_alternative( $pattern, array(), $value);
+            }
+        }
+        return $this->case_expr($expr, $alts);
+    }
+
     private function to_var($name) {
         if ($name instanceof Atom) {
             return $name;    
