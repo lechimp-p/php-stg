@@ -165,19 +165,7 @@ class Lang {
         return $this->constructor($name, $this->to_vars($args));
     }
 
-    private function to_var($name) {
-        if ($name instanceof Atom) {
-            return $name;    
-        }
-        assert(is_string($name));
-        return $this->variable($name);
-    }
-
-    private function to_vars(array &$arr) {
-        return array_map(function($n) {
-            return $this->to_var($n);
-        }, $arr);
-    }
+    // TRIVIAL FACTORIES 
 
     public function algebraic_alternative($id, array $variables, Expression $expression) {
         return new AlgebraicAlternative($id, $variables, $expression);
@@ -233,5 +221,21 @@ class Lang {
 
     public function variable($name) {
         return new Variable($name);
+    }
+
+    // HELPERS
+
+    private function to_var($name) {
+        if ($name instanceof Atom) {
+            return $name;    
+        }
+        assert(is_string($name));
+        return $this->variable($name);
+    }
+
+    private function to_vars(array &$arr) {
+        return array_map(function($n) {
+            return $this->to_var($n);
+        }, $arr);
     }
 }
