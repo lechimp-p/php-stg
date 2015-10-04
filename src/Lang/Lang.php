@@ -104,8 +104,7 @@ class Lang {
      * for the pattern for the alternative and the other entries are names that
      * are used to bind variables in the pattern. If the pattern is 'default' it
      * is an default alternative. If pattern is an undelimited string, it is an
-     * algebraic alternative. If the pattern is a literal it is an primitive 
-     * alternative.
+     * algebraic alternative. Otherwise it is a primitive alternative.
      *
      * @param   Expression  $expr
      * @param   array       $alternatives
@@ -129,7 +128,7 @@ class Lang {
                 }
                 $alts[] = $this->default_alternative( $var, $value);
             }
-            else if (is_string($pattern)) {
+            else if (is_string($pattern) && substr($pattern,0,1) !== '"') {
                 $alts[] = $this->algebraic_alternative( $pattern
                                                       , $this->to_vars($key)
                                                       , $value
@@ -138,7 +137,7 @@ class Lang {
             else {
                 assert($pattern instanceof Atom);
                 assert(count($key) == 0); 
-                $alts[] = $this->primitive_alternative( $pattern, array(), $value);
+                $alts[] = $this->primitive_alternative( (int)$pattern, array(), $value);
             }
         }
         return $this->case_expr($expr, $alts);
@@ -192,6 +191,18 @@ class Lang {
      */
     public function lit($value) {
         return $this->literal($value);
+    }
+
+    /**
+     * Provide a prim op name and two arguments and get an PrimOp.
+     *
+     * @param   string      $op
+     * @param   mixed       $l
+     * @param   mixed       $r
+     * @return  PrimOp
+     */ 
+    public function prm($op, $l, $r) {
+        return $this->prim_op($op, array($this->lit($l), $this->lit($r)));
     }
 
     // TRIVIAL FACTORIES 

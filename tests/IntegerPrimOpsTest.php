@@ -17,47 +17,19 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->let
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("v")
-                                , $l->lambda
-                                    ( array()
-                                    , array()
-                                    , $l->prim_op
-                                        ( "IntAddOp"
-                                        , array
-                                            ( $l->literal(42)
-                                            , $l->literal(23)
-                                            )
-                                        )
-                                    , true
-                                    )  
-                                )
-                            )
-                        , $l->case_expr
-                            ( $l->application
-                                ( $l->variable("v")
-                                , array()
-                                )
-                            , array
-                                ( $l->default_alternative
-                                    ( $l->variable("a")
-                                    , $l->constructor
-                                        ( "Result"
-                                        , array ($l->variable("a"))
-                                        )
-                                    )
-                                )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->lt( array
+                    ( "v" => $l->lam_n
+                        ( $l->prm( "IntAddOp", 42, 23)
+                        )  
+                    )
+                    , $l->cse
+                        ( $l->app("v")
+                        , array
+                            ( "default a" => $l->con("Result", "a")
                             )
                         )
-                    , true
                     )
                 )
             ));
@@ -80,47 +52,19 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->let
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("v")
-                                , $l->lambda
-                                    ( array()
-                                    , array()
-                                    , $l->prim_op
-                                        ( "IntSubOp"
-                                        , array
-                                            ( $l->literal(42)
-                                            , $l->literal(23)
-                                            )
-                                        )
-                                    , true
-                                    )  
-                                )
-                            )
-                        , $l->case_expr
-                            ( $l->application
-                                ( $l->variable("v")
-                                , array()
-                                )
-                            , array
-                                ( $l->default_alternative
-                                    ( $l->variable("a")
-                                    , $l->constructor
-                                        ( "Result"
-                                        , array ($l->variable("a"))
-                                        )
-                                    )
-                                )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->lt( array
+                    ( "v" => $l->lam_n
+                        ( $l->prm( "IntSubOp", 42, 23)
+                        )  
+                    )
+                    , $l->cse
+                        ( $l->app("v")
+                        , array
+                            ( "default a" => $l->con("Result", "a")
                             )
                         )
-                    , true
                     )
                 )
             ));
@@ -143,47 +87,19 @@ class IntegerPrimOpsTest extends ProgramTestBase {
          *     in  case v of
          *             a -> Result a
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->let
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("v")
-                                , $l->lambda
-                                    ( array()
-                                    , array()
-                                    , $l->prim_op
-                                        ( "IntMulOp"
-                                        , array
-                                            ( $l->literal(42)
-                                            , $l->literal(23)
-                                            )
-                                        )
-                                    , true
-                                    )  
-                                )
-                            )
-                        , $l->case_expr
-                            ( $l->application
-                                ( $l->variable("v")
-                                , array()
-                                )
-                            , array
-                                ( $l->default_alternative
-                                    ( $l->variable("a")
-                                    , $l->constructor
-                                        ( "Result"
-                                        , array ($l->variable("a"))
-                                        )
-                                    )
-                                )
+        $program = $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->lt( array
+                    ( "v" => $l->lam_n
+                        ( $l->prm( "IntMulOp", 42, 23)
+                        )  
+                    )
+                    , $l->cse
+                        ( $l->app("v")
+                        , array
+                            ( "default a" => $l->con("Result", "a")
                             )
                         )
-                    , true
                     )
                 )
             ));
