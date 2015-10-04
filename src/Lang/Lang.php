@@ -7,8 +7,28 @@ namespace Lechimp\STG\Lang;
  *
  * This way we do not have to type new in the tests so often and also gain
  * flexibility in the objects used for lang construction.
+ *
+ * There also is a set of three word methods that hides the underlying structure
+ * of objects from the user and makes notation of STG-programs shorter.
  */
 class Lang {
+    /**
+     * Provide a dictionary of bindings and get a program.
+     *
+     * The dictionary has to be in the form $global_name => $lambda.
+     *
+     * @param   array   $bindings
+     * @return  Program
+     */
+    public function prg(array $bindings) {
+        $bnds = array();
+        foreach($bindings as $key => $value) {
+            assert(is_string($key));
+            $bnds[] = $this->binding($this->variable($key), $value);
+        }
+        return $this->program($bnds);
+    }
+
     public function algebraic_alternative($id, array $variables, Expression $expression) {
         return new AlgebraicAlternative($id, $variables, $expression);
     }
