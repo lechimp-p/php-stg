@@ -13,7 +13,7 @@ class PartialApplicationTest extends ProgramTestBase {
         /**
          * Represents the following program
          * main = \{} \n \{} ->
-         *  letrec tc = \{} \u \{a,b} -> T a b
+         *  letrec tc = \{} \n \{a,b} -> T a b
          *         vt = \{tc} \u \{}  -> tc 42
          *         v  = \{vt} \u \{}  -> vt 23
          *  in v 
@@ -24,6 +24,7 @@ class PartialApplicationTest extends ProgramTestBase {
                     ( "tc" => $l->lam_a
                         ( array("a", "b")
                         , $l->con("T", "a", "b")
+                        , false
                         )
                     , "vt" => $l->lam_f
                         ( array("tc")

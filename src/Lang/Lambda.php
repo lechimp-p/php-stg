@@ -39,6 +39,9 @@ class Lambda {
         $this->expression = $expression;
         assert(is_bool($updatable));
         $this->updatable = $updatable;
+        if ($this->updatable) {
+            assert(count($arguments) == 0);
+        }
     }
 
     public function free_variables() {

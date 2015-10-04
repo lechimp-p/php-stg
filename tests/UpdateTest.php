@@ -13,7 +13,7 @@ class UpdateTest extends ProgramTestBase {
         /**
          * Represents the following program
          * main = \{} \u \{} ->
-         *  letrec v = \{} \u \{c} -> V c
+         *  letrec v = \{} \n \{c} -> V c
          *         a = \{v} \u \{} -> v 42
          *         t = \{a} \u \{} -> T a a
          *  in case t of
@@ -39,7 +39,7 @@ class UpdateTest extends ProgramTestBase {
                                         ( $l->variable("c")
                                         )
                                     )
-                                , true
+                                , false
                                 )
                             )
                         , $l->binding

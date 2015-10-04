@@ -14,7 +14,7 @@ class DuplicateVarNameTest extends ProgramTestBase {
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> 
          *           let b = \{a} \u \{} -> a
-         *               a = \{swapAB} \u \{c} -> swapAB c
+         *               a = \{swapAB} \n \{c} -> swapAB c
          *           in a b
          * a = \{} \n \{} -> A
          * swapAB = \{} \n \{a} -> 
@@ -54,7 +54,7 @@ class DuplicateVarNameTest extends ProgramTestBase {
                                             ( $l->variable("c")
                                             )
                                         )
-                                    , true
+                                    , false 
                                     )
                                 )
                             )
