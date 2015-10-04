@@ -29,7 +29,7 @@ class BasicTest extends ProgramTestBase {
             , "a" => $l->lam
                 ( array()
                 , array()
-                , $l->constructor("A", array())
+                , $l->con("A")
                 )
             , "swapAB" => $l->lam
                 ( array()
@@ -37,8 +37,8 @@ class BasicTest extends ProgramTestBase {
                 , $l->cse
                     ( $l->app("a")
                     , array
-                        ( "A" => $l->constructor("B", array())
-                        , "B" => $l->constructor("A", array())
+                        ( "A" => $l->con("B")
+                        , "B" => $l->con("A")
                         , ""  => $l->app("a")
                         )
                     )

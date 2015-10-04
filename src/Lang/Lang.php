@@ -113,6 +113,22 @@ class Lang {
         return $this->case_expr($expr, $alts);
     }
 
+    /**
+     * Give a name and and some arguments and get a Constructor.
+     *
+     * The arguments are left as is when they are Atoms and must be strings
+     * that get interpreted as variables otherwise.  
+     *
+     * @param   string  $name
+     * @param   ...     $arguments
+     * @return  Cosntructor
+     */
+    public function con($name) {
+        $args = func_get_args();
+        array_shift($args);
+        return $this->constructor($name, $this->to_vars($args));
+    }
+
     private function to_var($name) {
         if ($name instanceof Atom) {
             return $name;    
