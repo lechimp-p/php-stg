@@ -51,6 +51,42 @@ class Lang {
     }
 
     /**
+     * Like lam, but with free variables only.
+     *
+     * @param   string[]    $free_vars
+     * @param   Expression  $expr
+     * @param   bool|null   $updatable defaults to true
+     * @return  Lambda
+     */
+    public function lam_f(array $free_vars, Expression $expr, $updatable = true) {
+        return $this->lam($free_vars, array(), $expr, $updatable);
+    }
+
+    /**
+     * Like lam, but with arguments only.
+     *
+     * @param   string[]    $args
+     * @param   Expression  $expr
+     * @param   bool|null   $updatable defaults to true
+     * @return  Lambda
+     */
+    public function lam_a(array $args, Expression $expr, $updatable = true) {
+        return $this->lam(array(), $args, $expr, $updatable);
+    }
+
+    /**
+     * Like lam, but without free variables and arguments.
+     *
+     * @param   string[]    $args
+     * @param   Expression  $expr
+     * @param   bool|null   $updatable defaults to true
+     * @return  Lambda
+     */
+    public function lam_n(Expression $expr, $updatable = true) {
+        return $this->lam(array(), array(), $expr, $updatable);
+    }
+
+    /**
      * Provide a variable name and some arguments and get an application.
      *
      * @param   string      $variable

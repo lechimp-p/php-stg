@@ -21,19 +21,15 @@ class BasicTest extends ProgramTestBase {
          *         default -> a   
          */
         $program = $l->prg(array
-            ( "main" => $l->lam
+            ( "main" => $l->lam_f
                 ( array("swapAB", "a")
-                , array()
                 , $l->app("swapAB", "a")
                 )
-            , "a" => $l->lam
-                ( array()
-                , array()
-                , $l->con("A")
+            , "a" => $l->lam_n
+                ( $l->con("A")
                 )
-            , "swapAB" => $l->lam
-                ( array()
-                , array("a")
+            , "swapAB" => $l->lam_a
+                ( array("a")
                 , $l->cse
                     ( $l->app("a")
                     , array
