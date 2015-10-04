@@ -20,62 +20,40 @@ class BasicTest extends ProgramTestBase {
          *         B -> A   
          *         default -> a   
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array($l->variable("swapAB"), $l->variable("a"))
-                    , array()
-                    , $l->application 
-                        ( $l->variable("swapAB")
-                        , array
-                            ( $l->variable("a") 
-                            )
-                        )
-                    , true
-                    )
+        $program = $l->prg(array
+            ( "main" => $l->lam
+                ( array("swapAB", "a")
+                , array()
+                , $l->app("swapAB", "a")
                 )
-            , $l->binding
-                ( $l->variable("a")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->constructor("A", array())
-                    , true
-                    )
+            , "a" => $l->lam
+                ( array()
+                , array()
+                , $l->constructor("A", array())
                 )
-            , $l->binding
-                ( $l->variable("swapAB")
-                , $l->lambda
-                    ( array()
-                    , array($l->variable("a"))
-                    , $l->case_expr
-                        ( $l->application
-                            ( $l->variable("a")
+            , "swapAB" => $l->lam
+                ( array()
+                , array("a")
+                , $l->case_expr
+                    ( $l->app("a")
+                    , array
+                        ( $l->algebraic_alternative
+                            ( "A"
                             , array()
+                            , $l->constructor("B", array())
                             )
-                        , array
-                            ( $l->algebraic_alternative
-                                ( "A"
-                                , array()
-                                , $l->constructor("B", array())
-                                )
-                            , $l->algebraic_alternative
-                                ( "B"
-                                , array()
-                                , $l->constructor("A", array())
-                                )
-                            , $l->default_alternative 
-                                ( null
-                                , $l->application
-                                    ( $l->variable("a")
-                                    , array()
-                                    )
-                                )
+                        , $l->algebraic_alternative
+                            ( "B"
+                            , array()
+                            , $l->constructor("A", array())
+                            )
+                        , $l->default_alternative 
+                            ( null
+                            , $l->app("a")
                             )
                         )
-                    , false
                     )
+                , false
                 )
             ));
         $compiler = new Compiler();

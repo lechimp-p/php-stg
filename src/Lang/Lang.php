@@ -24,7 +24,7 @@ class Lang {
         $bnds = array();
         foreach($bindings as $key => $value) {
             assert(is_string($key));
-            $bnds[] = $this->binding($this->variable($key), $value);
+            $bnds[] = $this->binding($this->to_var($key), $value);
         }
         return $this->program($bnds);
     }
@@ -50,10 +50,31 @@ class Lang {
                             );
     }
 
+    /**
+     * Provide a variable name and some arguments and get an application.
+     *
+     * @param   string      $variable
+     * @param   ...         $arguments  These could either be atoms or string, where string
+     *                                  are converted to variables.
+     * @return  Expression
+     */ 
+    public function app($variable) {
+        $args = func_get_args();
+        array_shift($args);
+        return $this->application($this->to_var($variable), $this->to_vars($args));
+    }
+
+    private function to_var($name) {
+        if ($name instanceof Atom) {
+            return $name;    
+        }
+        assert(is_string($name));
+        return $this->variable($name);
+    }
+
     private function to_vars(array &$arr) {
         return array_map(function($n) {
-            assert(is_string($n));
-            return $this->variable($n);
+            return $this->to_var($n);
         }, $arr);
     }
 
