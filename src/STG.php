@@ -163,12 +163,12 @@ abstract class STG {
         // structure for the stacks...
         $tmp = $this->argument_stack;
         $this->argument_stack = new \SPLStack();
-        
+ 
         $cnt = $args->count();
         for ($i = $cnt-1; $i >= 0; $i--) {
             $this->push_arg($args[$i]);
         }
-        
+
         $cnt = $tmp->count();
         for ($i = $cnt-1; $i >= 0; $i--) {
             $this->push_arg($tmp[$i]);
@@ -296,8 +296,8 @@ abstract class STG {
                             , clone $this->env_stack
                             ));
         $this->push_front_args($argument_stack);
-        $this->push_returns($return_stack);
-        $this->push_envs($env_stack);
+        $this->push_front_returns($return_stack);
+        $this->push_front_envs($env_stack);
         return $this->enter($this->node);
     }
 

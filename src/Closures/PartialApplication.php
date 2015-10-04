@@ -47,7 +47,7 @@ class PartialApplication extends Standard {
     }
 
     public function entry_code(STG $stg) {
-        $stg->push_front_args($this->argument_stack);
+        $stg->push_args($this->argument_stack);
         $stg->push_returns($this->return_stack);
         $stg->push_envs($this->env_stack);
 
