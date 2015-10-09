@@ -9,16 +9,36 @@ abstract class STG {
     /**
      * Stack for arguments.
      * 
-     * @var \SPLStack
+     * @var \SPLFixedArray
      */
     protected $a_stack;
 
     /**
+     * @var integer
+     */
+    protected $a_top;
+    
+    /**
+     * @var integer
+     */
+    protected $a_bottom;
+
+    /**
      * Stack for return labels, environments and update frames.
      *
-     * @var \SPLStack
+     * @var \SPLFixedArray
      */
     protected $b_stack;
+
+    /**
+     * @var integer
+     */
+    protected $b_top;
+    
+    /**
+     * @var integer
+     */
+    protected $b_bottom;
 
     /**
      * @var array
@@ -29,6 +49,19 @@ abstract class STG {
      * @var mixed 
      */
     protected $register;
+
+    const A_STACK_SIZE = 100;
+    const B_STACK_SIZE = 100;
+
+    /**
+     * @var int
+     */
+    protected $a_stack_size = null;
+
+    /**
+     * @var int
+     */
+    protected $b_stack_size = null;
 
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
@@ -41,9 +74,25 @@ abstract class STG {
         if (!$globals["main"] instanceof Closures\Standard) {
             throw new \LogicException("Expected 'main' to be a closure.");
         }
+
+        if ($this->a_stack_size === null) {
+            $this->a_stack_size = self::A_STACK_SIZE;
+        }
+
+        if ($this->b_stack_size === null) {
+            $this->b_stack_size = self::B_STACK_SIZE;
+        }
+
+        assert(is_int($this->a_stack_size) && $this->a_stack_size > 0);
+        assert(is_int($this->b_stack_size) && $this->b_stack_size > 0);
+
         $this->globals = $globals;
-        $this->a_stack = new \SPLStack();
-        $this->b_stack = new \SPLStack();
+        $this->a_stack = new \SPLFixedArray($this->a_stack_size);
+        $this->a_top = 0;
+        $this->a_bottom = 0;
+        $this->b_stack = new \SPLFixedArray($this->b_stack_size);
+        $this->b_top = 0;
+        $this->b_bottom = 0;
         $this->register = null;
     }
 
@@ -79,7 +128,7 @@ abstract class STG {
      */
     public function push_a_stack($argument) {
         assert(is_int($argument) || $argument instanceof Closures\Standard);
-        $this->a_stack->push($argument); 
+        $this->a_stack[$this->a_top++] = $argument;
     }
 
     /**
@@ -88,7 +137,8 @@ abstract class STG {
      * @return  Closures\Standard|int
      */
     public function pop_a_stack() {
-        return $this->a_stack->pop();
+        assert($this->a_stack->count() > 0);
+        return $this->a_stack[--$this->a_top];
     }
 
     /**
@@ -97,7 +147,7 @@ abstract class STG {
      * @return  int
      */
     public function count_a_stack() {
-        return $this->a_stack->count();
+        return $this->a_top - $this->a_bottom;
     }
 
     /**
@@ -107,7 +157,7 @@ abstract class STG {
      * @return  none
      */
     public function push_b_stack($val) {
-        $this->b_stack->push($val);
+        $this->b_stack[$this->b_top++] = $val;
     }
 
     /**
@@ -117,7 +167,7 @@ abstract class STG {
      */
     public function pop_b_stack() {
         assert($this->b_stack->count() > 0);
-        return $this->b_stack->pop();
+        return $this->b_stack[--$this->b_top];
     }
 
     /**
