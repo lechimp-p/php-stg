@@ -28,7 +28,7 @@ abstract class STG {
     /**
      * @var mixed 
      */
-    protected $argument_register;
+    protected $register;
 
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
@@ -44,7 +44,7 @@ abstract class STG {
         $this->globals = $globals;
         $this->a_stack = new \SPLStack();
         $this->b_stack = new \SPLStack();
-        $this->argument_register = null;
+        $this->register = null;
     }
 
     /**
@@ -126,10 +126,10 @@ abstract class STG {
      * @param   mixed $args
      * @return  null
      */
-    public function push_argument_register($args) {
+    public function push_register($args) {
         assert($args !== null);
-        assert($this->argument_register === null);
-        $this->argument_register = $args;
+        assert($this->register === null);
+        $this->register = $args;
     }
 
     /**
@@ -137,10 +137,10 @@ abstract class STG {
      *
      * @return  array
      */
-    public function pop_argument_register() {
-        assert($this->argument_register !== null);
-        $args = $this->argument_register;
-        $this->argument_register = null;
+    public function pop_register() {
+        assert($this->register !== null);
+        $args = $this->register;
+        $this->register = null;
         return $args;
     }
 
@@ -149,8 +149,8 @@ abstract class STG {
      *
      * @return  array
      */
-    public function get_argument_register() {
-        assert($this->argument_register !== null);
-        return $this->argument_register;
+    public function get_register() {
+        assert($this->register !== null);
+        return $this->register;
     }
 }

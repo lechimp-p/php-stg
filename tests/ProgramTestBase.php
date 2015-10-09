@@ -19,6 +19,6 @@ class ProgramTestBase extends PHPUnit_Framework_TestCase {
     }
 
     public function catch_result(Lechimp\STG\STG $stg) {
-        $this->result = $stg->pop_argument_register();
+        $this->result = $stg->pop_register();
     }
 }

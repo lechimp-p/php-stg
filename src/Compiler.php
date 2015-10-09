@@ -257,7 +257,7 @@ class Compiler {
             ( $g->stg_pop_return_to("return")
             , $g->stmt(function($ind) use ($g, $data_vector) { return
                 "{$ind}\$data_vector = ".$g->multiline_array($ind, $data_vector).";"; })
-            , $g->stg_push_argument_register('$data_vector')
+            , $g->stg_push_register('$data_vector')
             , $g->stmt("return \$return")
             ));
         return $results;
@@ -284,7 +284,7 @@ class Compiler {
             // We return an tuple as argument, so we could use the first entry similar
             // to $this in compile_constructor and the second one for comparison with
             // available return vectors. See compile_case_return also.
-            , $g->stg_push_argument_register("array(\$primitive_value, \$primitive_value)")
+            , $g->stg_push_register("array(\$primitive_value, \$primitive_value)")
             , $g->stmt("return \$return")
             );
     }
@@ -330,7 +330,7 @@ class Compiler {
             // First entry of data vector contains actual value or closure,
             // while the second one is examined to chose a code label to go
             // on with. See compile_constructor and compile_primitive_value_jump.
-            ( $g->stg_get_argument_register_to("data_vector")
+            ( $g->stg_get_register_to("data_vector")
             , $g->stmt('$value = $data_vector[1]')
             );
 
@@ -402,7 +402,7 @@ class Compiler {
             $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // We won't need the value from the constructor.
-                , $g->stg_pop_argument_register()
+                , $g->stg_pop_register()
                 ));
         }
         else {
@@ -410,7 +410,7 @@ class Compiler {
             $results->add_statements(array_flatten
                 ( $this->compile_alternative_common_return_code($g)
                 // Save value from constructor in local env.
-                , $g->stg_pop_argument_register_to("return_vector")
+                , $g->stg_pop_register_to("return_vector")
                 , $g->to_local_env($var_name, '$return_vector[0]')
                 ));
         }
@@ -436,7 +436,7 @@ class Compiler {
 
         return $results
             ->add_statements($this->compile_alternative_common_return_code($g))
-            ->add_statement($g->stg_pop_argument_register())
+            ->add_statement($g->stg_pop_register())
             ->add($this->compile_expression($g, $alternative->expression()))
             ->add_method($g->public_method
                 ( $method_name
@@ -455,7 +455,7 @@ class Compiler {
         // Pop arguments to constructor and fill them into appropriate variables.
         $results->add_statements(array_flatten
             ( $this->compile_alternative_common_return_code($g)
-            , $g->stg_pop_argument_register_to("data_vector")
+            , $g->stg_pop_register_to("data_vector")
             , $g->stmt('array_shift($data_vector)')
             , $g->stmt('array_shift($data_vector)')
             , array_map(function(Lang\Variable $var) use ($g) {
