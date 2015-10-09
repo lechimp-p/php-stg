@@ -158,7 +158,7 @@ abstract class STG {
      * @param   \SPLStack $args
      * @return  null
      */
-    public function push_front_args(\SPLStack $args) {
+    public function push_front_a_stack(\SPLStack $args) {
         // TODO: This is bad for performance, aight? I might need another data
         // structure for the stacks...
         $tmp = $this->argument_stack;
@@ -255,15 +255,13 @@ abstract class STG {
      */
     public function push_update_frame() {
         assert($this->argument_register === null);
-        $this->update_stack->push(array
+        $this->b_stack->push(array
             ( $this->node
-            , $this->argument_stack
-            , $this->return_stack
-            , $this->env_stack
+            , $this->a_stack
+            , $this->b_stack
             ));
-        $this->argument_stack = new \SPLStack();
-        $this->return_stack = new \SPLStack();
-        $this->env_stack = new \SPLStack();
+        $this->a_stack = new \SPLStack();
+        $this->b_stack = new \SPLStack();
         $this->push_return($this->label_update);
     }
 
@@ -271,8 +269,8 @@ abstract class STG {
      * Pop an update frame.
      */
     protected function pop_update_frame() {
-        assert($this->update_stack->count() !== 0);
-        return $this->update_stack->pop();
+        assert($this->b_stack->count() !== 0);
+        return $this->b_stack->pop();
     }
 
     /**
@@ -283,7 +281,12 @@ abstract class STG {
      * @return CodeLabel
      */
     public function update_partial_application() {
-        list($node, $argument_stack, $return_stack, $env_stack)
+	// ToDo: This is an artificial return we pushed
+	// for the constructors. We could remove this by
+	// somehow merging the update frame information
+	// and the code label.
+	$this->pop_return();
+        list($node, $a_stack, $b_stack)
             = $this->pop_update_frame();
 
         // Remove update code label, introduced in push_update_frame,
@@ -291,13 +294,11 @@ abstract class STG {
         $this->pop_return();
         $node->update(new Closures\PartialApplication
                             ( $this->node
-                            , clone $this->argument_stack
-                            , clone $this->return_stack
-                            , clone $this->env_stack
+                            , clone $this->a_stack
+                            , clone $this->b_stack
                             ));
-        $this->push_front_args($argument_stack);
-        $this->push_front_returns($return_stack);
-        $this->push_front_envs($env_stack);
+        $this->push_front_a_stack($a_stack);
+        $this->push_front_b_stack($b_stack);
         return $this->enter($this->node);
     }
 
