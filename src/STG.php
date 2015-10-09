@@ -38,10 +38,8 @@ abstract class STG {
             throw new \LogicException("Expected 'main' to be a closure.");
         }
         $this->globals = $globals;
-        $this->argument_stack = new \SPLStack();
-        $this->return_stack = new \SPLStack();
-        $this->env_stack = new \SPLStack();
-        $this->update_stack = new \SPLStack();
+        $this->a_stack = new \SPLStack();
+        $this->b_stack = new \SPLStack();
         $this->argument_register = null;
     }
 
@@ -77,7 +75,7 @@ abstract class STG {
      */
     public function push_arg($argument) {
         assert(is_int($argument) || $argument instanceof Closures\Standard);
-        $this->argument_stack->push($argument); 
+        $this->a_stack->push($argument); 
     }
 
     /**
@@ -86,7 +84,7 @@ abstract class STG {
      * @return  Closures\Standard|int
      */
     public function pop_arg() {
-        return $this->argument_stack->pop();
+        return $this->a_stack->pop();
     }
 
     /**
@@ -95,7 +93,7 @@ abstract class STG {
      * @return  int
      */
     public function count_args() {
-        return $this->argument_stack->count();
+        return $this->a_stack->count();
     }
 
     /**
@@ -105,7 +103,7 @@ abstract class STG {
      * @return  none
      */
     public function push_return($val) {
-        $this->return_stack->push($val);
+        $this->b_stack->push($val);
     }
 
     /**
@@ -114,8 +112,8 @@ abstract class STG {
      * @return CodeLabel
      */
     public function pop_return() {
-        assert($this->return_stack->count() > 0);
-        return $this->return_stack->pop();
+        assert($this->b_stack->count() > 0);
+        return $this->b_stack->pop();
     }
 
     /**
@@ -125,7 +123,7 @@ abstract class STG {
      * @return  none
      */
     public function push_env(array $continuations) {
-        $this->env_stack->push($continuations);
+        $this->b_stack->push($continuations);
     }
 
     /**
@@ -134,8 +132,8 @@ abstract class STG {
      * @return CodeLabel
      */
     public function pop_env() {
-        assert($this->env_stack->count() > 0);
-        return $this->env_stack->pop();
+        assert($this->b_stack->count() > 0);
+        return $this->b_stack->pop();
     }
 
     /**
