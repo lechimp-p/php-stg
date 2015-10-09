@@ -161,8 +161,8 @@ abstract class STG {
     public function push_front_a_stack(\SPLStack $args) {
         // TODO: This is bad for performance, aight? I might need another data
         // structure for the stacks...
-        $tmp = $this->argument_stack;
-        $this->argument_stack = new \SPLStack();
+        $tmp = $this->a_stack;
+        $this->a_stack = new \SPLStack();
  
         $cnt = $args->count();
         for ($i = $cnt-1; $i >= 0; $i--) {
@@ -290,9 +290,6 @@ abstract class STG {
         list($node, $a_stack, $b_stack)
             = $this->pop_update_frame();
 
-        // Remove update code label, introduced in push_update_frame,
-        // as we do the update now, not in constructor.
-        $this->pop_return();
         $node->update(new Closures\PartialApplication
                             ( $this->node
                             , clone $this->a_stack

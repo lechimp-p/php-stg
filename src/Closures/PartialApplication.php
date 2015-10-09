@@ -15,12 +15,12 @@ class PartialApplication extends Standard {
     /**
      * @var \SPLStack|null
      */
-    protected $argument_stack;
+    protected $a_stack;
 
     /**
      * @var \SPLStack|null
      */
-    protected $return_stack;
+    protected $b_stack;
 
     /**
      * @var \SPLStack|null
@@ -32,24 +32,21 @@ class PartialApplication extends Standard {
      *            to make recursive definitions possible.
      */
     public function __construct( Standard  $function_closure
-                               , \SPLStack $argument_stack
-                               , \SPLStack $return_stack
-                               , \SPLStack $env_stack
+                               , \SPLStack $a_stack
+                               , \SPLStack $b_stack
                                ) {
         $a = array();
         parent::__construct($a);
 
         // For partial update.
         $this->function_closure = $function_closure;
-        $this->argument_stack = $argument_stack;
-        $this->return_stack = $return_stack;
-        $this->env_stack = $env_stack;
+        $this->a_stack = $a_stack;
+        $this->b_stack = $b_stack;
     }
 
     public function entry_code(STG $stg) {
-        $stg->push_args($this->argument_stack);
-        $stg->push_returns($this->return_stack);
-        $stg->push_envs($this->env_stack);
+        $stg->push_args($this->a_stack);
+        $stg->push_returns($this->b_stack);
 
         return $stg->enter($this->function_closure);
     }
