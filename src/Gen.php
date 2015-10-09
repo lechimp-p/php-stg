@@ -113,7 +113,7 @@ class Gen {
     }
 
     public function stg_pop_arg_to($arg_name) {
-        return new Gen\GStatement("\$$arg_name = \${$this->stg_name}->pop_arg()");
+        return new Gen\GStatement("\$$arg_name = \${$this->stg_name}->pop_a_stack()");
     }
 
     public function stg_pop_arg_to_local_env($arg_name) {
@@ -121,7 +121,7 @@ class Gen {
     }
 
     public function stg_push_arg($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_arg($what)");
+        return new Gen\GStatement("\${$this->stg_name}->push_a_stack($what)");
     }
 
     public function stg_enter($where) {
@@ -142,7 +142,7 @@ class Gen {
     }
 
     public function stg_pop_return_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_return()");
+        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
     }
 
     public function stg_pop_return_to_local_env($var_name) {
@@ -150,15 +150,15 @@ class Gen {
     }
 
     public function stg_push_return($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_return($what)");
+        return new Gen\GStatement("\${$this->stg_name}->push_b_stack($what)");
     }
 
     public function stg_pop_env_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_env()");
+        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
     }
 
     public function stg_push_env($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_env($what)");
+        return new Gen\GStatement("\${$this->stg_name}->push_b_stack($what)");
     }
 
     public function stg_push_argument_register($what) {

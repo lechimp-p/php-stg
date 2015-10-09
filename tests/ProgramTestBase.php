@@ -13,7 +13,7 @@ class ProgramTestBase extends PHPUnit_Framework_TestCase {
 
     protected function machine_result(Lechimp\STG\STG $machine) {
         $this->result = null;
-        $machine->push_return(new CodeLabel($this, "catch_result"));
+        $machine->push_b_stack(new CodeLabel($this, "catch_result"));
         $machine->run();
         return $this->result;
     }

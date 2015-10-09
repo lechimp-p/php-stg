@@ -7,11 +7,15 @@ namespace Lechimp\STG;
  */
 abstract class STG {
     /**
+     * Stack for arguments.
+     * 
      * @var \SPLStack
      */
     protected $a_stack;
 
     /**
+     * Stack for return labels, environments and update frames.
+     *
      * @var \SPLStack
      */
     protected $b_stack;
@@ -73,7 +77,7 @@ abstract class STG {
      * @param   Closures\Standard|int  $arg
      * @return  none
      */
-    public function push_arg($argument) {
+    public function push_a_stack($argument) {
         assert(is_int($argument) || $argument instanceof Closures\Standard);
         $this->a_stack->push($argument); 
     }
@@ -83,7 +87,7 @@ abstract class STG {
      *
      * @return  Closures\Standard|int
      */
-    public function pop_arg() {
+    public function pop_a_stack() {
         return $this->a_stack->pop();
     }
 
@@ -92,46 +96,26 @@ abstract class STG {
      *
      * @return  int
      */
-    public function count_args() {
+    public function count_a_stack() {
         return $this->a_stack->count();
     }
 
     /**
-     * Push a continuation or argumens on the return stack.
+     * Push a continuation, environment or update frame on the b stack.
      *
      * @param   mixed   $val
      * @return  none
      */
-    public function push_return($val) {
+    public function push_b_stack($val) {
         $this->b_stack->push($val);
     }
 
     /**
-     * Pop a continuation from the return stack.
+     * Pop a continuation, environment or update frame from the b stack.
      *
      * @return CodeLabel
      */
-    public function pop_return() {
-        assert($this->b_stack->count() > 0);
-        return $this->b_stack->pop();
-    }
-
-    /**
-     * Push a environment on the stack.
-     *
-     * @param   array   $continuations
-     * @return  none
-     */
-    public function push_env(array $continuations) {
-        $this->b_stack->push($continuations);
-    }
-
-    /**
-     * Pop a continuation from the return stack.
-     *
-     * @return CodeLabel
-     */
-    public function pop_env() {
+    public function pop_b_stack() {
         assert($this->b_stack->count() > 0);
         return $this->b_stack->pop();
     }
