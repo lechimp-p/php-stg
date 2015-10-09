@@ -9,22 +9,12 @@ abstract class STG {
     /**
      * @var \SPLStack
      */
-    protected $argument_stack;
+    protected $a_stack;
 
     /**
      * @var \SPLStack
      */
-    protected $return_stack;
-
-    /**
-     * @var \SPLStack
-     */
-    protected $env_stack;
-
-    /**
-     * @var \SPLStack
-     */
-    protected $update_stack;
+    protected $b_stack;
 
     /**
      * @var array
