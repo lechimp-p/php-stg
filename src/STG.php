@@ -50,8 +50,8 @@ abstract class STG {
      */
     protected $register;
 
-    const A_STACK_SIZE = 100;
-    const B_STACK_SIZE = 100;
+    const A_STACK_SIZE = 200;
+    const B_STACK_SIZE = 200;
 
     /**
      * @var int
@@ -140,38 +140,14 @@ abstract class STG {
     }
 
     /**
-     * Add the values found in the argument to the argument stack.
+     * Add the values found in the argument to the a stack.
      *
-     * @param   \SPLStack $args
+     * @param   \SPLFixedArray $args
      * @return  null
      */
-    public function push_args(\SPLStack $args) {
-        $cnt = $args->count();
-        for ($i = $cnt-1; $i >= 0; $i--) {
-            $this->push_arg($args[$i]);
-        }
-    }
-
-    /**
-     * Add the values found in the argument to the front of the argument stack.
-     *
-     * @param   \SPLStack $args
-     * @return  null
-     */
-    public function push_front_a_stack(\SPLStack $args) {
-        // TODO: This is bad for performance, aight? I might need another data
-        // structure for the stacks...
-        $tmp = $this->a_stack;
-        $this->a_stack = new \SPLStack();
- 
-        $cnt = $args->count();
-        for ($i = $cnt-1; $i >= 0; $i--) {
-            $this->push_arg($args[$i]);
-        }
-
-        $cnt = $tmp->count();
-        for ($i = $cnt-1; $i >= 0; $i--) {
-            $this->push_arg($tmp[$i]);
+    public function push_array_a_stack(\SPLFixedArray $args) {
+        foreach($args as $a) {
+            $this->push_a_stack($a);
         }
     }
 
@@ -186,7 +162,7 @@ abstract class STG {
     }
 
     /**
-     * Get the length of the argument stack.
+     * Get the length of the a stack.
      *
      * @return  int
      */
@@ -202,6 +178,18 @@ abstract class STG {
      */
     public function push_b_stack($val) {
         $this->b_stack[$this->b_top++] = $val;
+    }
+
+    /**
+     * Add the values found in the argument to the b stack.
+     *
+     * @param   \SPLFixedArray $args
+     * @return  null
+     */
+    public function push_array_b_stack(\SPLFixedArray $bs) {
+        foreach($bs as $b) {
+            $this->push_b_stack($b);
+        }
     }
 
     /**
@@ -254,24 +242,16 @@ abstract class STG {
      * @return null
      */
     public function push_update_frame() {
-        assert($this->argument_register === null);
+        assert($this->register === null);
         $frame = array
             ( $this->node
-            , $this->a_stack
-            , $this->b_stack
+            , $this->a_bottom
+            , $this->b_bottom
             );
-        $this->a_stack = new \SPLStack();
-        $this->b_stack = new \SPLStack();
-	$this->b_stack->push($frame);
-        $this->push_return($this->label_update);
-    }
-
-    /**
-     * Pop an update frame.
-     */
-    protected function pop_update_frame() {
-        assert($this->b_stack->count() !== 0);
-        return $this->b_stack->pop();
+        $this->a_bottom = $this->a_top;
+        $this->b_bottom = $this->b_top;
+	    $this->push_b_stack($frame);
+        $this->push_b_stack($this->label_update);
     }
 
     /**
@@ -282,21 +262,27 @@ abstract class STG {
      * @return CodeLabel
      */
     public function update_partial_application() {
-	// ToDo: This is an artificial return we pushed
-	// for the constructors. We could remove this by
-	// somehow merging the update frame information
-	// and the code label.
-	$this->pop_return();
-        list($node, $a_stack, $b_stack)
-            = $this->pop_update_frame();
+        // ToDo: This is an artificial return we pushed
+        // for the constructors. We could remove this by
+        // somehow merging the update frame information
+        // and the code label.
+        $this->pop_b_stack();
+        list($node, $a_bottom, $b_bottom)
+            = $this->pop_b_stack();
+    
+        $a_copy = new \SPLFixedArray($this->a_top-$this->a_bottom);
+        $b_copy = new \SPLFixedArray($this->b_top-$this->b_bottom);
+
+        STG::copy_array($this->a_stack, $this->a_bottom, $this->a_top, $a_copy);
+        STG::copy_array($this->b_stack, $this->b_bottom, $this->b_top, $b_copy);
 
         $node->update(new Closures\PartialApplication
                             ( $this->node
-                            , clone $this->a_stack
-                            , clone $this->b_stack
+                            , $a_copy
+                            , $b_copy
                             ));
-        $this->push_front_a_stack($a_stack);
-        $this->push_front_b_stack($b_stack);
+        $this->a_bottom = $a_bottom;
+        $this->b_bottom = $b_bottom;
         return $this->enter($this->node);
     }
 
@@ -306,13 +292,19 @@ abstract class STG {
      * @return CodeLabel
      */
     public function update($_) {
-        // Just restore the update frame, we will create a real implementation
-        // later on.
-        list($node, $a_stack, $b_stack)
-            = $this->pop_update_frame();
-        $this->push_args($a_stack);
-        $this->push_returns($b_stack);
-        $node->update(new Closures\WHNF($this->get_argument_register()));
-        return $this->pop_return();
+        list($node, $a_bottom, $b_bottom)
+            = $this->pop_b_stack();
+        $this->a_bottom = $a_bottom;
+        $this->b_bottom = $b_bottom;
+        $node->update(new Closures\WHNF($this->get_register()));
+        return $this->pop_b_stack();
+    }
+
+    // HELPERS
+
+    static final public function copy_array(\SPLFixedArray $src, $src_start, $src_end, \SPLFixedArray $tgt, $tgt_start = 0) {
+        for ($i = $src_start; $i < $src_end; $i++) {
+            $tgt[$tgt_start++] = $src[$i];
+        }
     }
 }

@@ -125,7 +125,7 @@ class Gen {
     }
 
     public function stg_args_smaller_than($amount) {
-        return "\${$this->stg_name}->count_args() < $amount";
+        return "\${$this->stg_name}->count_a_stack() < $amount";
     }
 
     public function stg_enter($where) {

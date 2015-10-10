@@ -40,8 +40,8 @@ class WHNF extends Standard {
      * @return  CodeLabel
      */
     public function entry_code(STG $stg) {
-        $return = $stg->pop_return();
-        $stg->push_argument_register($this->data_vector);
+        $return = $stg->pop_b_stack();
+        $stg->push_register($this->data_vector);
         return $return;
     }
 

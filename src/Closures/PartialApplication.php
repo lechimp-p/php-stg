@@ -13,27 +13,22 @@ class PartialApplication extends Standard {
     protected $function_closure;
 
     /**
-     * @var \SPLStack|null
+     * @var \SPLFixedArray
      */
     protected $a_stack;
 
     /**
-     * @var \SPLStack|null
+     * @var \SPLFixedArray
      */
     protected $b_stack;
-
-    /**
-     * @var \SPLStack|null
-     */
-    protected $env_stack;
 
     /**
      * ATTENTION: The dictionary of free variables is passed by reference.
      *            to make recursive definitions possible.
      */
     public function __construct( Standard  $function_closure
-                               , \SPLStack $a_stack
-                               , \SPLStack $b_stack
+                               , \SPLFixedArray $a_stack
+                               , \SPLFixedArray $b_stack
                                ) {
         $a = array();
         parent::__construct($a);
@@ -45,9 +40,9 @@ class PartialApplication extends Standard {
     }
 
     public function entry_code(STG $stg) {
-        $stg->push_args($this->a_stack);
-        $stg->push_returns($this->b_stack);
-
+        $stg->push_array_a_stack($this->a_stack);
+        $stg->push_array_b_stack($this->b_stack);
+        
         return $stg->enter($this->function_closure);
     }
 
