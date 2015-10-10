@@ -42,7 +42,7 @@ class PartialApplication extends Standard {
     public function entry_code(STG $stg) {
         $stg->push_array_a_stack($this->a_stack);
         $stg->push_array_b_stack($this->b_stack);
-        
+ 
         return $stg->enter($this->function_closure);
     }
 

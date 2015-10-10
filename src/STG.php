@@ -4,6 +4,9 @@ namespace Lechimp\STG;
 
 /**
  * One STG machine.
+ *
+ * The stacks from the machine are implemented with SPLFixedArrays, as the i
+ * implementation using SPLStack was messy.
  */
 abstract class STG {
     /**
@@ -40,18 +43,8 @@ abstract class STG {
      */
     protected $b_bottom;
 
-    /**
-     * @var array
-     */
-    protected $globals;
-
-    /**
-     * @var mixed 
-     */
-    protected $register;
-
-    const A_STACK_SIZE = 200;
-    const B_STACK_SIZE = 200;
+    const A_STACK_SIZE = 100;
+    const B_STACK_SIZE = 100;
 
     /**
      * @var int
@@ -62,6 +55,16 @@ abstract class STG {
      * @var int
      */
     protected $b_stack_size = null;
+
+    /**
+     * @var array
+     */
+    protected $globals;
+
+    /**
+     * @var mixed 
+     */
+    protected $register;
 
     /**
      * @var STGClosure
@@ -119,7 +122,6 @@ abstract class STG {
      * @return CodeLabel
      */
     public function enter(Closures\Standard $closure) {
-        //echo "enter: ".get_class($closure)."\n";
         // That may be superfluous as we just return the label.
         // See Gen::stg_enter.
         // This offers the flexibility to use another STG (for debugging...)
@@ -129,9 +131,9 @@ abstract class STG {
     }
 
     /**
-     * Push an argument on the stack.
+     * Push an argument on the a stack.
      *
-     * @param   Closures\Standard|int  $arg
+     * @param   mixed $arg
      * @return  null 
      */
     public function push_a_stack($argument) {
@@ -140,7 +142,7 @@ abstract class STG {
     }
 
     /**
-     * Add the values found in the argument to the a stack.
+     * Add the arguments found in the array to the a stack.
      *
      * @param   \SPLFixedArray $args
      * @return  null
@@ -152,9 +154,9 @@ abstract class STG {
     }
 
     /**
-     * Pop an argument from the stack.
+     * Pop an argument from the a stack.
      *
-     * @return  Closures\Standard|int
+     * @return  mixed
      */
     public function pop_a_stack() {
         assert($this->a_stack->count() > 0);
@@ -181,7 +183,7 @@ abstract class STG {
     }
 
     /**
-     * Add the values found in the argument to the b stack.
+     * Add the values found in the array to the b stack.
      *
      * @param   \SPLFixedArray $args
      * @return  null
@@ -257,8 +259,6 @@ abstract class STG {
     /**
      * Perform an update for a partial application.
      *
-     * TODO: There are no actual tests for this.
-     *
      * @return CodeLabel
      */
     public function update_partial_application() {
@@ -302,7 +302,7 @@ abstract class STG {
 
     // HELPERS
 
-    static final public function copy_array(\SPLFixedArray $src, $src_start, $src_end, \SPLFixedArray $tgt, $tgt_start = 0) {
+    static private function copy_array(\SPLFixedArray $src, $src_start, $src_end, \SPLFixedArray $tgt, $tgt_start = 0) {
         for ($i = $src_start; $i < $src_end; $i++) {
             $tgt[$tgt_start++] = $src[$i];
         }
