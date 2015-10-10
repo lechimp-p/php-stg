@@ -1,15 +1,11 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
-use Lechimp\STG\Compiler;
-use Lechimp\STG\CodeLabel;
 
-require_once(__DIR__."/ProgramTestBase.php");
+require_once(__DIR__."/OneProgramTestBase.php");
 
-class DuplicateVarNameTest extends ProgramTestBase {
-    public function test_program() {
-        $l = new Lang();
-
+class DuplicateVarNameTest extends OneProgramTestBase {
+    protected function program(Lang $l) {
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> 
@@ -23,100 +19,43 @@ class DuplicateVarNameTest extends ProgramTestBase {
          *         B -> A   
          *         default -> a   
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array($l->variable("swapAB"), $l->variable("a"))
-                    , array()
-                    , $l->let
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("b")
-                                , $l->lambda
-                                    ( array($l->variable("a"))
-                                    , array()
-                                    , $l->application 
-                                        ( $l->variable("a")
-                                        , array ()
-                                        )
-                                    , true
-                                    )
-                                )
-                            , $l->binding
-                                ( $l->variable("a")
-                                , $l->lambda
-                                    ( array($l->variable("swapAB"))
-                                    , array($l->variable("c"))
-                                    , $l->application
-                                        ( $l->variable("swapAB")
-                                        , array
-                                            ( $l->variable("c")
-                                            )
-                                        )
-                                    , false 
-                                    )
-                                )
-                            )
-                        , $l->application 
-                            ( $l->variable("a")
-                            , array
-                                ( $l->variable("b") 
-                                )
-                            )
+        return $l->prg(array
+            ( "main" => $l->lam_f
+                ( array("swapAB", "a")
+                , $l->lt(array
+                    ( "b" => $l->lam_f
+                        ( array("a")
+                        , $l->app("a")
                         )
-                    , true
+                    , "a" => $l->lam
+                        ( array("swapAB")
+                        , array("c")
+                        , $l->app("swapAB", "c")
+                        , false 
+                        )
+                    )
+                    , $l->app("a", "b")
                     )
                 )
-            , $l->binding
-                ( $l->variable("a")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->constructor("A", array())
-                    , true
-                    )
+            , "a" => $l->lam_n
+                ( $l->con("A")
                 )
-            , $l->binding
-                ( $l->variable("swapAB")
-                , $l->lambda
-                    ( array()
-                    , array($l->variable("a"))
-                    , $l->case_expr
-                        ( $l->application
-                            ( $l->variable("a")
-                            , array()
-                            )
-                        , array
-                            ( $l->algebraic_alternative
-                                ( "A"
-                                , array()
-                                , $l->constructor("B", array())
-                                )
-                            , $l->algebraic_alternative
-                                ( "B"
-                                , array()
-                                , $l->constructor("A", array())
-                                )
-                            , $l->default_alternative 
-                                ( null
-                                , $l->application
-                                    ( $l->variable("a")
-                                    , array()
-                                    )
-                                )
-                            )
+            , "swapAB" => $l->lam_a
+                ( array("a")
+                , $l->cse
+                    ( $l->app("a")
+                    , array
+                        ( "A"       => $l->con("B")
+                        , "B"       => $l->con("A")
+                        , "default" => $l->app("a")
                         )
-                    , false
                     )
+                , false
                 )
             ));
-        $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "DuplicateVarNameTest"); 
-        //$this->echo_program($compiled["main.php"]);
-        eval($compiled["main.php"]);
-        $machine = new DuplicateVarNameTest\TheMachine();
-        $result = $this->machine_result($machine);
+    }
+
+    protected function assertions($result) {
         $this->assertEquals("B", $result[1]);
     }
 }

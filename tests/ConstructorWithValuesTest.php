@@ -1,15 +1,11 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
-use Lechimp\STG\Compiler;
-use Lechimp\STG\CodeLabel;
 
-require_once(__DIR__."/ProgramTestBase.php");
+require_once(__DIR__."/OneProgramTestBase.php");
 
-class ConstructorWithValuesTest extends ProgramTestBase {
-    public function test_program() {
-        $l = new Lang();
-
+class ConstructorWithValuesTest extends OneProgramTestBase {
+    protected function program(Lang $l) {
         /**
          * Represents the following program
          * main = \{extract, a} \u \{} -> extract a
@@ -18,7 +14,7 @@ class ConstructorWithValuesTest extends ProgramTestBase {
          *     case w of
          *         Wrapped a b -> Result a b
          */
-        $program = $l->prg(array
+        return $l->prg(array
             ( "main" => $l->lam_f
                     ( array("extract", "a")
                     , $l->app("extract", "a")
@@ -37,12 +33,9 @@ class ConstructorWithValuesTest extends ProgramTestBase {
                     , false
                     )
             ));
-        $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "ConstructorWithValuesTest"); 
-        //$this->echo_program($compiled["main.php"]);
-        eval($compiled["main.php"]);
-        $machine = new ConstructorWithValuesTest\TheMachine();
-        $result = $this->machine_result($machine);
+    }
+
+    protected function assertions($result) {
         $this->assertEquals(42, $result[2]);
         $this->assertEquals(23, $result[3]);
     }

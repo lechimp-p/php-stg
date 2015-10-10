@@ -1,15 +1,11 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
-use Lechimp\STG\Compiler;
-use Lechimp\STG\CodeLabel;
 
-require_once(__DIR__."/ProgramTestBase.php");
+require_once(__DIR__."/OneProgramTestBase.php");
 
-class BasicTest extends ProgramTestBase {
-    public function test_program() {
-        $l = new Lang();
-
+class BasicTest extends OneProgramTestBase {
+    protected function program(Lang $l) {
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> swapAB a
@@ -20,7 +16,7 @@ class BasicTest extends ProgramTestBase {
          *         B -> A   
          *         default -> a   
          */
-        $program = $l->prg(array
+        return $l->prg(array
             ( "main" => $l->lam_f
                 ( array("swapAB", "a")
                 , $l->app("swapAB", "a")
@@ -41,12 +37,9 @@ class BasicTest extends ProgramTestBase {
                 , false
                 )
             ));
-        $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "BasicTest"); 
-        //$this->echo_program($compiled["main.php"]);
-        eval($compiled["main.php"]);
-        $machine = new BasicTest\TheMachine();
-        $result = $this->machine_result($machine);
+    }
+
+    protected function assertions($result) {
         $this->assertEquals("B", $result[1]);
     }
 }

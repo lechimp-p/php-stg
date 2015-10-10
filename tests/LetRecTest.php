@@ -1,15 +1,11 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
-use Lechimp\STG\Compiler;
-use Lechimp\STG\CodeLabel;
 
-require_once(__DIR__."/ProgramTestBase.php");
+require_once(__DIR__."/OneProgramTestBase.php");
 
-class LetRecTest extends ProgramTestBase {
-    public function test_program() {
-        $l = new Lang();
-
+class LetRecTest extends OneProgramTestBase {
+    protected function program(Lang $l) {
         /**
          * Represents the following program
          * main = \{} \u \{} -> 
@@ -20,90 +16,35 @@ class LetRecTest extends ProgramTestBase {
          *                      Wrapped a b -> Result a b
          *      in result 
          */
-        $program = $l->program(array
-            ( $l->binding
-                ( $l->variable("main")
-                , $l->lambda
-                    ( array()
-                    , array()
-                    , $l->letrec
-                        ( array
-                            ( $l->binding
-                                ( $l->variable("result")
-                                , $l->lambda
-                                    ( array
-                                        ( $l->variable("a")
-                                        , $l->variable("extract")
-                                        )
-                                    , array()
-                                    , $l->application
-                                        ( $l->variable("extract")
-                                        , array( $l->variable("a") )
-                                        )
-                                    , true
-                                    )
-                                )
-                            , $l->binding
-                                ( $l->variable("a")
-                                , $l->lambda
-                                    ( array()
-                                    , array()
-                                    , $l->constructor
-                                        ( "Wrapped"
-                                        , array
-                                            ( $l->literal(42)
-                                            , $l->literal(23)
-                                            )
-                                        )
-                                    , true
-                                    )
-                                )
-                            , $l->binding
-                                ( $l->variable("extract")
-                                , $l->lambda
-                                    ( array()
-                                    , array($l->variable("w"))
-                                    , $l->case_expr
-                                        ( $l->application
-                                            ( $l->variable("w")
-                                            , array()
-                                            )
-                                        , array
-                                            ( $l->algebraic_alternative
-                                                ( "Wrapped"
-                                                , array
-                                                    ( $l->variable("a") 
-                                                    , $l->variable("b") 
-                                                    )
-                                                , $l->constructor
-                                                    ( "Result" 
-                                                    , array
-                                                        ( $l->variable("a") 
-                                                        , $l->variable("b") 
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    , false
-                                    )
-                                )
-                            )
-                        , $l->application 
-                            ( $l->variable("result")
-                            , array()
-                            )
+        return $l->prg(array
+            ( "main" => $l->lam_n
+                ( $l->ltr( array
+                    ( "result" => $l->lam_f
+                        ( array("a", "extract")
+                        , $l->app("extract", "a")
                         )
-                    , true
+                    , "a" => $l->lam_n
+                        ( $l->con("Wrapped", $l->lit(42), $l->lit(23))
+                        )
+                    , "extract" => $l->lam_a
+                        ( array("w")
+                        , $l->cse
+                            ( $l->app("w")
+                            , array
+                                (  "Wrapped a b" => $l->con("Result", "a", "b")
+                                )
+                            )
+                        , false
+                        )
+                    )
+                    , $l->app("result")
                     )
                 )
             ));
-        $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "LetRecTest"); 
-        //$this->echo_program($compiled["main.php"]);
-        eval($compiled["main.php"]);
-        $machine = new LetRecTest\TheMachine();
-        $result = $this->machine_result($machine);
+    }
+
+    protected function assertions($result) {
+        $this->assertEquals("Result", $result[1]);
         $this->assertEquals(42, $result[2]);
         $this->assertEquals(23, $result[3]);
     }
