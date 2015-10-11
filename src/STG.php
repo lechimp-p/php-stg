@@ -71,6 +71,20 @@ abstract class STG {
      */
     protected $node;
 
+    /**
+     * Count created closures for gc.
+     *
+     * @var int
+     */
+    protected $created_closures;
+
+    /**
+     * Count updated closures for gc.
+     *
+     * @var int
+     */
+    protected $updated_closures;
+
     public function __construct(array $globals) {
         foreach($globals as $key => $value) {
             assert(is_string($key));
@@ -95,6 +109,9 @@ abstract class STG {
         assert(is_int($this->b_stack_size) && $this->b_stack_size > 0);
 
         $this->globals = $globals;
+
+        // TODO: This should go to some init code.
+
         $this->a_stack = new \SPLFixedArray($this->a_stack_size);
         $this->a_top = 0;
         $this->a_bottom = 0;
@@ -103,6 +120,9 @@ abstract class STG {
         $this->b_bottom = 0;
         $this->register = null;
         $this->label_update = new CodeLabel($this, "update");
+
+        $this->updated_closures = 0;
+        $this->created_closures = 0;
     }
 
     /**
@@ -114,6 +134,19 @@ abstract class STG {
         while($label !== null) {
             $label = $label->jump($this); 
         }
+    }
+
+    /**
+     * Create a new closure based on a class name and
+     * an array of free variables.
+     *
+     * @param   string  $class_name
+     * @param   array   $free_vars
+     * @return  Closures/StandardClosure
+     */
+    public function new_closure($class_name, array &$free_vars) {
+        $this->created_closures++;
+        return new $class_name($free_vars);
     }
 
     /**
@@ -283,6 +316,9 @@ abstract class STG {
                             ));
         $this->a_bottom = $a_bottom;
         $this->b_bottom = $b_bottom;
+
+        $this->updated_closures++;
+
         return $this->enter($this->node);
     }
 
@@ -297,6 +333,9 @@ abstract class STG {
         $this->a_bottom = $a_bottom;
         $this->b_bottom = $b_bottom;
         $node->update(new Closures\WHNF($this->get_register()));
+
+        $this->updated_closures++;
+
         return $this->pop_b_stack();
     }
 

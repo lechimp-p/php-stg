@@ -209,7 +209,7 @@ class Gen {
     }
 
     public function stg_new_closure($class_name, $free_vars_name) {
-        return "new $class_name(\$free_vars_$free_vars_name)";
+        return "\${$this->stg_name}->new_closure(\"\\{$this->namespace}\\$class_name\", \$free_vars_$free_vars_name)";
     }
 
     //---------------------
