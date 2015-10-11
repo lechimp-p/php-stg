@@ -508,7 +508,7 @@ class Compiler {
                             $fname = $free_var->name();
                             return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
                         }, $binding->lambda()->free_variables())
-                        , $g->to_local_env($name, "new $class_name(\$free_vars_$name)")
+                        , $g->to_local_env($name, $g->stg_new_closure($class_name, $name))
                         );
                 }, $let_binding->bindings())))
             ->adds(array_flatten
@@ -541,7 +541,7 @@ class Compiler {
                             $fname = $free_var->name();
                             return $g->stmt("\$free_vars_{$name}[\"$fname\"] = null");
                         }, $binding->lambda()->free_variables())
-                        , $g->to_local_env($name, "new $class_name(\$free_vars_$name)")
+                        , $g->to_local_env($name, $g->stg_new_closure($class_name, $name))
                         );
                 }, $letrec_binding->bindings())
 
