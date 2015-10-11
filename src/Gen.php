@@ -212,6 +212,10 @@ class Gen {
         return "new \\Lechimp\\STG\\CodeLabel(\${$this->stg_name}, \"$method_name\")";
     }
 
+    public function stg_new_closure($class_name, $free_vars_name) {
+        return "new $class_name(\$free_vars_$free_vars_name)";
+    }
+
     //---------------------
     // HELPERS
     //---------------------
