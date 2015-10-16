@@ -74,7 +74,7 @@ class Compiler {
 
             $results->add($sub_result);
             // This line (the $var_name) depends on code generated in machine_construct.
-            $results->add_global($var_name, "new $class_name(\$$var_name)");
+            $results->add_global($var_name, $g->stg_new_closure($class_name, $var_name));
 
         }, $bindings);
         return $results;
@@ -102,10 +102,11 @@ class Compiler {
             ( array_map(function(Lang\Binding $binding) use ($g) {
                 $closure_name = $binding->variable()->name();
                 return array
-                    ( array($g->stmt("\$$closure_name = array()"))
+                    ( $g->stmt('$stg = $this')
+                    , array($g->stmt("\$free_vars_$closure_name = array()"))
                     , array_map(function(Lang\Variable $free_var) use ($g, $closure_name) {
                         $var_name = $free_var->name();
-                        return $g->stmt("\${$closure_name}[\"$var_name\"] = null");
+                        return $g->stmt("\$free_vars_{$closure_name}[\"$var_name\"] = null");
                     }, $binding->lambda()->free_variables()));
             }, $bindings)
 
@@ -118,7 +119,7 @@ class Compiler {
                 $closure_name = $binding->variable()->name();
                 return array_map(function(Lang\Variable $free_var) use ($g, $closure_name) {
                     $var_name = $free_var->name();
-                    return $g->stmt("\${$closure_name}[\"$var_name\"] = \$this->globals[\"$var_name\"]");
+                    return $g->stmt("\$free_vars_{$closure_name}[\"$var_name\"] = \$this->globals[\"$var_name\"]");
                 }, $binding->lambda()->free_variables());
             }, $bindings)
             );
