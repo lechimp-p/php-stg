@@ -21,7 +21,7 @@ class IntegerPrimOpsTest extends ProgramTestBase {
             ( "main" => $l->lam_n
                 ( $l->lt( array
                     ( "v" => $l->lam_n
-                        ( $l->prm( "IntAddOp", 42, 23)
+                        ( $l->prm( "IntAddOp", $l->lit(42), $l->lit(23))
                         )  
                     )
                     , $l->cse
@@ -56,7 +56,7 @@ class IntegerPrimOpsTest extends ProgramTestBase {
             ( "main" => $l->lam_n
                 ( $l->lt( array
                     ( "v" => $l->lam_n
-                        ( $l->prm( "IntSubOp", 42, 23)
+                        ( $l->prm( "IntSubOp", $l->lit(42), $l->lit(23))
                         )  
                     )
                     , $l->cse
@@ -91,7 +91,7 @@ class IntegerPrimOpsTest extends ProgramTestBase {
             ( "main" => $l->lam_n
                 ( $l->lt( array
                     ( "v" => $l->lam_n
-                        ( $l->prm( "IntMulOp", 42, 23)
+                        ( $l->prm( "IntMulOp", $l->lit(42), $l->lit(23))
                         )  
                     )
                     , $l->cse
