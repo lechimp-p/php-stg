@@ -132,6 +132,7 @@ abstract class STG {
         $label = new CodeLabel($this->globals["main"], "entry_code");
         $this->node = $this->globals["main"];
         while($label !== null) {
+            echo "{$this->created_closures} / {$this->updated_closures}\n";
             $label = $label->jump($this); 
         }
     }
