@@ -86,7 +86,7 @@ class Compiler {
             ( $stg_class_name
             , array() // no props
             , array
-                ( $g->public_method( "init_globals", array()
+                ( $g->protected_method( "init_globals", array()
                     , $this->compile_machine_init_globals($g, $bindings, $globals)
                     )
                 )

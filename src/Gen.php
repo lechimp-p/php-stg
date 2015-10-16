@@ -43,6 +43,10 @@ class Gen {
         return new Gen\GPublicMethod($name, $arguments, $statements);
     }
 
+    public function protected_method($name, $arguments, $statements) {
+        return new Gen\GProtectedMethod($name, $arguments, $statements);
+    }
+
     public function stg_args() {
         return array(new Gen\GArgument("\\Lechimp\\STG\\STG", Compiler::STG_VAR_NAME));
     }

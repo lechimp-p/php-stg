@@ -93,13 +93,15 @@ abstract class STG {
         assert(is_int($this->a_stack_size) && $this->a_stack_size > 0);
         assert(is_int($this->b_stack_size) && $this->b_stack_size > 0);
 
-        $this->init();
+        $this->label_update = new CodeLabel($this, "update");
+
+        $this->init(); 
     }
 
     /**
      * Initialize the globals.
      */
-    abstract public function init_globals();
+    abstract protected function init_globals();
 
     /**
      * Initialize the stacks and stuff for a run.
@@ -112,7 +114,7 @@ abstract class STG {
         $this->b_top = 0;
         $this->b_bottom = 0;
         $this->register = null;
-        $this->label_update = new CodeLabel($this, "update");
+        $this->init_globals();
     }
 
     /**
