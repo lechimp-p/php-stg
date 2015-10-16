@@ -1,11 +1,14 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
+use Lechimp\STG\Compiler;
 
 require_once(__DIR__."/OneProgramTestBase.php");
 
-class GCTest extends OneProgramTestBase {
-    protected function program(Lang $l) {
+class GCTest extends ProgramTestBase {
+    public function test_gc() {
+        $l = new Lang();
+
         /**
          * Represents the following program
          * main = \{} \u \{} -> sum a
@@ -91,9 +94,13 @@ class GCTest extends OneProgramTestBase {
                     )
                 )
             ));
-    }
 
-    protected function assertions($result) {
-        $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[1]);
+        $compiler = new Compiler();
+        $compiled = $compiler->compile($program, "TheMachine", "IntegerPrimOpsTestAdd"); 
+        //$this->echo_program($compiled["main.php"]);
+        eval($compiled["main.php"]);
+        $machine = new IntegerPrimOpsTestAdd\TheMachine();
+        $result = $this->machine_result($machine);
+        $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[2]);
     }
 }
