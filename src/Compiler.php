@@ -97,13 +97,13 @@ class Compiler {
 
     protected function compile_machine_init_globals(Gen $g, array $bindings, array $globals) {
         return array_flatten
+            ( $g->stmt('$stg = $this')
 
             // Create arrays for the free variables of the global closures.
-            ( array_map(function(Lang\Binding $binding) use ($g) {
+            , array_map(function(Lang\Binding $binding) use ($g) {
                 $closure_name = $binding->variable()->name();
                 return array
-                    ( $g->stmt('$stg = $this')
-                    , array($g->stmt("\$free_vars_$closure_name = array()"))
+                    ( array($g->stmt("\$free_vars_$closure_name = array()"))
                     , array_map(function(Lang\Variable $free_var) use ($g, $closure_name) {
                         $var_name = $free_var->name();
                         return $g->stmt("\$free_vars_{$closure_name}[\"$var_name\"] = null");
