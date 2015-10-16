@@ -240,7 +240,7 @@ class Compiler {
         $results->add_statements( array_flatten
             ( array_map(function($atom) use ($g) {
                 return $g->stg_push_arg($this->compile_atom($g, $atom));
-            }, $application->atoms())
+            }, array_reverse($application->atoms()))
             , $g->stg_enter_local_env($var_name)
             ));
         return $results;
@@ -307,7 +307,6 @@ class Compiler {
 
         $alternatives_results 
             = $this->compile_alternatives($g, $case_expression->alternatives(), $return_vector);
-        assert(count($alternatives_results->classes()) == 0);
         assert(count($alternatives_results->globals()) == 0);
         assert(count($alternatives_results->statements()) == 0);
 
