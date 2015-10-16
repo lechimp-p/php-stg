@@ -6,7 +6,6 @@ require_once(__DIR__."/OneProgramTestBase.php");
 
 class GCTest extends OneProgramTestBase {
     protected function program(Lang $l) {
-        $this->echo_program = true;
         /**
          * Represents the following program
          * main = \{} \u \{} -> sum a
