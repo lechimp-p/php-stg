@@ -76,7 +76,7 @@ abstract class STG {
      *
      * @var int
      */
-    protected $created_closures;
+    protected $amount_closures;
 
     /**
      * Counts updated closures for gc.
@@ -128,7 +128,7 @@ abstract class STG {
         $this->b_bottom = 0;
         $this->register = null;
         $this->updated_closures = 0;
-        $this->created_closures = 0;
+        $this->amount_closures = 0;
         $this->init_globals();
     }
 
@@ -139,7 +139,7 @@ abstract class STG {
         $label = new CodeLabel($this->globals["main"], "entry_code");
         $this->node = $this->globals["main"];
         while($label !== null) {
-            //echo "{$this->created_closures} / {$this->updated_closures}\n";
+            //echo "{$this->amount_closures} / {$this->updated_closures}\n";
             $label = $label->jump($this); 
         }
     }
@@ -153,7 +153,7 @@ abstract class STG {
      * @return  Closures/StandardClosure
      */
     public function new_closure($class_name, array &$free_vars) {
-        $this->created_closures++;
+        $this->amount_closures++;
         return new $class_name($free_vars);
     }
 
