@@ -202,7 +202,7 @@ class Lang {
      * @return  PrimOp
      */ 
     public function prm($op, $l, $r) {
-        return $this->prim_op($op, array($this->lit($l), $this->lit($r)));
+        return $this->prim_op($op, array($this->to_var($l), $this->to_var($r)));
     }
 
     // TRIVIAL FACTORIES 
