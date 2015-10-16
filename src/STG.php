@@ -72,14 +72,14 @@ abstract class STG {
     protected $node;
 
     /**
-     * Count created closures for gc.
+     * Counts created closures for gc.
      *
      * @var int
      */
     protected $created_closures;
 
     /**
-     * Count updated closures for gc.
+     * Counts updated closures for gc.
      *
      * @var int
      */
