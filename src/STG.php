@@ -94,7 +94,15 @@ abstract class STG {
         assert(is_int($this->a_stack_size) && $this->a_stack_size > 0);
         assert(is_int($this->b_stack_size) && $this->b_stack_size > 0);
 
+        $this->init();
+
         $this->globals = $globals;
+    }
+
+    /**
+     * Initialize the stacks and stuff for a run.
+     */
+    public function init() {
         $this->a_stack = new \SPLFixedArray($this->a_stack_size);
         $this->a_top = 0;
         $this->a_bottom = 0;
