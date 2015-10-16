@@ -71,16 +71,15 @@ abstract class STG {
      */
     protected $node;
 
-    public function __construct(array $globals) {
-        foreach($globals as $key => $value) {
+    public function __construct() {
+        $this->init_globals();
+
+        foreach($this->globals as $key => $value) {
             assert(is_string($key));
             assert($value instanceof Closures\Standard);
         }
-        if (!array_key_exists("main", $globals)) {
+        if (!array_key_exists("main", $this->globals)) {
             throw new \LogicException("Missing global 'main'.");
-        }
-        if (!$globals["main"] instanceof Closures\Standard) {
-            throw new \LogicException("Expected 'main' to be a closure.");
         }
 
         if ($this->a_stack_size === null) {
@@ -95,9 +94,12 @@ abstract class STG {
         assert(is_int($this->b_stack_size) && $this->b_stack_size > 0);
 
         $this->init();
-
-        $this->globals = $globals;
     }
+
+    /**
+     * Initialize the globals.
+     */
+    abstract public function init_globals();
 
     /**
      * Initialize the stacks and stuff for a run.
