@@ -36,7 +36,7 @@ class GCTest extends ProgramTestBase {
          *          l10 = \{end, cons} \u \{} -> cons 10 end
          *  in l1 
          */
-        return $l->prg(array
+        $program = $l->prg(array
             ( "main" => $l->lam_f
                 ( array("sum", "a")
                 , $l->app("sum", "a")
@@ -96,11 +96,25 @@ class GCTest extends ProgramTestBase {
             ));
 
         $compiler = new Compiler();
-        $compiled = $compiler->compile($program, "TheMachine", "IntegerPrimOpsTestAdd"); 
+        $compiled = $compiler->compile($program, "TheMachine", "GCTest"); 
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new IntegerPrimOpsTestAdd\TheMachine();
+        $machine = new GCTest\TheMachine();
         $result = $this->machine_result($machine);
-        $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[2]);
+
+        $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[1]);
+
+        $amount_closures_before_gc = $machine->amount_closures;
+        $updated_closures_before_gc = $machine->updated_closures;
+        $this->assertGreaterThan(0, $amount_closures_before_gc);
+        $this->assertGreaterThan(0, $updated_closures_before_gc);
+
+        $machine->collect_garbage();
+
+        $amount_closures_after_gc = $machine->amount_closures;
+        $updated_closures_after_gc = $machine->updated_closures;
+        $this->assertGreaterThan(0, $amount_closures_after_gc);
+        $this->assertGreaterThan($amount_closures_after_gc, $amount_closures_before_gc);
+        $this->assertEquals(0, $updated_closures_after_gc);
     }
 }

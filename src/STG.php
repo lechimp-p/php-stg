@@ -76,14 +76,14 @@ abstract class STG {
      *
      * @var int
      */
-    protected $amount_closures;
+    public $amount_closures;
 
     /**
      * Counts updated closures for gc.
      *
      * @var int
      */
-    protected $updated_closures;
+    public $updated_closures;
 
     public function __construct() {
         $this->init_globals();
@@ -345,6 +345,12 @@ abstract class STG {
         $this->updated_closures++;
 
         return $this->pop_b_stack();
+    }
+
+    /**
+     * Trigger garbace collection
+     */
+    public function collect_garbage() {
     }
 
     // HELPERS
