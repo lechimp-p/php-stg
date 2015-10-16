@@ -6,28 +6,32 @@ require_once(__DIR__."/OneProgramTestBase.php");
 
 class GCTest extends OneProgramTestBase {
     protected function program(Lang $l) {
+        $this->echo_program = true;
         /**
          * Represents the following program
-         * main = \{sum, a} \u \{} -> sum a
+         * main = \{} \u \{} -> sum a
          * sum = \{sum} \n \{v} ->
          *      case v of
-         *          Cons h t -> \{sum, h, t} \u \{} ->
+         *          Cons h t -> 
          *              let s = \{sum,t} \u \{} -> sum t
-         *              in h + s
+         *              in case s of
+         *                  default u -> h + u
          *          End -> 0
-         * cons = \{} -> \{h,t} -> Cons h t
-         * end = \{} -> \{} -> End
-         * a = \{cons, end} -> 
-         *  letrec  l1 = cons 1 l2
-         *          l2 = cons 2 l3
-         *          l3 = cons 3 l4
-         *          l4 = cons 4 l5
-         *          l5 = cons 5 l6
-         *          l6 = cons 6 l7
-         *          l7 = cons 7 l8
-         *          l8 = cons 8 l9
-         *          l9 = cons 9 l10
-         *          l10 = cons 10 end
+         * cons = \{} \n \{h,t} -> 
+         *      let b = \{h,t} \u \{} -> Cons h t
+         *      in b
+         * end = \{} \u \{} -> End
+         * a = \{cons, end} \u -> \{} -> 
+         *  letrec  l1 = \{l2, cons} \u \{} -> cons 1 l2
+         *          l2 = \{l3, cons} \u \{} -> cons 2 l3
+         *          l3 = \{l4, cons} \u \{} -> cons 3 l4
+         *          l4 = \{l5, cons} \u \{} -> cons 4 l5
+         *          l5 = \{l6, cons} \u \{} -> cons 5 l6
+         *          l6 = \{l7, cons} \u \{} -> cons 6 l7
+         *          l7 = \{l8, cons} \u \{} -> cons 7 l8
+         *          l8 = \{l9, cons} \u \{} -> cons 8 l9
+         *          l9 = \{l10, cons} \u \{} -> cons 9 l10
+         *          l10 = \{end, cons} \u \{} -> cons 10 end
          *  in l1 
          */
         return $l->prg(array
@@ -39,43 +43,52 @@ class GCTest extends OneProgramTestBase {
                 ( array("sum")
                 , array("v")
                 , $l->cse
-                    ( "v"
+                    ( $l->app("v")
                     , array
-                        ( "Cons h t" => $l->lam_f
-                            ( array("sum", "h", "t")
-                            , $l->lt(array
+                        ( "Cons h t" =>  $l->lt(array
                                 ( "s" => $l->lam_f
                                     ( array("sum", "t")
                                     , $l->app("sum", "t")
                                     )
                                 )
-                                , $l->prm("IntAddOp", "h", "s")
+                                , $l->cse
+                                    ( $l->app("s")
+                                    , array("default u" => $l->prm("IntAddOp", "h", "u"))
+                                    )
                                 )
-                            )
-                        , "End" => $l->lam_n($l->lit(0))
+                        , "End" => $l->lit(0)
                         )
                     )
+                , false
                 )
             , "cons" => $l->lam_a
                 ( array("h", "t")
-                , $l->con("Cons", "h", "t")
+                , $l->lt(array
+                    ( "b" => $l->lam_f
+                        ( array ("h", "t")
+                        , $l->con("Cons", "h", "t")
+                        )
+                    )
+                    , $l->app("b")
+                    )
+                , false
                 )
             , "end" => $l->lam_n($l->con("End"))
             , "a" => $l->lam_f
                 ( array("cons", "end")
                 , $l->ltr(array
-                    ( "l1" => $l->app("cons", $l->lit(1), $l2) 
-                    , "l2" => $l->app("cons", $l->lit(2), $l3) 
-                    , "l3" => $l->app("cons", $l->lit(3), $l4) 
-                    , "l4" => $l->app("cons", $l->lit(4), $l5) 
-                    , "l5" => $l->app("cons", $l->lit(5), $l6) 
-                    , "l6" => $l->app("cons", $l->lit(6), $l7) 
-                    , "l7" => $l->app("cons", $l->lit(7), $l8) 
-                    , "l8" => $l->app("cons", $l->lit(8), $l9) 
-                    , "l9" => $l->app("cons", $l->lit(9), $l10) 
-                    , "l10" => $l->app("cons", $l->lit(10), "end") 
+                    ( "l1" => $l->lam_f(array("l2", "cons"), $l->app("cons", $l->lit(1), "l2"))
+                    , "l2" => $l->lam_f(array("l3", "cons"), $l->app("cons", $l->lit(2), "l3"))
+                    , "l3" => $l->lam_f(array("l4", "cons"), $l->app("cons", $l->lit(3), "l4")) 
+                    , "l4" => $l->lam_f(array("l5", "cons"), $l->app("cons", $l->lit(4), "l5")) 
+                    , "l5" => $l->lam_f(array("l6", "cons"), $l->app("cons", $l->lit(5), "l6")) 
+                    , "l6" => $l->lam_f(array("l7", "cons"), $l->app("cons", $l->lit(6), "l7")) 
+                    , "l7" => $l->lam_f(array("l8", "cons"), $l->app("cons", $l->lit(7), "l8")) 
+                    , "l8" => $l->lam_f(array("l9", "cons"), $l->app("cons", $l->lit(8), "l9")) 
+                    , "l9" => $l->lam_f(array("l10", "cons"), $l->app("cons", $l->lit(9), "l10")) 
+                    , "l10" => $l->lam_f(array("end", "cons"), $l->app("cons", $l->lit(10), "end")) 
                     )
-                    , $l->app("l10")
+                    , $l->app("l1")
                     )
                 )
             ));
