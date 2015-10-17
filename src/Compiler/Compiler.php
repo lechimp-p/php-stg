@@ -90,24 +90,6 @@ class Compiler {
     // THE MACHINE
     //---------------------
 
-    public function compile_globals(Gen\Gen $g, array $bindings) {
-        $results = $this->results();
-        $globals = array();
-        array_map(function(Lang\Binding $binding) use ($g, $results, &$globals) {
-            $var_name = $binding->variable()->name();
-            $class_name = $g->class_name($var_name);
-
-            $sub_result = $this->compile_lambda($g, $binding->lambda(), $class_name);
-            assert(count($sub_result->methods()) == 0);
-            assert(count($sub_result->statements()) == 0);
-
-            $results->add($sub_result);
-            // This line (the $var_name) depends on code generated in machine_construct.
-            $globals[$var_name] = $g->stg_new_closure($class_name, $var_name);
-        }, $bindings);
-        return array($globals, $results);
-    }
-
     public function compile_machine(Gen\Gen $g, $stg_class_name, array $bindings, array $globals) {
         $results = $this->results();
         $results->add_class($g->_class
