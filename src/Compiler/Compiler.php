@@ -1,6 +1,9 @@
 <?php
 
-namespace Lechimp\STG;
+namespace Lechimp\STG\Compiler;
+
+use Lechimp\STG\Lang;
+use Lechimp\STG\Gen;
 
 /**
  * Compiles expressions from the stg language to php-based STG code.
@@ -23,10 +26,10 @@ class Compiler {
     /**
      * Create a compilation results object 
      *
-     * @return CompilationResults 
+     * @return Results 
      */
     protected function results() {
-        return new CompilationResults();
+        return new Results();
     }
 
     /**

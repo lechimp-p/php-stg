@@ -1,7 +1,7 @@
 <?php
 
 use Lechimp\STG\Lang\Lang;
-use Lechimp\STG\Compiler;
+use Lechimp\STG\Compiler\Compiler;
 
 require_once(__DIR__."/OneProgramTestBase.php");
 

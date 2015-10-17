@@ -1,11 +1,13 @@
 <?php
 
-namespace Lechimp\STG;
+namespace Lechimp\STG\Compiler;
+
+use Lechimp\STG\Gen;
 
 /**
  * Stores results during compilation process.
  */
-class CompilationResults {
+class Results {
     /**
      * @var Gen\GClass[]
      */
@@ -113,7 +115,7 @@ class CompilationResults {
         return $stmts;
     }
 
-    public function add(CompilationResults $res) {
+    public function add(Results $res) {
         foreach($res->classes() as $cls) {
             $this->add_class($cls);
         }
@@ -136,8 +138,8 @@ class CompilationResults {
         return $this;
     }
 
-    public function combine(CompilationResults $res) {
-        $results = new CompilationResults();
+    public function combine(Results $res) {
+        $results = new Results();
         foreach($this->classes() as $cls) {
             $results->add_class($cls);
         }

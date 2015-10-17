@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Gen;
 
-use Lechimp\STG\Compiler;
+use Lechimp\STG\Compiler\Compiler;
 
 /**
  * Code generator class for the compiler.
