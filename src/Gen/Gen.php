@@ -1,6 +1,8 @@
 <?php
 
-namespace Lechimp\STG;
+namespace Lechimp\STG\Gen;
+
+use Lechimp\STG\Compiler;
 
 /**
  * Code generator class for the compiler.
@@ -36,27 +38,27 @@ class Gen {
     }
 
     public function _class($name, $properties, $methods, $extends = null) {
-        return new Gen\GClass($this->namespace, $name, $properties, $methods, $extends);
+        return new GClass($this->namespace, $name, $properties, $methods, $extends);
     }
 
     public function public_method($name, $arguments, $statements) {
-        return new Gen\GPublicMethod($name, $arguments, $statements);
+        return new GPublicMethod($name, $arguments, $statements);
     }
 
     public function protected_method($name, $arguments, $statements) {
-        return new Gen\GProtectedMethod($name, $arguments, $statements);
+        return new GProtectedMethod($name, $arguments, $statements);
     }
 
     public function stg_args() {
-        return array(new Gen\GArgument("\\Lechimp\\STG\\STG", Compiler::STG_VAR_NAME));
+        return array(new GArgument("\\Lechimp\\STG\\STG", Compiler::STG_VAR_NAME));
     }
 
     public function stmt($code) {
-        return new Gen\GStatement($code);
+        return new GStatement($code);
     }
 
     public function if_then_else($if, $then, $else) {
-        return new Gen\GIfThenElse($if, $then, $else);
+        return new GIfThenElse($if, $then, $else);
     }
 
     public function multiline_dict($ind, array $array) {
@@ -117,7 +119,7 @@ class Gen {
     }
 
     public function stg_pop_arg_to($arg_name) {
-        return new Gen\GStatement("\$$arg_name = \${$this->stg_name}->pop_a_stack()");
+        return new GStatement("\$$arg_name = \${$this->stg_name}->pop_a_stack()");
     }
 
     public function stg_pop_arg_to_local_env($arg_name) {
@@ -125,7 +127,7 @@ class Gen {
     }
 
     public function stg_push_arg($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_a_stack($what)");
+        return new GStatement("\${$this->stg_name}->push_a_stack($what)");
     }
 
     public function stg_args_smaller_than($amount) {
@@ -133,7 +135,7 @@ class Gen {
     }
 
     public function stg_enter($where) {
-        return new Gen\GStatement("return \${$this->stg_name}->enter($where)");
+        return new GStatement("return \${$this->stg_name}->enter($where)");
     }
 
     public function stg_enter_local_env($var_name) {
@@ -145,11 +147,11 @@ class Gen {
     }
 
     public function stg_pop_return() {
-        return new Gen\GStatement("\${$this->stg_name}->pop_return()");
+        return new GStatement("\${$this->stg_name}->pop_return()");
     }
 
     public function stg_pop_return_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
+        return new GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
     }
 
     public function stg_pop_return_to_local_env($var_name) {
@@ -157,7 +159,7 @@ class Gen {
     }
 
     public function stg_push_return($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_b_stack($what)");
+        return new GStatement("\${$this->stg_name}->push_b_stack($what)");
     }
 
     public function stg_return_stack_empty() {
@@ -165,43 +167,43 @@ class Gen {
     }
 
     public function stg_pop_env_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
+        return new GStatement("\${$to} = \${$this->stg_name}->pop_b_stack()");
     }
 
     public function stg_push_env($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_b_stack($what)");
+        return new GStatement("\${$this->stg_name}->push_b_stack($what)");
     }
 
     public function stg_push_register($what) {
-        return new Gen\GStatement("\${$this->stg_name}->push_register($what)");
+        return new GStatement("\${$this->stg_name}->push_register($what)");
     }
 
     public function stg_pop_register() {
-        return new Gen\GStatement("\${$this->stg_name}->pop_register()");
+        return new GStatement("\${$this->stg_name}->pop_register()");
     }
 
     public function stg_pop_register_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->pop_register()");
+        return new GStatement("\${$to} = \${$this->stg_name}->pop_register()");
     }
 
     public function stg_pop_register_to_local_env($name) {
-        return new Gen\GStatement($this->local_env($name)." = \${$this->stg_name}->pop_register()");
+        return new GStatement($this->local_env($name)." = \${$this->stg_name}->pop_register()");
     }
 
     public function stg_get_register_to($to) {
-        return new Gen\GStatement("\${$to} = \${$this->stg_name}->get_register()");
+        return new GStatement("\${$to} = \${$this->stg_name}->get_register()");
     }
 
     public function stg_push_update_frame() {
-        return new Gen\GStatement("\${$this->stg_name}->push_update_frame()");
+        return new GStatement("\${$this->stg_name}->push_update_frame()");
     }
 
     public function stg_trigger_update() {
-        return new Gen\GStatement("return ".$this->stg_code_label("update"));
+        return new GStatement("return ".$this->stg_code_label("update"));
     }
 
     public function stg_trigger_update_partial_application() {
-        return new Gen\GStatement("return ".$this->stg_code_label("update_partial_application"));
+        return new GStatement("return ".$this->stg_code_label("update_partial_application"));
     }
 
     public function code_label($method_name) {
