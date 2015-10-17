@@ -14,7 +14,7 @@ abstract class Closure {
      */
     public $entry_code;
 
-    public function __construct(array &$free_variables) {
+    public function __construct() {
         $this->entry_code = new CodeLabel($this, "entry_code");
     }
 

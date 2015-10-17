@@ -33,8 +33,7 @@ class PartialApplication extends Closure {
                                , \SPLFixedArray $a_stack
                                , \SPLFixedArray $b_stack
                                ) {
-        $a = array();
-        parent::__construct($a);
+        parent::__construct();
 
         // For partial update.
         $this->function_closure = $function_closure;

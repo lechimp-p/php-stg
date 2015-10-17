@@ -24,9 +24,7 @@ class WHNF extends Closure {
      * @param   array   $data_vector
      */
     public function __construct(array $data_vector) {
-        // TODO: Fix this by implementing a proper base for closures.
-        $a = array();
-        parent::__construct($a);
+        parent::__construct();
 
         // Overwrite first entry of data vector with self,
         // as this stands in for the former closure.
