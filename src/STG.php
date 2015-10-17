@@ -325,6 +325,7 @@ abstract class STG {
         $this->a_bottom = $a_bottom;
         $this->b_bottom = $b_bottom;
 
+        $this->amount_closures++;
         $this->updated_closures++;
 
         return $this->enter($this->node);
@@ -342,15 +343,32 @@ abstract class STG {
         $this->b_bottom = $b_bottom;
         $node->update(new Closures\WHNF($this->get_register()));
 
+        $this->amount_closures++;
         $this->updated_closures++;
 
         return $this->pop_b_stack();
     }
 
     /**
-     * Trigger garbace collection
+     * Trigger garbage collection
      */
     public function collect_garbage() {
+        $visited = array();
+        $removed = array();
+        foreach ($this->globals as $name => $closure) {
+            $this->globals[$name] = $closure->collect_garbage($visited, $removed);
+        }
+        // TODO: Need to collect garbage on stacks as well.
+/*        foreach ($this->a_stack as $index => $value) {
+            if ($value instanceof Closures\Standard) {
+                $this->a_stack[$index] = $value->collect_garbage($visited);
+            }
+        }*/
+
+        $visited = count($visited);
+        $removed = count($removed);
+        $this->amount_closures = $visited - $removed;
+        $this->updated_closures = 0;
     }
 
     // HELPERS

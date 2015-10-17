@@ -49,6 +49,26 @@ class PartialApplication extends Standard {
     public function free_variables_names() {
         return array();
     }
+
+    /**
+     * Get a garbage collected update of this closure.
+     *
+     * Collects garbage in function closure and on the stacks.
+     *
+     * @return &array   $visited
+     * @return Standard
+     */
+    public function collect_garbage(array &$visited) {
+        $id = spl_object_hash($this);
+
+        if (array_key_exists($id, $visited)) {
+            // Garbage collection on function closure and stacks has already been done.
+            return $this;
+        }
+        $visited[$id] = true;
+
+        $this->function_closure = $this->function_closure->collect_garbage($visited);
+    } 
 }
 
 

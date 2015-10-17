@@ -104,6 +104,10 @@ class GCTest extends ProgramTestBase {
 
         $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[1]);
 
+        // TODO: This test surely is not enough, as it only proves that
+        // the STG somehoe messes around with some numbers. We do not
+        // acquire any knowledge removed closures. We also do not know
+        // if me miss some updated closures.
         $amount_closures_before_gc = $machine->amount_closures;
         $updated_closures_before_gc = $machine->updated_closures;
         $this->assertGreaterThan(0, $amount_closures_before_gc);

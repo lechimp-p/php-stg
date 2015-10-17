@@ -105,4 +105,40 @@ abstract class Standard {
         $this->free_variables = null;
         $this->entry_code = $updated->entry_code;
     } 
+
+    /**
+     * Get a garbage collected update of this closure.
+     *
+     * Either returns the updated closure with garbage collected or collects
+     * garbage on the closures bound in free variables.
+     *
+     * The garbage collection inserts the id of the closure in visited to
+     * avoid running in to infinite recursion when collecting cyclic references.
+     *
+     * @return &array   $visited
+     * @return &array   $removed
+     * @return Standard
+     */
+    public function collect_garbage(array &$visited, array &$removed) {
+        $id = spl_object_hash($this);
+
+        if ($this->updated !== null) {
+            $visited[$id] = get_class($this);
+            $removed[$id] = get_class($this);
+            return $this->updated->collect_garbage($visited, $removed);
+        }
+
+        assert($this->free_variables !== null);
+
+        if (array_key_exists($id, $visited)) {
+            // Garbage collection on free variables has already been done.
+            return $this;
+        }
+        $visited[$id] = get_class($this);
+
+        foreach ($this->free_variables as $name => $closure) {
+            $this->free_variables[$name] = $closure->collect_garbage($visited, $removed);
+        }
+        return $this;
+    }
 }

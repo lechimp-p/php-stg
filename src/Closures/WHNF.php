@@ -53,4 +53,32 @@ class WHNF extends Standard {
     public function free_variables_names() {
         return array();
     }
+
+    /**
+     * Get a garbage collected update of this closure.
+     *
+     * Traverses the content of tha data vector and replaces it by garbage
+     * collected closures.
+     *
+     * @return &array   $visited
+     * @return &array   $removed
+     * @return Standard
+     */
+    public function collect_garbage(array &$visited, array &$removed) {
+        $id = spl_object_hash($this);
+
+        if (array_key_exists($id, $visited)) {
+            // Garbage collection on free values has already been done.
+            return $this;
+        }
+        $visited[$id] = get_class($this);
+
+        $cnt = count($this->data_vector);
+        for($i = 2; $i < $cnt; $i++) {
+            $value = $this->data_vector[$i];
+            if ($value instanceof Standard) {
+                $this->data_vector[$i] = $value->collect_garbage($visited, $removed);
+            }
+        }
+    }
 }
