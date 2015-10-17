@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * Base class for an expression.
  */
-abstract class Expression {
+abstract class Expression implements Syntax {
     /**
      * @var Expression
      */

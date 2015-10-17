@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A binding of an expression to a name.
  */
-class Binding {
+class Binding implements Syntax {
     /**
      * @var Variable
      */

@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Lang;
 
-class AlgebraicAlternative extends Alternative {
+class AlgebraicAlternative extends Alternative implements Syntax {
     /**
      * @var string
      */

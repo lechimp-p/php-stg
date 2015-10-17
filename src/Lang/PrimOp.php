@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A builtin primitive operation.
  */
-class PrimOp extends Expression {
+class PrimOp extends Expression implements Syntax {
     /**
      * @var string
      */

@@ -11,7 +11,7 @@ namespace Lechimp\STG\Lang;
  * There also is a set of three word methods that hides the underlying structure
  * of objects from the user and makes notation of STG-programs shorter.
  */
-class Lang {
+class Lang implements Syntax {
     /**
      * Provide a dictionary of bindings and get a program.
      *

@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * Application of a function to some arguments.
  */
-class Application extends Expression {
+class Application extends Expression implements Syntax {
     /**
      * @var Variable
      */

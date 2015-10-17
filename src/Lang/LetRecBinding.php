@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A letrec binding expression.
  */
-class LetRecBinding extends Expression {
+class LetRecBinding extends Expression implements Syntax {
     /**
      * @var Binding[]
      */

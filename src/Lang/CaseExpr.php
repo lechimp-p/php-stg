@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A case expression.
  */
-class CaseExpr extends Expression {
+class CaseExpr extends Expression implements Syntax {
     /**
      * @var Expression
      */

@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A lambda form.
  */
-class Lambda {
+class Lambda implements Syntax {
     /**
      * @var Variable[]
      */

@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A program from the STG language.
  */
-class Program {
+class Program implements Syntax {
     /**
      * @var Binding[]
      */

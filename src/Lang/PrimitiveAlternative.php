@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Lang;
 
-class PrimitiveAlternative extends Alternative {
+class PrimitiveAlternative extends Alternative implements Syntax {
     /**
      * @var Literal
      */

@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A let binding expression.
  */
-class LetBinding extends Expression {
+class LetBinding extends Expression implements Syntax {
     /**
      * @var Binding[]
      */

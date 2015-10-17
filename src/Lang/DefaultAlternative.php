@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Lang;
 
-class DefaultAlternative extends Alternative {
+class DefaultAlternative extends Alternative implements Syntax {
     /**
      * @var Variable|null
      */

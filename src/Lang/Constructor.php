@@ -5,7 +5,7 @@ namespace Lechimp\STG\Lang;
 /**
  * A saturated constructor.
  */
-class Constructor extends Expression {
+class Constructor extends Expression implements Syntax {
     /**
      * @var string
      */
