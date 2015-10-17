@@ -87,6 +87,14 @@ abstract class STG {
      */
     public $updated_closures;
 
+    /**
+     * Amount of cycles of main loop after which the check is called whether
+     * garbage collection should be done.
+     *
+     * @var int
+     */
+    public $check_garbage_collection_cycles = 1;
+
     public function __construct() {
         $this->init_globals();
         foreach($this->globals as $key => $value) {
@@ -140,9 +148,14 @@ abstract class STG {
     public function run() {
         $label = new CodeLabel($this->globals["main"], "entry_code");
         $this->node = $this->globals["main"];
+        $count = 0;
         while($label !== null) {
-            //echo "{$this->amount_closures} / {$this->updated_closures}\n";
             $label = $label->jump($this); 
+            if ($count == $this->check_garbage_collection_cycles) {
+                $count = 0;
+                $this->collect_garbage(); 
+            }
+            $count++;
         }
     }
 

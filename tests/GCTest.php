@@ -100,6 +100,7 @@ class GCTest extends ProgramTestBase {
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
         $machine = new GCTest\TheMachine();
+        $machine->check_garbage_collection_cycles = 100000;
         $result = $this->machine_result($machine);
 
         $this->assertEquals(1+2+3+4+5+6+7+8+9+10, $result[1]);

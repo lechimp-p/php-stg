@@ -53,8 +53,8 @@ class PartialApplication extends Standard {
     /**
      * @inheritdoc
      */
-    public function collect_garbage_in_references(array &$visited) {
-        $this->function_closure = $this->function_closure->collect_garbage($visited);
+    public function collect_garbage_in_references(array &$survivors) {
+        $this->function_closure = $this->function_closure->collect_garbage($survivors);
         $this->collect_garbage_in_stack($this->a_stack, $survivors);
         $this->collect_garbage_in_stack($this->b_stack, $survivors);
     } 
