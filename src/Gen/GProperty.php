@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Gen;
 
-abstract class GProperty extends Gen {
+abstract class GProperty extends GBase {
     use GAccessQualifierTrait;
 
     /**

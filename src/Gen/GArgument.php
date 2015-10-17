@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Gen;
 
-class GArgument extends Gen {
+class GArgument extends GBase {
     /**
      * @var string|null
      */

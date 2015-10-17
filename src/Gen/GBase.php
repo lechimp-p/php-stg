@@ -5,7 +5,7 @@ namespace Lechimp\STG\Gen;
 /**
  * Base class for PHP generation classes.
  */
-abstract class Gen {
+abstract class GBase {
     const INDENTATION_ATOM = "    ";
 
     /**

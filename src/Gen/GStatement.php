@@ -2,7 +2,7 @@
 
 namespace Lechimp\STG\Gen;
 
-class GStatement extends Gen {
+class GStatement extends GBase {
     /**
      * @var string|Closure
      */
