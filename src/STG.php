@@ -165,7 +165,7 @@ abstract class STG {
      *
      * @param   string  $class_name
      * @param   array   $free_vars
-     * @return  Closures/StandardClosure
+     * @return  Closures/Standard
      */
     public function new_closure($class_name, array &$free_vars) {
         $this->amount_closures++;
@@ -175,9 +175,10 @@ abstract class STG {
     /**
      * Enter the given closure.
      *
-     * @return CodeLabel
+     * @param   Closures\Closure    $closure
+     * @return  CodeLabel
      */
-    public function enter(Closures\Standard $closure) {
+    public function enter(Closures\Closure $closure) {
         // That may be superfluous as we just return the label.
         // See Gen::stg_enter.
         // This offers the flexibility to use another STG (for debugging...)
@@ -193,7 +194,7 @@ abstract class STG {
      * @return  null 
      */
     public function push_a_stack($argument) {
-        assert(is_int($argument) || $argument instanceof Closures\Standard);
+        assert(is_int($argument) || $argument instanceof Closures\Closure);
         $this->a_stack[$this->a_top++] = $argument;
     }
 

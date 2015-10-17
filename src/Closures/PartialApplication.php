@@ -2,11 +2,14 @@
 
 namespace Lechimp\STG\Closures;
 
+use Lechimp\STG\GC;
 use Lechimp\STG\STG;
 use Lechimp\STG\Exceptions\BlackHole;
 use Lechimp\STG\CodeLabel;
 
-class PartialApplication extends Standard {
+class PartialApplication extends Closure {
+    use GC;
+
     /**
      * @var STGClosure|null
      */
@@ -26,7 +29,7 @@ class PartialApplication extends Standard {
      * ATTENTION: The dictionary of free variables is passed by reference.
      *            to make recursive definitions possible.
      */
-    public function __construct( Standard  $function_closure
+    public function __construct( Closure $function_closure
                                , \SPLFixedArray $a_stack
                                , \SPLFixedArray $b_stack
                                ) {

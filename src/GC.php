@@ -8,7 +8,7 @@ namespace Lechimp\STG;
 trait GC {
     protected function collect_garbage_in_array(array &$array, array &$survivors) {
         foreach ($array as $key => $value) {
-            if ($value instanceof Closures\Standard) {
+            if ($value instanceof Closures\Closure) {
                 $array[$key] = $value->collect_garbage($survivors);
             }
         }
@@ -18,7 +18,7 @@ trait GC {
         $cnt = $array->count();
         for($i = 0; $i < $cnt; $i++) {
             $value = $array[$i];
-            if ($value instanceof Closures\Standard) {
+            if ($value instanceof Closures\Closure) {
                 $array[$i] = $value->collect_garbage($survivors);
             }
             else if (is_array($value)) {

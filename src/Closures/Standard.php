@@ -13,7 +13,7 @@ use Lechimp\STG\CodeLabel;
  * TODO: There should be a real base class for closures, as this has free
  * variables and there are (special) closures, that do not need those.
  */
-abstract class Standard {
+abstract class Standard extends Closure {
     use GC;
 
     /**
@@ -21,14 +21,9 @@ abstract class Standard {
      */
     protected $free_variables;
 
-    /**
-     * @var CodeLabel
-     */
-    public $entry_code;
-
     // For updating and garbage collection.
     /**
-     * @var Standard|null
+     * @var Closure|null
      */
     public $updated;
 
@@ -52,14 +47,6 @@ abstract class Standard {
     }
 
     /**
-     * The entry code of the closure.
-     *
-     * @param   STG     $stg
-     * @return  CodeLabel
-     */
-    abstract public function entry_code(STG $stg);
-
-    /**
      * Get a list of the free variables of the closure.
      *
      * @return  string[]    
@@ -81,7 +68,7 @@ abstract class Standard {
      * Get a free variable.
      *
      * @param   string          $name
-     * @return  Closures\Standard|int
+     * @return  Closures\Closure|int
      */
     public function free_variable($name) {
         assert(is_string($name));
@@ -99,10 +86,10 @@ abstract class Standard {
      * Cleans free variables, sets pointer to updated version of this closure
      * and overwrites entry code of this closure to the updated version.
      *
-     * @param   Standard    $updated
+     * @param   Closure $updated
      * @return  null
      */
-    public function update(Standard $updated) {
+    public function update(Closure $updated) {
         assert($this->updated === null);
         $this->updated = $updated;
         $this->free_variables = null;
@@ -110,16 +97,7 @@ abstract class Standard {
     } 
 
     /**
-     * Get a garbage collected update of this closure.
-     *
-     * Either returns the updated closure with garbage collected or collects
-     * garbage on the closures bound in free variables.
-     *
-     * The garbage collection inserts the id of the closure in visited to
-     * avoid running in to infinite recursion when collecting cyclic references.
-     *
-     * @return &array   $visited
-     * @return Standard
+     * @inheritdoc
      */
     public function collect_garbage(array &$survivors) {
         if ($this->updated !== null) {
@@ -127,23 +105,11 @@ abstract class Standard {
             return $this->updated->collect_garbage($survivors);
         }
 
-        $id = spl_object_hash($this);
-        if (array_key_exists($id, $survivors)) {
-            // Garbage collection on this has already been done.
-            return $this;
-        }
-        $survivors[$id] = get_class($this);
-
-        $this->collect_garbage_in_references($survivors);
-        
-        return $this;
+        return parent::collect_garbage($survivors);
     }
 
     /**
-     * Collect garbage on all referenced closures.
-     *
-     * @return &array   $visited
-     * @return null
+     * @inheritdoc
      */
     public function collect_garbage_in_references(array &$survivors) {
         assert($this->free_variables !== null);

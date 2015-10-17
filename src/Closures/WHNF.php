@@ -2,6 +2,7 @@
 
 namespace Lechimp\STG\Closures;
 
+use Lechimp\STG\GC;
 use Lechimp\STG\STG;
 use Lechimp\STG\Exceptions\BlackHole;
 use Lechimp\STG\CodeLabel;
@@ -9,7 +10,9 @@ use Lechimp\STG\CodeLabel;
 /**
  * A closure representing a constructor in weak head normal form.
  */
-class WHNF extends Standard {
+class WHNF extends Closure {
+    use GC;
+
     /**
      * @var array
      */
@@ -27,7 +30,7 @@ class WHNF extends Standard {
 
         // Overwrite first entry of data vector with self,
         // as this stands in for the former closure.
-        if ($this->data_vector[0] instanceof Standard) {
+        if ($this->data_vector[0] instanceof Closure) {
             $data_vector[0] = $this;
         }
         $this->data_vector = $data_vector;
