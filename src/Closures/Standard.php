@@ -9,9 +9,6 @@ use Lechimp\STG\CodeLabel;
 
 /**
  * Representation of a closure in PHP.
- *
- * TODO: There should be a real base class for closures, as this has free
- * variables and there are (special) closures, that do not need those.
  */
 abstract class Standard extends Closure {
     use GC;
