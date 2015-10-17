@@ -51,23 +51,12 @@ class PartialApplication extends Standard {
     }
 
     /**
-     * Get a garbage collected update of this closure.
-     *
-     * Collects garbage in function closure and on the stacks.
-     *
-     * @return &array   $visited
-     * @return Standard
+     * @inheritdoc
      */
-    public function collect_garbage(array &$visited) {
-        $id = spl_object_hash($this);
-
-        if (array_key_exists($id, $visited)) {
-            // Garbage collection on function closure and stacks has already been done.
-            return $this;
-        }
-        $visited[$id] = true;
-
+    public function collect_garbage_in_references(array &$visited) {
         $this->function_closure = $this->function_closure->collect_garbage($visited);
+        $this->collect_garbage_in_stack($this->a_stack, $survivors);
+        $this->collect_garbage_in_stack($this->b_stack, $survivors);
     } 
 }
 

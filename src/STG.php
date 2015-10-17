@@ -9,6 +9,8 @@ namespace Lechimp\STG;
  * implementation using SPLStack was messy.
  */
 abstract class STG {
+    use GC;
+
     /**
      * Stack for arguments.
      * 
@@ -353,23 +355,18 @@ abstract class STG {
      * Trigger garbage collection
      */
     public function collect_garbage() {
-        $visited = array();
-        $removed = array();
-        foreach ($this->globals as $name => $closure) {
-            $this->globals[$name] = $closure->collect_garbage($visited, $removed);
-        }
-        // TODO: Need to collect garbage on stacks as well.
-/*        foreach ($this->a_stack as $index => $value) {
-            if ($value instanceof Closures\Standard) {
-                $this->a_stack[$index] = $value->collect_garbage($visited);
-            }
-        }*/
+        // Collects the closure that persist after garbage collection. Will
+        // be used to abort gc on closures that were already visited.
+        $survivors = array();
+        $this->collect_garbage_in_array($this->globals, $survivors);
+        $this->collect_garbage_in_stack($this->a_stack, $survivors);
+        $this->collect_garbage_in_stack($this->b_stack, $survivors);
 
-        $visited = count($visited);
-        $removed = count($removed);
-        $this->amount_closures = $visited - $removed;
+        $this->amount_closures = count($survivors);
         $this->updated_closures = 0;
     }
+
+    
 
     // HELPERS
 

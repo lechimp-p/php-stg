@@ -3,6 +3,7 @@
 namespace Lechimp\STG\Closures;
 
 use Lechimp\STG\STG;
+use Lechimp\STG\GC;
 use Lechimp\STG\Exceptions\BlackHole;
 use Lechimp\STG\CodeLabel;
 
@@ -13,6 +14,8 @@ use Lechimp\STG\CodeLabel;
  * variables and there are (special) closures, that do not need those.
  */
 abstract class Standard {
+    use GC;
+
     /**
      * @var array|null $name => $content
      */
@@ -116,29 +119,34 @@ abstract class Standard {
      * avoid running in to infinite recursion when collecting cyclic references.
      *
      * @return &array   $visited
-     * @return &array   $removed
      * @return Standard
      */
-    public function collect_garbage(array &$visited, array &$removed) {
-        $id = spl_object_hash($this);
-
+    public function collect_garbage(array &$survivors) {
         if ($this->updated !== null) {
-            $visited[$id] = get_class($this);
-            $removed[$id] = get_class($this);
-            return $this->updated->collect_garbage($visited, $removed);
+            // The closure was updated. Drop it.
+            return $this->updated->collect_garbage($survivors);
         }
 
-        assert($this->free_variables !== null);
-
-        if (array_key_exists($id, $visited)) {
-            // Garbage collection on free variables has already been done.
+        $id = spl_object_hash($this);
+        if (array_key_exists($id, $survivors)) {
+            // Garbage collection on this has already been done.
             return $this;
         }
-        $visited[$id] = get_class($this);
+        $survivors[$id] = get_class($this);
 
-        foreach ($this->free_variables as $name => $closure) {
-            $this->free_variables[$name] = $closure->collect_garbage($visited, $removed);
-        }
+        $this->collect_garbage_in_references($survivors);
+        
         return $this;
+    }
+
+    /**
+     * Collect garbage on all referenced closures.
+     *
+     * @return &array   $visited
+     * @return null
+     */
+    public function collect_garbage_in_references(array &$survivors) {
+        assert($this->free_variables !== null);
+        $this->collect_garbage_in_array($this->free_variables, $survivors);
     }
 }
