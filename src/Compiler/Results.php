@@ -23,16 +23,10 @@ class Results {
      */
     protected $statements;
 
-    /**
-     * @var array   $name => $initializer
-     */
-    protected $globals;
-
     public function __construct() {
         $this->classes = array();
         $this->methods = array();
         $this->statements = array();
-        $this->globals = array();
     } 
 
     public function classes() {
@@ -74,24 +68,6 @@ class Results {
         return $methods;
     }
 
-    public function globals() {
-        return $this->globals;
-    }
-
-    public function add_global($name, $initializer) {
-        assert(is_string($name));
-        assert(is_string($initializer));
-        assert(!array_key_exists($name, $this->globals));
-        $this->globals[$name] = $initializer;
-        return $this;
-    }
-
-    public function flush_globals() {
-        $globals = $this->globals;
-        $this->globals = array();
-        return $globals;
-    }
-
     public function statements() {
         return $this->statements;
     }
@@ -122,9 +98,6 @@ class Results {
         foreach($res->methods() as $method) {
             $this->add_method($method);
         }
-        foreach($res->globals() as $name => $cls) {
-            $this->add_global($name, $stmt);
-        }
         foreach($res->statements() as $stmt) {
             $this->add_statement($stmt);
         }
@@ -151,12 +124,6 @@ class Results {
         }
         foreach($res->methods() as $method) {
             $results->add_method($method);
-        }
-        foreach($this->globals() as $name => $stmt) {
-            $results->add_global($name, $stmt);
-        }
-        foreach($res->globals() as $name => $cls) {
-            $results->add_global($name, $stmt);
         }
         foreach($this->statements() as $stmt) {
             $results->add_statement($stmt);

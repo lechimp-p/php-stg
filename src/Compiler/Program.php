@@ -19,9 +19,11 @@ class Program extends Pattern {
      * @inheritdoc
      */
     public function compile(Compiler $c, Gen $g, &$bindings) {
-        $rg = $c->compile_globals($g, $bindings);
-        $rm = $c->compile_machine($g, $c->stg_class_name, $bindings, $rg->globals());
-        return $rg->combine($rm);
+        list($globals, $result) = $c->compile_globals($g, $bindings);
+
+        return $result->combine(
+            $c->compile_machine($g, $c->stg_class_name, $bindings, $globals)
+        );
     } 
 }
 
