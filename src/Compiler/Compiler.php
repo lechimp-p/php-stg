@@ -67,13 +67,7 @@ class Compiler {
         $this->stg_class_name = $stg_class_name;
 
         $results = $this->compile_syntax($g, $program);
-/*
-        $results_globals = $this->compile_globals($g, $program->bindings());
-        
-        // Class for the final stg machine
-        $results_machine = $this->compile_machine($g, $stg_class_name, $program->bindings(), $results_globals->globals());
 
-        $results = $results_globals->combine($results_machine);*/
         assert(count($results->methods()) == 0);
         assert(count($results->statements()) == 0);
 
