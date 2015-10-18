@@ -96,18 +96,6 @@ class Compiler {
         list($compiler, $res) = $this->pattern->search_compiler($s);
         return $compiler->compile($this, $g, $res);
     }
-
-    //---------------------
-    // LAMBDAS
-    //---------------------
-
-    // TODO: remove this temporary method. It is just needed to ease
-    // refactoring.
-    public function compile_lambda_old(Gen\Gen $g, Lang\Lambda $lambda, $class_name) {
-        $results = $this->compile_syntax($g, $lambda);
-        return $results->add_class
-            ($g->closure_class($class_name, $results->flush_methods()));
-    }
 } 
 
 

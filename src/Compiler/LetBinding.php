@@ -41,7 +41,9 @@ class LetBinding extends Pattern {
             ->adds(array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($c, $g, &$class_names) {
                     $class_name = array_shift($class_names);
-                    return $c->compile_lambda_old($g, $binding->lambda(), $class_name);
+                    $results = $c->compile_syntax($g, $binding->lambda());
+                    return $results->add_class
+                        ($g->closure_class($class_name, $results->flush_methods()));
                 }, $let_binding->bindings())))
             ->add($c->compile_syntax($g, $let_binding->expression()));
     } 
