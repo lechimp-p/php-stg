@@ -51,6 +51,7 @@ class Compiler {
             , new Application()
             , new Constructor()
             , new Literal()
+            , new LetBinding()
             , new Program()
             );
         $this->amount_of_patterns = count($this->patterns);
@@ -97,7 +98,7 @@ class Compiler {
             }
         }
 
-        throw new LogicException("Don't know how to compile ".get_class($s));
+        throw new \LogicException("Don't know how to compile ".get_class($s));
     }
 
     //---------------------
@@ -119,14 +120,12 @@ class Compiler {
     public function compile_expression(Gen\Gen $g, Lang\Expression $expression) {
         if ($expression instanceof Lang\Application
         ||  $expression instanceof Lang\Constructor
-        || $expression instanceof Lang\Literal) {
+        || $expression instanceof Lang\Literal
+        || $expression instanceof Lang\LetBinding) {
             return $this->compile_syntax($g, $expression);
         }
         if ($expression instanceof Lang\CaseExpr) {
             return $this->compile_case_expression($g, $expression);
-        }
-        if ($expression instanceof Lang\LetBinding) {
-            return $this->compile_let_binding($g, $expression);
         }
         if ($expression instanceof Lang\LetRecBinding) {
             return $this->compile_letrec_binding($g, $expression);
@@ -318,38 +317,6 @@ class Compiler {
             ));
         
         return $results;
-    }
-
-    //---------------------
-    // LET BINDINGS
-    //---------------------
-
-    public function compile_let_binding(Gen\Gen $g, Lang\LetBinding $let_binding) {
-        // Cashes fresh class names in the first iteration as they are needed
-        // in the second iteration.
-        $class_names = array();
-
-        return $this->results()
-            ->add_statements(array_flatten
-                ( array_map( function(Lang\Binding $binding) use ($g, &$class_names) {
-                    $name = $binding->variable()->name();
-                    $class_name = $g->class_name($name);
-                    $class_names[] = $class_name;
-                    return array_flatten
-                        ( $g->stmt("\$free_vars_$name = array()")
-                        , array_map(function(Lang\Variable $free_var) use ($g, $name) {
-                            $fname = $free_var->name();
-                            return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
-                        }, $binding->lambda()->free_variables())
-                        , $g->to_local_env($name, $g->stg_new_closure($class_name, $name))
-                        );
-                }, $let_binding->bindings())))
-            ->adds(array_flatten
-                ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
-                    $class_name = array_shift($class_names);
-                    return $this->compile_lambda_old($g, $binding->lambda(), $class_name);
-                }, $let_binding->bindings())))
-            ->add($this->compile_expression($g, $let_binding->expression()));
     }
 
     //---------------------
