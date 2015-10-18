@@ -94,37 +94,43 @@ class Compiler {
     // LAMBDAS
     //---------------------
 
-    public function compile_lambda(Gen\Gen $g, Lang\Lambda $lambda, $class_name) {
-        assert(is_string($class_name));
+    // TODO: remove this temporary method. It is just needed to ease
+    // refactoring.
+    public function compile_lambda_old(Gen\Gen $g, Lang\Lambda $lambda, $class_name) {
+        $results = $this->compile_lambda($g, $lambda);
+        return $results->add_class
+            ($g->closure_class($class_name, $results->flush_methods()));
+    }
 
+    public function compile_lambda(Gen\Gen $g, Lang\Lambda $lambda) {
         $var_names = array_map(function(Lang\Variable $var) {
             return '"'.$var->name().'"';
         }, $lambda->free_variables());
 
-        $sub_result = $this->compile_expression($g, $lambda->expression());
+        $sub_results = $this->compile_expression($g, $lambda->expression());
 
         $results = $this->results();
-        $results->add_class( $g->closure_class
-            ( $class_name
-            , array_flatten
-                ( $g->public_method("entry_code", $g->stg_args()
-                     , array_merge
-                        ( $this->compile_lambda_entry_code($g, $lambda)
-                        , $sub_result->flush_statements()
-                        )
-                     )
+        $results->add_methods( array_flatten
+            ( $g->public_method("entry_code", $g->stg_args()
+                 , array_merge
+                    ( $this->compile_lambda_entry_code($g, $lambda)
+                    , $sub_results->flush_statements() 
+                    )
+                 )
 
-                // Required method for concrete STGClosures.
-                , $g->public_method("free_variables_names", array(), array
-                    ( $g->stmt(function($ind) use ($g, $var_names) { return
-                        "{$ind}return ".$g->multiline_array($ind, $var_names).";";
-                    })))
-                , $sub_result->flush_methods()
-                )
+            // Required method for concrete STGClosures.
+            , $g->public_method("free_variables_names", array(), array
+                ( $g->stmt(function($ind) use ($g, $var_names) { return
+                    "{$ind}return ".$g->multiline_array($ind, $var_names).";";
+                })))
+
+            // Put previously compiled methods after entry code for readability
+            // of generated code.
+            , $sub_results->flush_methods() 
             ));
 
-        $results->add($sub_result);
-        return $results;
+        return $results
+            ->add($sub_results);
     }
 
     public function compile_lambda_entry_code(Gen\Gen $g, Lang\Lambda $lambda) {
@@ -470,7 +476,7 @@ class Compiler {
             ->adds(array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
                     $class_name = array_shift($class_names);
-                    return $this->compile_lambda($g, $binding->lambda(), $class_name);
+                    return $this->compile_lambda_old($g, $binding->lambda(), $class_name);
                 }, $let_binding->bindings())))
             ->add($this->compile_expression($g, $let_binding->expression()));
     }
@@ -512,7 +518,7 @@ class Compiler {
             ->adds( array_flatten
                 ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
                     $class_name = array_shift($class_names);
-                    return $this->compile_lambda($g, $binding->lambda(), $class_name);
+                    return $this->compile_lambda_old($g, $binding->lambda(), $class_name);
                 }, $letrec_binding->bindings()) 
                 ))
             ->add($this->compile_expression($g, $letrec_binding->expression()));
