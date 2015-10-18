@@ -48,7 +48,7 @@ class Compiler {
         $this->pattern = 
             new AllSyntax(array
                 ( new Lambda()
-                , new AllExpressions(array
+                , new Expression(array
                     ( new Application()
                     , new Constructor()
                     , new Literal()

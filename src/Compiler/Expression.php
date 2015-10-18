@@ -5,7 +5,7 @@ namespace Lechimp\STG\Compiler;
 use Lechimp\STG\Lang;
 use Lechimp\STG\Gen\Gen;
 
-class AllExpressions extends Pattern {
+class Expression extends Pattern {
     /**
      * @inheritdoc
      */
