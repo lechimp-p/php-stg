@@ -45,7 +45,7 @@ class Compiler {
     public $amount_of_patterns;
 
     public function __construct() {
-        $this->patterns = array
+        $this->pattern = new AllSyntax(array
             // This needs to contain the patterns from specific to general.
             ( new Lambda()
             , new Application()
@@ -54,7 +54,7 @@ class Compiler {
             , new LetBinding()
             , new LetRecBinding()
             , new Program()
-            );
+            ));
         $this->amount_of_patterns = count($this->patterns);
     }
 
@@ -89,17 +89,8 @@ class Compiler {
     }
 
     public function compile_syntax(Gen\Gen $g, Lang\Syntax $s) {
-        // TODO: This is very inefficient and will make the compiler
-        // slow. I could somehow construct a search tree from the patterns
-        // to make it faster again.
-        for ($i = 0; $i < $this->amount_of_patterns; $i++) {
-            $res = $this->patterns[$i]->matches($s);
-            if ($res !== null) {
-                return $this->patterns[$i]->compile($this, $g, $res);
-            }
-        }
-
-        throw new \LogicException("Don't know how to compile ".get_class($s));
+        list($compiler, $res) = $this->pattern->search_compiler($s);
+        return $compiler->compile($this, $g, $res);
     }
 
     //---------------------
