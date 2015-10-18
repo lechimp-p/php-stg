@@ -48,6 +48,7 @@ class Compiler {
         $this->patterns = array
             // This needs to contain the patterns from specific to general.
             ( new Lambda()
+            , new Application()
             , new Program()
             );
         $this->amount_of_patterns = count($this->patterns);
@@ -115,7 +116,7 @@ class Compiler {
 
     public function compile_expression(Gen\Gen $g, Lang\Expression $expression) {
         if ($expression instanceof Lang\Application) {
-            return $this->compile_application($g, $expression);
+            return $this->compile_syntax($g, $expression);
         }
         if ($expression instanceof Lang\Constructor) {
             return $this->compile_constructor($g, $expression);
@@ -136,23 +137,6 @@ class Compiler {
             return $this->compile_prim_op($g, $expression);
         }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
-    }
-
-    //---------------------
-    // APPLICATIONS
-    //---------------------
-
-    public function compile_application(Gen\Gen $g, Lang\Application $application) {
-        $var_name = $application->variable()->name();
-
-        $results = $this->results();
-        $results->add_statements( array_flatten
-            ( array_map(function($atom) use ($g) {
-                return $g->stg_push_arg($this->compile_atom($g, $atom));
-            }, array_reverse($application->atoms()))
-            , $g->stg_enter_local_env($var_name)
-            ));
-        return $results;
     }
 
     //---------------------
