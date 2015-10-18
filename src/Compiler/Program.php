@@ -36,7 +36,7 @@ class Program extends Pattern {
             $var_name = $binding->variable()->name();
             $class_name = $g->class_name($var_name);
 
-            $sub_result = $c->compile_lambda($g, $binding->lambda());
+            $sub_result = $c->compile_syntax($g, $binding->lambda());
             $sub_result->add_class
                 ( $g->closure_class($class_name, $sub_result->flush_methods()));
             assert(count($sub_result->methods()) == 0);
