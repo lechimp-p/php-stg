@@ -22,7 +22,7 @@ class Constructor extends Pattern {
         $id = $constructor->id();
 
         $args_vector = array_map(function(Lang\Atom $atom) use ($c, $g) {
-            return $c->compile_atom($g, $atom);
+            return $g->atom($atom);
         }, $constructor->atoms());
         // We return a standardized data vector for the 'value' of this constructor.
         // See compile_case_return and compile_primitive_value_jump.

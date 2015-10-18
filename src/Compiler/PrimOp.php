@@ -23,8 +23,8 @@ class PrimOp extends Pattern {
         $atoms = $prim_op->atoms();
         assert(count($atoms));
         list($l, $r) = $atoms;
-        $left = $c->compile_atom($g, $l); 
-        $right = $c->compile_atom($g, $r); 
+        $left = $g->atom($l); 
+        $right = $g->atom($r); 
         $method_name = "prim_op_$id";
         return $c->results()
             ->add_statements( array_flatten

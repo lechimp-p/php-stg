@@ -108,21 +108,6 @@ class Compiler {
         return $results->add_class
             ($g->closure_class($class_name, $results->flush_methods()));
     }
-
-    //---------------------
-    // ATOMS
-    //---------------------
-
-    public function compile_atom(Gen\Gen $g, Lang\Atom $atom) {
-        if ($atom instanceof Lang\Variable) {
-            $var_name = $atom->name();
-            return $g->local_env($var_name); 
-        }
-        if ($atom instanceof Lang\Literal) {
-            return $atom->value();
-        }
-        throw new \LogicException("Unknown atom '$atom'.");
-    }
 } 
 
 
