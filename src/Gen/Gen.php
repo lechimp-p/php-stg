@@ -241,6 +241,18 @@ class Gen {
         return "\${$this->stg_name}->new_closure(\"\\{$this->namespace}\\$class_name\", \$free_vars_$free_vars_name)";
     }
 
+    public function prim_op_IntAddOp($left, $right) {
+        return $this->stmt("\$primitive_value = $left + $right");
+    }
+
+    public function prim_op_IntSubOp($left, $right) {
+        return $this->stmt("\$primitive_value = $left - $right");
+    }
+
+    public function prim_op_IntMulOp($left, $right) {
+        return $this->stmt("\$primitive_value = $left * $right");
+    }
+
     //---------------------
     // HELPERS
     //---------------------

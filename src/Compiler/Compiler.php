@@ -55,6 +55,7 @@ class Compiler {
                     , new LetBinding()
                     , new LetRecBinding()
                     , new CaseExpr()
+                    , new PrimOp()
                     ))
                 , new Program()
                 ));
@@ -118,11 +119,9 @@ class Compiler {
         || $expression instanceof Lang\Literal
         || $expression instanceof Lang\LetBinding
         || $expression instanceof Lang\LetRecBinding
-        || $expression instanceof Lang\CaseExpr) {
+        || $expression instanceof Lang\CaseExpr
+        || $expression instanceof Lang\PrimOp) {
             return $this->compile_syntax($g, $expression);
-        }
-        if ($expression instanceof Lang\PrimOp) {
-            return $this->compile_prim_op($g, $expression);
         }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
     }
@@ -141,60 +140,6 @@ class Compiler {
         }
         throw new \LogicException("Unknown atom '$atom'.");
     }
-
-    //---------------------
-    // PRIM OPS
-    //---------------------
-
-    // TODO: STG Paper mentions short circuit possibility.
-
-    public function compile_prim_op(Gen\Gen $g, Lang\PrimOp $prim_op) {
-        $id = $prim_op->id();
-        $method_name = "compile_prim_op_$id";
-        return $this->$method_name($g, $prim_op->atoms());
-    }
-
-    public function compile_prim_op_IntAddOp(Gen\Gen $g, array $atoms) {
-        assert(count($atoms) == 2);
-        list($l, $r) = $atoms;
-        $left = $this->compile_atom($g, $l);
-        $right = $this->compile_atom($g, $r);
-        return $this->results()
-            ->add_statements( array_flatten
-                ( $g->stmt("\$primitive_value = $left + $right")
-                , $g->stg_primitive_value_jump($g)
-                ));
-    }
-
-    public function compile_prim_op_IntSubOp(Gen\Gen $g, array $atoms) {
-         assert(count($atoms) == 2);
-        list($l, $r) = $atoms;
-        $left = $this->compile_atom($g, $l);
-        $right = $this->compile_atom($g, $r);
-        return $this->results()
-            ->add_statements( array_flatten
-                ( $g->stmt("\$primitive_value = $left - $right")
-                , $g->stg_primitive_value_jump($g)
-                ));       
-    }
-
-    public function compile_prim_op_IntMulOp(Gen\Gen $g, array $atoms) {
-        assert(count($atoms) == 2);
-        list($l, $r) = $atoms;
-        $left = $this->compile_atom($g, $l);
-        $right = $this->compile_atom($g, $r);
-        return $this->results()
-            ->add_statements( array_flatten
-                ( $g->stmt("\$primitive_value = $left * $right")
-                , $g->stg_primitive_value_jump($g)
-                ));
-    }
-
-/* for copy:
-    public function compile_prim_op_IntMulOp(Gen\Gen $g, array $atoms) {
-        
-    }
-*/
 } 
 
 
