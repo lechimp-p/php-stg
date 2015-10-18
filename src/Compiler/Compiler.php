@@ -50,6 +50,7 @@ class Compiler {
             ( new Lambda()
             , new Application()
             , new Constructor()
+            , new Literal()
             , new Program()
             );
         $this->amount_of_patterns = count($this->patterns);
@@ -117,7 +118,8 @@ class Compiler {
 
     public function compile_expression(Gen\Gen $g, Lang\Expression $expression) {
         if ($expression instanceof Lang\Application
-        ||  $expression instanceof Lang\Constructor) {
+        ||  $expression instanceof Lang\Constructor
+        || $expression instanceof Lang\Literal) {
             return $this->compile_syntax($g, $expression);
         }
         if ($expression instanceof Lang\CaseExpr) {
@@ -129,28 +131,10 @@ class Compiler {
         if ($expression instanceof Lang\LetRecBinding) {
             return $this->compile_letrec_binding($g, $expression);
         }
-        if ($expression instanceof Lang\Literal) {
-            return $this->compile_literal($g, $expression);
-        }
         if ($expression instanceof Lang\PrimOp) {
             return $this->compile_prim_op($g, $expression);
         }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
-    }
-
-    //---------------------
-    // LITERALS
-    //---------------------
-
-    public function compile_literal(Gen\Gen $g, Lang\Literal $literal) {
-        $value = $literal->value();
-
-        $results = $this->results();
-        $results->add_statements( array_flatten
-            ( $g->stmt("\$primitive_value = $value")
-            , $g->stg_primitive_value_jump()
-            ));
-        return $results;
     }
 
     //---------------------
