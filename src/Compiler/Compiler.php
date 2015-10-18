@@ -49,6 +49,7 @@ class Compiler {
             // This needs to contain the patterns from specific to general.
             ( new Lambda()
             , new Application()
+            , new Constructor()
             , new Program()
             );
         $this->amount_of_patterns = count($this->patterns);
@@ -115,11 +116,9 @@ class Compiler {
     //---------------------
 
     public function compile_expression(Gen\Gen $g, Lang\Expression $expression) {
-        if ($expression instanceof Lang\Application) {
+        if ($expression instanceof Lang\Application
+        ||  $expression instanceof Lang\Constructor) {
             return $this->compile_syntax($g, $expression);
-        }
-        if ($expression instanceof Lang\Constructor) {
-            return $this->compile_constructor($g, $expression);
         }
         if ($expression instanceof Lang\CaseExpr) {
             return $this->compile_case_expression($g, $expression);
@@ -137,32 +136,6 @@ class Compiler {
             return $this->compile_prim_op($g, $expression);
         }
         throw new \LogicException("Unknown expression '".get_class($expression)."'.");
-    }
-
-    //---------------------
-    // CONSTRUCTORS
-    //---------------------
-
-    public function compile_constructor(Gen\Gen $g, Lang\Constructor $constructor) {
-        $id = $constructor->id();
-
-        $args_vector = array_map(function(Lang\Atom $atom) use ($g) {
-            return $this->compile_atom($g, $atom);
-        }, $constructor->atoms());
-        // We return a standardized data vector for the 'value' of this constructor.
-        // See compile_case_return and compile_primitive_value_jump.
-        $standard_vector = array('$this', "\"$id\"");
-        $data_vector = array_merge($standard_vector, $args_vector);
-
-        $results = $this->results();
-        $results->add_statements(array
-            ( $g->stg_pop_return_to("return")
-            , $g->stmt(function($ind) use ($g, $data_vector) { return
-                "{$ind}\$data_vector = ".$g->multiline_array($ind, $data_vector).";"; })
-            , $g->stg_push_register('$data_vector')
-            , $g->stmt("return \$return")
-            ));
-        return $results;
     }
 
     //---------------------
