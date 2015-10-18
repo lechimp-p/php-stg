@@ -52,6 +52,7 @@ class Compiler {
             , new Constructor()
             , new Literal()
             , new LetBinding()
+            , new LetRecBinding()
             , new Program()
             );
         $this->amount_of_patterns = count($this->patterns);
@@ -121,14 +122,12 @@ class Compiler {
         if ($expression instanceof Lang\Application
         ||  $expression instanceof Lang\Constructor
         || $expression instanceof Lang\Literal
-        || $expression instanceof Lang\LetBinding) {
+        || $expression instanceof Lang\LetBinding
+        || $expression instanceof Lang\LetRecBinding) {
             return $this->compile_syntax($g, $expression);
         }
         if ($expression instanceof Lang\CaseExpr) {
             return $this->compile_case_expression($g, $expression);
-        }
-        if ($expression instanceof Lang\LetRecBinding) {
-            return $this->compile_letrec_binding($g, $expression);
         }
         if ($expression instanceof Lang\PrimOp) {
             return $this->compile_prim_op($g, $expression);
@@ -317,49 +316,6 @@ class Compiler {
             ));
         
         return $results;
-    }
-
-    //---------------------
-    // LET REC BINDINGS
-    //---------------------
-
-    public function compile_letrec_binding(Gen\Gen $g, Lang\LetRecBinding $letrec_binding) {
-        // Cashes fresh class names in the first iteration as they are needed
-        // in the third iteration.
-        $class_names = array();
-    
-        return $this->results()
-            ->add_statements( array_flatten
-                // First create the closures with stubs for free variables
-                ( array_map( function(Lang\Binding $binding) use ($g, &$class_names) {
-                    $name = $binding->variable()->name();
-                    $class_name = $g->class_name($name);
-                    $class_names[] = $class_name;
-                    return array_flatten
-                        ( $g->stmt("\$free_vars_$name = array()")
-                        , array_map(function(Lang\Variable $free_var) use ($g, $name) {
-                            $fname = $free_var->name();
-                            return $g->stmt("\$free_vars_{$name}[\"$fname\"] = null");
-                        }, $binding->lambda()->free_variables())
-                        , $g->to_local_env($name, $g->stg_new_closure($class_name, $name))
-                        );
-                }, $letrec_binding->bindings())
-
-                // Then bind the stubs to the new variables.
-                , array_map( function(Lang\Binding $binding) use ($g) {
-                    $name = $binding->variable()->name();
-                    return array_map(function(Lang\Variable $free_var) use ($g, $name) {
-                        $fname = $free_var->name();
-                        return $g->stmt("\$free_vars_{$name}[\"$fname\"] = ".$g->local_env($fname));
-                    }, $binding->lambda()->free_variables());
-                }, $letrec_binding->bindings())))
-            ->adds( array_flatten
-                ( array_map(function(Lang\Binding $binding) use ($g, &$class_names) {
-                    $class_name = array_shift($class_names);
-                    return $this->compile_lambda_old($g, $binding->lambda(), $class_name);
-                }, $letrec_binding->bindings()) 
-                ))
-            ->add($this->compile_expression($g, $letrec_binding->expression()));
     }
 
     //---------------------
