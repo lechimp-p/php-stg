@@ -29,7 +29,7 @@ class Lambda extends Pattern {
         $results->add_methods( array_flatten
             ( $g->public_method("entry_code", $g->stg_args()
                  , array_merge
-                    ( $this->compile_lambda_entry_code($g, $lambda)
+                    ( $this->compile_entry_code($g, $lambda)
                     , $sub_results->flush_statements() 
                     )
                  )
@@ -49,7 +49,7 @@ class Lambda extends Pattern {
             ->add($sub_results);
     } 
 
-    public function compile_lambda_entry_code(Gen $g, Lang\Lambda $lambda) {
+    public function compile_entry_code(Gen $g, Lang\Lambda $lambda) {
         $num_args = count($lambda->arguments());
         return array_flatten
             ( $this->compile_arguments_check($g, $lambda)

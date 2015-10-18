@@ -17,7 +17,7 @@ class AllSyntax extends Pattern {
      * @inheritdoc
      */
     public function compile(Compiler $c, Gen $g, &$_) {
-        throw new \LogicException("Can't use pattern Syntax to compile something.");
+        throw new \LogicException("Can't use pattern AllSyntax to compile something.");
     } 
 }
 
