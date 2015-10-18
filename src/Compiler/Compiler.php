@@ -46,6 +46,7 @@ class Compiler {
 
     public function __construct() {
         $this->patterns = array
+            // This needs to contain the patterns from specific to general.
             ( new Lambda()
             , new Program()
             );
@@ -83,6 +84,9 @@ class Compiler {
     }
 
     public function compile_syntax(Gen\Gen $g, Lang\Syntax $s) {
+        // TODO: This is very inefficient and will make the compiler
+        // slow. I could somehow construct a search tree from the patterns
+        // to make it faster again.
         for ($i = 0; $i < $this->amount_of_patterns; $i++) {
             $res = $this->patterns[$i]->matches($s);
             if ($res !== null) {
