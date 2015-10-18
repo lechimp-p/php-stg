@@ -19,8 +19,8 @@ class Compiler {
      *
      * @return Gen
      */
-    public function code_generator($namespace, $stg_name) {
-        return new Gen\Gen($namespace, $stg_name);
+    public function code_generator($namespace, $stg_name, $standard_name) {
+        return new Gen\Gen($namespace, $stg_name, $standard_name);
     }
 
     /**
@@ -57,12 +57,16 @@ class Compiler {
      *
      * @param   Lang\Program    $program
      * @param   string          $stg_class_name
+     * @param   string          $namespace      Where to put the classes we create.
+     * @param   strubg          $standard_name  Class name for standard closure.
      * @return  array           $filename => $content
      */
-    public function compile(Lang\Program $program, $stg_class_name, $namespace = "") {
+    public function compile( Lang\Program $program, $stg_class_name
+                           , $namespace = ""
+                           , $standard_name = "\\Lechimp\\STG\\Closures\\Standard") {
         assert(is_string($stg_class_name));
 
-        $g = $this->code_generator($namespace, self::STG_VAR_NAME); 
+        $g = $this->code_generator($namespace, self::STG_VAR_NAME, $standard_name); 
         // TODO: This should be going to the generator like namespace.
         $this->stg_class_name = $stg_class_name;
 
@@ -100,11 +104,8 @@ class Compiler {
         $sub_result = $this->compile_expression($g, $lambda->expression());
 
         $results = $this->results();
-        $results->add_class( $g->_class
+        $results->add_class( $g->closure_class
             ( $class_name
-            , array
-                (
-                )
             , array_flatten
                 ( $g->public_method("entry_code", $g->stg_args()
                      , array_merge
@@ -120,7 +121,6 @@ class Compiler {
                     })))
                 , $sub_result->flush_methods()
                 )
-            , "\\Lechimp\\STG\\Closures\\Standard"
             ));
 
         $results->add($sub_result);

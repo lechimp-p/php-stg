@@ -23,18 +23,29 @@ class Gen {
     protected $stg_name;
 
     /**
+     * @var string
+     */
+    protected $standard_name;
+
+    /**
      * Counter to create unique class and method names.
      *
      * @var int
      */
     protected $counter;
 
-    public function __construct($namespace, $stg_name) {
+    public function __construct($namespace, $stg_name, $standard_name) {
         assert(is_string($namespace));
         assert(is_string($stg_name));
+        assert(is_string($standard_name));
         $this->namespace = $namespace;
         $this->stg_name = $stg_name;
+        $this->standard_name = $standard_name;
         $this->counter = 0;
+    }
+
+    public function closure_class($class_name, $methods) {
+        return $this->_class($class_name, array(), $methods, $this->standard_name); 
     }
 
     public function _class($name, $properties, $methods, $extends = null) {
