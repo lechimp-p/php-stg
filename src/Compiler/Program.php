@@ -48,7 +48,7 @@ class Program extends Pattern {
         return array($globals, $results);
     }
 
-    public function compile_machine(Compiler $c, Gen $g, array $bindings, array $globals) {
+    protected function compile_machine(Compiler $c, Gen $g, array $bindings, array $globals) {
         $results = $c->results();
         $results->add_class($g->_class
             ( $c->stg_class_name
@@ -63,7 +63,7 @@ class Program extends Pattern {
         return $results;
     }
 
-    public function compile_init_globals(Compiler $c, Gen $g, array $bindings, array $globals) {
+    protected function compile_init_globals(Compiler $c, Gen $g, array $bindings, array $globals) {
         return array_flatten
             ( $g->stmt('$stg = $this')
 
