@@ -26,7 +26,7 @@ class CaseExpr extends Pattern {
         assert(count($alternatives_results->statements()) == 0);
 
         $sub_results
-            = $c->compile_expression($g, $case_expression->expression());
+            = $c->compile_syntax($g, $case_expression->expression());
 
         $method_name = $g->method_name("case_return");
 
@@ -138,7 +138,7 @@ class CaseExpr extends Pattern {
                 ));
         }
 
-        $results->add($c->compile_expression($g, $alternative->expression()));
+        $results->add($c->compile_syntax($g, $alternative->expression()));
         $results->add_method($g->public_method
             ( $method_name
             , $g->stg_args()
@@ -160,7 +160,7 @@ class CaseExpr extends Pattern {
         return $results
             ->add_statements($this->compile_alternative_common_return_code($c, $g))
             ->add_statement($g->stg_pop_register())
-            ->add($c->compile_expression($g, $alternative->expression()))
+            ->add($c->compile_syntax($g, $alternative->expression()))
             ->add_method($g->public_method
                 ( $method_name
                 , $g->stg_args()
@@ -187,7 +187,7 @@ class CaseExpr extends Pattern {
             }, $alternative->variables())
             ));
 
-        $results->add($c->compile_expression($g, $alternative->expression()));
+        $results->add($c->compile_syntax($g, $alternative->expression()));
         $results->add_method($g->public_method
             ( $method_name
             , $g->stg_args()

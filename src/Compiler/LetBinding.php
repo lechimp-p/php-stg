@@ -43,7 +43,7 @@ class LetBinding extends Pattern {
                     $class_name = array_shift($class_names);
                     return $c->compile_lambda_old($g, $binding->lambda(), $class_name);
                 }, $let_binding->bindings())))
-            ->add($c->compile_expression($g, $let_binding->expression()));
+            ->add($c->compile_syntax($g, $let_binding->expression()));
     } 
 }
 

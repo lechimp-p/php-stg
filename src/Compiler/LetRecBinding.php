@@ -54,7 +54,7 @@ class LetRecBinding extends Pattern {
                     return $c->compile_lambda_old($g, $binding->lambda(), $class_name);
                 }, $letrec_binding->bindings()) 
                 ))
-            ->add($c->compile_expression($g, $letrec_binding->expression()));
+            ->add($c->compile_syntax($g, $letrec_binding->expression()));
     }
 }
 

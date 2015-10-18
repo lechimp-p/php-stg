@@ -110,23 +110,6 @@ class Compiler {
     }
 
     //---------------------
-    // EXPRESSIONS
-    //---------------------
-
-    public function compile_expression(Gen\Gen $g, Lang\Expression $expression) {
-        if ($expression instanceof Lang\Application
-        ||  $expression instanceof Lang\Constructor
-        || $expression instanceof Lang\Literal
-        || $expression instanceof Lang\LetBinding
-        || $expression instanceof Lang\LetRecBinding
-        || $expression instanceof Lang\CaseExpr
-        || $expression instanceof Lang\PrimOp) {
-            return $this->compile_syntax($g, $expression);
-        }
-        throw new \LogicException("Unknown expression '".get_class($expression)."'.");
-    }
-
-    //---------------------
     // ATOMS
     //---------------------
 

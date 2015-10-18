@@ -23,7 +23,7 @@ class Lambda extends Pattern {
             return '"'.$var->name().'"';
         }, $lambda->free_variables());
 
-        $sub_results = $c->compile_expression($g, $lambda->expression());
+        $sub_results = $c->compile_syntax($g, $lambda->expression());
 
         $results = $c->results();
         $results->add_methods( array_flatten
