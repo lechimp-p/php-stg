@@ -148,20 +148,9 @@ class Compiler {
         $results = $this->results();
         $results->add_statements( array_flatten
             ( $g->stmt("\$primitive_value = $value")
-            , $this->compile_primitive_value_jump($g)
+            , $g->stg_primitive_value_jump()
             ));
         return $results;
-    }
-
-    public function compile_primitive_value_jump(Gen\Gen $g) {
-        return array
-            ( $g->stg_pop_return_to("return")
-            // We return an tuple as argument, so we could use the first entry similar
-            // to $this in compile_constructor and the second one for comparison with
-            // available return vectors. See compile_case_return also.
-            , $g->stg_push_register("array(\$primitive_value, \$primitive_value)")
-            , $g->stmt("return \$return")
-            );
     }
 
     //---------------------
@@ -457,7 +446,7 @@ class Compiler {
         return $this->results()
             ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left + $right")
-                , $this->compile_primitive_value_jump($g)
+                , $g->stg_primitive_value_jump($g)
                 ));
     }
 
@@ -469,7 +458,7 @@ class Compiler {
         return $this->results()
             ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left - $right")
-                , $this->compile_primitive_value_jump($g)
+                , $g->stg_primitive_value_jump($g)
                 ));       
     }
 
@@ -481,7 +470,7 @@ class Compiler {
         return $this->results()
             ->add_statements( array_flatten
                 ( $g->stmt("\$primitive_value = $left * $right")
-                , $this->compile_primitive_value_jump($g)
+                , $g->stg_primitive_value_jump($g)
                 ));
     }
 

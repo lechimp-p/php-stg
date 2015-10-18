@@ -217,6 +217,18 @@ class Gen {
         return new GStatement("return ".$this->stg_code_label("update_partial_application"));
     }
 
+    public function stg_primitive_value_jump() {
+        return array
+            ( $this->stg_pop_return_to("return")
+            // We return an tuple as argument, so we could use the first entry similar
+            // to $this in compile_constructor and the second one for comparison with
+            // available return vectors. See compile_case_return also.
+            , $this->stg_push_register("array(\$primitive_value, \$primitive_value)")
+            , $this->stmt("return \$return")
+            );
+
+    }
+
     public function code_label($method_name) {
         return "new \\Lechimp\\STG\\CodeLabel(\$this, \"$method_name\")";
     }
