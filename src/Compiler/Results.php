@@ -62,6 +62,14 @@ class Results {
         return $this;
     }
 
+    public function add_methods(array $methods) {
+        $methods = array_map(function(Gen\GMethod $method) {
+            return $method;
+        }, $methods);
+        $this->methods = array_merge($this->methods, $methods);
+        return $this;
+    }
+
     public function flush_methods() {
         $methods = $this->methods;
         $this->methods = array();
