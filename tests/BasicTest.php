@@ -6,6 +6,8 @@ require_once(__DIR__."/OneProgramTestBase.php");
 
 class BasicTest extends OneProgramTestBase {
     protected function program(Lang $l) {
+        //$this->echo_program = true;
+
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> swapAB a
