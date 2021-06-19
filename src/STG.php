@@ -5,7 +5,7 @@ namespace Lechimp\STG;
 /**
  * One STG machine.
  *
- * The stacks from the machine are implemented with SPLFixedArrays, as the i
+ * The stacks from the machine are implemented with SPLFixedArrays, as the
  * implementation using SPLStack was messy.
  */
 abstract class STG
@@ -166,12 +166,8 @@ abstract class STG
     /**
      * Create a new closure based on a class name and
      * an array of free variables.
-     *
-     * @param   string  $class_name
-     * @param   array   $free_vars
-     * @return  Closures/Standard
      */
-    public function new_closure($class_name, array &$free_vars)
+    public function new_closure(string $class_name, array &$free_vars) : Closures\Standard
     {
         $this->amount_closures++;
         return new $class_name($free_vars);
@@ -179,11 +175,8 @@ abstract class STG
 
     /**
      * Enter the given closure.
-     *
-     * @param   Closures\Closure    $closure
-     * @return  CodeLabel
      */
-    public function enter(Closures\Closure $closure)
+    public function enter(Closures\Closure $closure) : CodeLabel
     {
         // That may be superfluous as we just return the label.
         // See Gen::stg_enter.
@@ -196,10 +189,9 @@ abstract class STG
     /**
      * Push an argument on the a stack.
      *
-     * @param   mixed $arg
-     * @return  null
+     * @param   int|Closure\Closure $arg
      */
-    public function push_a_stack($argument)
+    public function push_a_stack($argument) : void
     {
         assert(is_int($argument) || $argument instanceof Closures\Closure);
         $this->a_stack[$this->a_top++] = $argument;
@@ -207,11 +199,8 @@ abstract class STG
 
     /**
      * Add the arguments found in the array to the a stack.
-     *
-     * @param   \SPLFixedArray $args
-     * @return  null
      */
-    public function push_array_a_stack(\SPLFixedArray $args)
+    public function push_array_a_stack(\SPLFixedArray $args) : void
     {
         foreach ($args as $a) {
             $this->push_a_stack($a);
@@ -221,7 +210,7 @@ abstract class STG
     /**
      * Pop an argument from the a stack.
      *
-     * @return  mixed
+     * @return int|Closure\Closure
      */
     public function pop_a_stack()
     {
@@ -231,10 +220,8 @@ abstract class STG
 
     /**
      * Get the length of the a stack.
-     *
-     * @return  int
      */
-    public function count_a_stack()
+    public function count_a_stack() : int
     {
         return $this->a_top - $this->a_bottom;
     }
@@ -243,7 +230,6 @@ abstract class STG
      * Push a continuation, environment or update frame on the b stack.
      *
      * @param   mixed   $val
-     * @return  none
      */
     public function push_b_stack($val)
     {
@@ -252,11 +238,8 @@ abstract class STG
 
     /**
      * Add the values found in the array to the b stack.
-     *
-     * @param   \SPLFixedArray $args
-     * @return  null
      */
-    public function push_array_b_stack(\SPLFixedArray $bs)
+    public function push_array_b_stack(\SPLFixedArray $bs) : void
     {
         foreach ($bs as $b) {
             $this->push_b_stack($b);
@@ -276,11 +259,8 @@ abstract class STG
 
     /**
      * Store some arguments in the argument register.
-     *
-     * @param   mixed $args
-     * @return  null
      */
-    public function push_register($args)
+    public function push_register(array $args) : void
     {
         assert($args !== null);
         assert($this->register === null);
@@ -289,10 +269,8 @@ abstract class STG
 
     /**
      * Get the arguments stored in the argument register and clean it.
-     *
-     * @return  array
      */
-    public function pop_register()
+    public function pop_register() : array
     {
         assert($this->register !== null);
         $args = $this->register;
@@ -302,10 +280,8 @@ abstract class STG
 
     /**
      * Get the arguments stored in the argument register.
-     *
-     * @return  array
      */
-    public function get_register()
+    public function get_register() : array
     {
         assert($this->register !== null);
         return $this->register;
@@ -313,16 +289,15 @@ abstract class STG
 
     /*
      * Push an update frame.
-     *
-     * @return null
      */
-    public function push_update_frame()
+    public function push_update_frame() : void
     {
         assert($this->register === null);
-        $frame = array( $this->node
-            , $this->a_bottom
-            , $this->b_bottom
-            );
+        $frame = [
+            $this->node,
+            $this->a_bottom,
+            $this->b_bottom
+        ];
         $this->a_bottom = $this->a_top;
         $this->b_bottom = $this->b_top;
         $this->push_b_stack($frame);
@@ -331,12 +306,10 @@ abstract class STG
 
     /**
      * Perform an update for a partial application.
-     *
-     * @return CodeLabel
      */
-    public function update_partial_application()
+    public function update_partial_application() : CodeLabel
     {
-        // ToDo: This is an artificial return we pushed
+        // TODO: This is an artificial return we pushed
         // for the constructors. We could remove this by
         // somehow merging the update frame information
         // and the code label.
@@ -390,7 +363,7 @@ abstract class STG
     {
         // Collects the closure that persist after garbage collection. Will
         // be used to abort gc on closures that were already visited.
-        $survivors = array();
+        $survivors = [];
         $this->collect_garbage_in_array($this->globals, $survivors);
         $this->collect_garbage_in_stack($this->a_stack, $survivors);
         $this->collect_garbage_in_stack($this->b_stack, $survivors);
