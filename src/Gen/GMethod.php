@@ -42,11 +42,11 @@ abstract class GMethod extends GBase
             return $arg->render(0);
         }, $this->arguments));
         return implode("\n", array_merge(
-                array( $this->indent($indentation, "$qualifier function $name($arguments) {") ),
-                array_map(function (GStatement $stmt) use ($indentation) {
-                return $stmt->render($indentation + 1);
-            }, $this->statements),
-                array( $this->indent($indentation, "}") )
-            ));
+            array( $this->indent($indentation, "$qualifier function $name($arguments) {") ),
+            array_map(function (GStatement $stmt) use ($indentation) {
+                    return $stmt->render($indentation + 1);
+                }, $this->statements),
+            array( $this->indent($indentation, "}") )
+        ));
     }
 }

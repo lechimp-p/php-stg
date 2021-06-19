@@ -24,31 +24,31 @@ class LiteralsTest extends ProgramTestBase
         $program = $l->program(array( $l->binding(
             $l->variable("main"),
             $l->lambda(
-                        array($l->variable("swap12"), $l->variable("a")),
-                        array(),
-                        $l->application(
+                array($l->variable("swap12"), $l->variable("a")),
+                array(),
+                $l->application(
                             $l->variable("swap12"),
                             array( $l->variable("a")
                             )
                         ),
-                        true
-                    )
+                true
+            )
         )
             , $l->binding(
                 $l->variable("a"),
                 $l->lambda(
-                        array(),
-                        array(),
-                        $l->literal(1),
-                        true
-                    )
+                    array(),
+                    array(),
+                    $l->literal(1),
+                    true
+                )
             )
             , $l->binding(
                 $l->variable("swap12"),
                 $l->lambda(
-                        array(),
-                        array($l->variable("a")),
-                        $l->case_expr(
+                    array(),
+                    array($l->variable("a")),
+                    $l->case_expr(
                             $l->application(
                                 $l->variable("a"),
                                 array()
@@ -63,8 +63,8 @@ class LiteralsTest extends ProgramTestBase
                             )
                             )
                         ),
-                        false
-                    )
+                    false
+                )
             )
             ));
         $compiler = new Compiler();

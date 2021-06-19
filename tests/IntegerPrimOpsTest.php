@@ -21,16 +21,16 @@ class IntegerPrimOpsTest extends ProgramTestBase
          */
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->lt(
-                        array( "v" => $l->lam_n(
-                        $l->prm("IntAddOp", $l->lit(42), $l->lit(23))
-                    )
+                array( "v" => $l->lam_n(
+                            $l->prm("IntAddOp", $l->lit(42), $l->lit(23))
+                        )
                     ),
-                        $l->cse(
-                        $l->app("v"),
-                        array( "default a" => $l->con("Result", "a")
+                $l->cse(
+                            $l->app("v"),
+                            array( "default a" => $l->con("Result", "a")
                             )
-                    )
-                    )
+                        )
+            )
         )
             ));
         $compiler = new Compiler();
@@ -55,16 +55,16 @@ class IntegerPrimOpsTest extends ProgramTestBase
          */
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->lt(
-                        array( "v" => $l->lam_n(
-                        $l->prm("IntSubOp", $l->lit(42), $l->lit(23))
-                    )
+                array( "v" => $l->lam_n(
+                            $l->prm("IntSubOp", $l->lit(42), $l->lit(23))
+                        )
                     ),
-                        $l->cse(
-                        $l->app("v"),
-                        array( "default a" => $l->con("Result", "a")
+                $l->cse(
+                            $l->app("v"),
+                            array( "default a" => $l->con("Result", "a")
                             )
-                    )
-                    )
+                        )
+            )
         )
             ));
         $compiler = new Compiler();
@@ -89,16 +89,16 @@ class IntegerPrimOpsTest extends ProgramTestBase
          */
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->lt(
-                        array( "v" => $l->lam_n(
-                        $l->prm("IntMulOp", $l->lit(42), $l->lit(23))
-                    )
+                array( "v" => $l->lam_n(
+                            $l->prm("IntMulOp", $l->lit(42), $l->lit(23))
+                        )
                     ),
-                        $l->cse(
-                        $l->app("v"),
-                        array( "default a" => $l->con("Result", "a")
+                $l->cse(
+                            $l->app("v"),
+                            array( "default a" => $l->con("Result", "a")
                             )
-                    )
-                    )
+                        )
+            )
         )
             ));
         $compiler = new Compiler();

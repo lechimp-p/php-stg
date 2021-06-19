@@ -28,12 +28,12 @@ class DefaultAlternativeTest extends OneProgramTestBase
             , "swapAB" => $l->lam_a(
                 array($l->variable("a")),
                 $l->cse(
-                        $l->app("a"),
-                        array( "A" => $l->con("B")
+                    $l->app("a"),
+                    array( "A" => $l->con("B")
                         , "B" => $l->con("A")
                         , "default" => $l->app("a")
                         )
-                    ),
+                ),
                 false
             )
             ));

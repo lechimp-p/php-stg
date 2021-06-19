@@ -23,13 +23,13 @@ class LetWithFreeVariablesTest extends OneProgramTestBase
         return $l->prg(array( "main" => $l->lam_f(
             array("a", "extract"),
             $l->lt(
-                        array( "result" => $l->lam_f(
-                        array("a", "extract"),
-                        $l->app("extract", "a")
-                    )
+                array( "result" => $l->lam_f(
+                            array("a", "extract"),
+                            $l->app("extract", "a")
+                        )
                     ),
-                        $l->app("result")
-                    )
+                $l->app("result")
+            )
         )
             , "a" => $l->lam_n(
                 $l->con("Wrapped", $l->lit(42), $l->lit(23))
@@ -37,10 +37,10 @@ class LetWithFreeVariablesTest extends OneProgramTestBase
             , "extract" => $l->lam_a(
                 array("w"),
                 $l->cse(
-                        $l->app("w"),
-                        array( "Wrapped a b" => $l->con("Result", "a", "b")
+                    $l->app("w"),
+                    array( "Wrapped a b" => $l->con("Result", "a", "b")
                         )
-                    ),
+                ),
                 false
             )
             ));

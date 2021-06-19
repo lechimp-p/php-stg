@@ -24,10 +24,10 @@ class DuplicateVarNameTest extends OneProgramTestBase
         return $l->prg(array( "main" => $l->lam_f(
             array("swapAB", "a"),
             $l->lt(
-                        array( "b" => $l->lam_f(
-                        array("a"),
-                        $l->app("a")
-                    )
+                array( "b" => $l->lam_f(
+                            array("a"),
+                            $l->app("a")
+                        )
                     , "a" => $l->lam(
                         array("swapAB"),
                         array("c"),
@@ -35,8 +35,8 @@ class DuplicateVarNameTest extends OneProgramTestBase
                         false
                     )
                     ),
-                        $l->app("a", "b")
-                    )
+                $l->app("a", "b")
+            )
         )
             , "a" => $l->lam_n(
                 $l->con("A")
@@ -44,12 +44,12 @@ class DuplicateVarNameTest extends OneProgramTestBase
             , "swapAB" => $l->lam_a(
                 array("a"),
                 $l->cse(
-                        $l->app("a"),
-                        array( "A" => $l->con("B")
+                    $l->app("a"),
+                    array( "A" => $l->con("B")
                         , "B" => $l->con("A")
                         , "default" => $l->app("a")
                         )
-                    ),
+                ),
                 false
             )
             ));

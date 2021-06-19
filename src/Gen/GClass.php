@@ -64,22 +64,22 @@ class GClass extends GBase
             $extends = "";
         }
         return implode("\n", array_merge(
-                $namespace_start,
-                array( $this->indent($indentation, "class {$this->name} $extends{") )
+            $namespace_start,
+            array( $this->indent($indentation, "class {$this->name} $extends{") )
 
             // Properties
             ,
-                array_map(function (GProperty $prop) use ($indentation) {
-                return $prop->render($indentation + 1);
-            }, $this->properties)
+            array_map(function (GProperty $prop) use ($indentation) {
+                    return $prop->render($indentation + 1);
+                }, $this->properties)
 
             // Methods
             ,
-                array_map(function (GMethod $method) use ($indentation) {
-                return $method->render($indentation + 1);
-            }, $this->methods),
-                array( $this->indent($indentation, "}") ),
-                $namespace_end
-            ));
+            array_map(function (GMethod $method) use ($indentation) {
+                    return $method->render($indentation + 1);
+                }, $this->methods),
+            array( $this->indent($indentation, "}") ),
+            $namespace_end
+        ));
     }
 }

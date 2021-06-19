@@ -351,10 +351,10 @@ abstract class STG
         STG::copy_array($this->b_stack, $this->b_bottom, $this->b_top, $b_copy);
 
         $node->update(new Closures\PartialApplication(
-                                $this->node,
-                                $a_copy,
-                                $b_copy
-                            ));
+            $this->node,
+            $a_copy,
+            $b_copy
+        ));
         $this->a_bottom = $a_bottom;
         $this->b_bottom = $b_bottom;
 

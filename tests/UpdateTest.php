@@ -26,47 +26,47 @@ class UpdateTest extends ProgramTestBase
         $program = $l->program(array( $l->binding(
             $l->variable("main"),
             $l->lambda(
-                        array(),
-                        array(),
-                        $l->letrec(
+                array(),
+                array(),
+                $l->letrec(
                             array( $l->binding(
-                            $l->variable("v"),
-                            $l->lambda(
-                                    array(),
-                                    array($l->variable("c")),
-                                    $l->constructor(
+                                $l->variable("v"),
+                                $l->lambda(
+                                array(),
+                                array($l->variable("c")),
+                                $l->constructor(
                                         "V",
                                         array( $l->variable("c")
                                         )
                                     ),
-                                    false
-                                )
-                        )
+                                false
+                            )
+                            )
                         , $l->binding(
                             $l->variable("a"),
                             $l->lambda(
-                                    array($l->variable("v")),
-                                    array(),
-                                    $l->application(
+                                array($l->variable("v")),
+                                array(),
+                                $l->application(
                                         $l->variable("v"),
                                         array($l->literal(42))
                                     ),
-                                    true
-                                )
+                                true
+                            )
                         )
                         , $l->binding(
                             $l->variable("t"),
                             $l->lambda(
-                                    array($l->variable("a")),
-                                    array(),
-                                    $l->constructor(
+                                array($l->variable("a")),
+                                array(),
+                                $l->constructor(
                                         "T",
                                         array( $l->variable("a")
                                         , $l->variable("a")
                                         )
                                     ),
-                                    true
-                                )
+                                true
+                            )
                         )
                         )
             /*  This part is:
@@ -77,49 +77,49 @@ class UpdateTest extends ProgramTestBase
              */
                         ,
                             $l->case_expr(
-                            $l->application(
-                                    $l->variable("t"),
-                                    array()
-                                ),
-                            array( $l->algebraic_alternative(
-                                    "T",
-                                    array( $l->variable("a")
+                                $l->application(
+                                $l->variable("t"),
+                                array()
+                            ),
+                                array( $l->algebraic_alternative(
+                                "T",
+                                array( $l->variable("a")
                                         , $l->variable("b")
                                         ),
-                                    $l->case_expr(
-                                            $l->application(
+                                $l->case_expr(
+                                        $l->application(
                                                 $l->variable("a"),
                                                 array()
                                             ),
-                                            array( $l->algebraic_alternative(
+                                        array( $l->algebraic_alternative(
                                                 "V",
                                                 array($l->variable("v1")),
                                                 $l->case_expr(
-                                                        $l->application(
+                                                    $l->application(
                                                             $l->variable("b"),
                                                             array()
                                                         ),
-                                                        array( $l->algebraic_alternative(
+                                                    array( $l->algebraic_alternative(
                                                             "V",
                                                             array($l->variable("v2")),
                                                             $l->constructor(
-                                                                    "Result",
-                                                                    array( $l->variable("v1")
+                                                                "Result",
+                                                                array( $l->variable("v1")
                                                                     , $l->variable("v2")
                                                                     )
-                                                                )
+                                                            )
                                                         )
                                                         )
-                                                    )
+                                                )
                                             )
                                             )
-                                        )
+                                    )
+                            )
                                 )
-                                )
-                        )
+                            )
                         ),
-                        false
-                    )
+                false
+            )
         )
             ));
         $compiler = new Compiler();

@@ -20,25 +20,25 @@ class LetRecTest extends OneProgramTestBase
          */
         return $l->prg(array( "main" => $l->lam_n(
             $l->ltr(
-                        array( "result" => $l->lam_f(
-                        array("a", "extract"),
-                        $l->app("extract", "a")
-                    )
+                array( "result" => $l->lam_f(
+                            array("a", "extract"),
+                            $l->app("extract", "a")
+                        )
                     , "a" => $l->lam_n(
                         $l->con("Wrapped", $l->lit(42), $l->lit(23))
                     )
                     , "extract" => $l->lam_a(
                         array("w"),
                         $l->cse(
-                                $l->app("w"),
-                                array(  "Wrapped a b" => $l->con("Result", "a", "b")
+                            $l->app("w"),
+                            array(  "Wrapped a b" => $l->con("Result", "a", "b")
                                 )
-                            ),
+                        ),
                         false
                     )
                     ),
-                        $l->app("result")
-                    )
+                $l->app("result")
+            )
         )
             ));
     }

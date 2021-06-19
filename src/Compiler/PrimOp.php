@@ -31,8 +31,8 @@ class PrimOp extends Pattern
         $method_name = "prim_op_$id";
         return $c->results()
             ->add_statements(array_flatten(
-                    $g->$method_name($left, $right),
-                    $g->stg_primitive_value_jump($g)
-                ));
+                $g->$method_name($left, $right),
+                $g->stg_primitive_value_jump($g)
+            ));
     }
 }

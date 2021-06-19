@@ -29,10 +29,10 @@ class DefaultAlternativeBindTest extends OneProgramTestBase
             , "swapAB" => $l->lam_a(
                 array("a"),
                 $l->cse(
-                        $l->app("a"),
-                        array( "default b" => $l->app("b")
+                    $l->app("a"),
+                    array( "default b" => $l->app("b")
                         )
-                    ),
+                ),
                 false
             )
             ));

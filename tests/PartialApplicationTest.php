@@ -22,11 +22,11 @@ class PartialApplicationTest extends ProgramTestBase
          */
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->ltr(
-                        array( "tc" => $l->lam_a(
-                        array("a", "b"),
-                        $l->con("T", "a", "b"),
-                        false
-                    )
+                array( "tc" => $l->lam_a(
+                            array("a", "b"),
+                            $l->con("T", "a", "b"),
+                            false
+                        )
                     , "vt" => $l->lam_f(
                         array("tc"),
                         $l->app("tc", $l->lit(42))
@@ -36,8 +36,8 @@ class PartialApplicationTest extends ProgramTestBase
                         $l->app("vt", $l->lit(23))
                     )
                     ),
-                        $l->app("v")
-                    ),
+                $l->app("v")
+            ),
             false
         )
             ));
@@ -70,11 +70,11 @@ class PartialApplicationTest extends ProgramTestBase
          */
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->ltr(
-                        array( "tc" => $l->lam_a(
-                        array("a", "b"),
-                        $l->con("T", "a", "b"),
-                        false
-                    )
+                array( "tc" => $l->lam_a(
+                            array("a", "b"),
+                            $l->con("T", "a", "b"),
+                            false
+                        )
                     , "vt" => $l->lam_f(
                         array("tc"),
                         $l->app("tc", $l->lit(42))
@@ -88,15 +88,15 @@ class PartialApplicationTest extends ProgramTestBase
                         $l->app("vt", $l->lit(5))
                     )
                     ),
-                        $l->cse(
-                        $l->app("v1"),
-                        array( "T a b" => $l->cse(
-                                $l->app("v2"),
-                                array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
+                $l->cse(
+                            $l->app("v1"),
+                            array( "T a b" => $l->cse(
+                            $l->app("v2"),
+                            array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
+                        )
                             )
-                            )
-                    )
-                    ),
+                        )
+            ),
             false
         )
             ));

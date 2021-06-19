@@ -22,13 +22,13 @@ class ApplicationArgumentOrderTest extends OneProgramTestBase
             , "tuple2" => $l->lam_a(
                 array("l", "r"),
                 $l->lt(
-                        array( "t" => $l->lam_f(
-                        array("l", "r"),
-                        $l->con("T2", "l", "r")
-                    )
+                    array( "t" => $l->lam_f(
+                            array("l", "r"),
+                            $l->con("T2", "l", "r")
+                        )
                     ),
-                        $l->app("t")
-                    ),
+                    $l->app("t")
+                ),
                 false
             )
             ));

@@ -182,13 +182,13 @@ PHP;
                 , new GStatement("echo \$b")
                 ),
             array( new GIfThenElse(
-                    "!is_null(\$a)",
-                    array( new GStatement("echo 'not equal: '")
+                "!is_null(\$a)",
+                array( new GStatement("echo 'not equal: '")
                         , new GStatement("echo \$a.\" \".\$b")
                         ),
-                    array( new GStatement("echo 'null'")
+                array( new GStatement("echo 'null'")
                         )
-                )
+            )
                 )
         );
         $generated = $gen->render(0);
@@ -223,20 +223,20 @@ PHP;
                         , new GArgument(null, "baz", "\"baz\"")
                         ),
                 array( new GIfThenElse(
-                        "\$a == \$b",
-                        array( new GStatement("echo 'equal: '")
+                    "\$a == \$b",
+                    array( new GStatement("echo 'equal: '")
                                 , new GStatement("echo \$b")
                                 ),
-                        array( new GIfThenElse(
-                                    "!is_null(\$a)",
-                                    array( new GStatement("echo 'not equal: '")
+                    array( new GIfThenElse(
+                            "!is_null(\$a)",
+                            array( new GStatement("echo 'not equal: '")
                                         , new GStatement("echo \$a.\" \".\$b")
                                         ),
-                                    array( new GStatement("echo 'null'")
+                            array( new GStatement("echo 'null'")
                                         )
+                        )
                                 )
-                                )
-                    )
+                )
                         )
             )
                 )

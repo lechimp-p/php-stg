@@ -39,10 +39,10 @@ class CaseExpr extends Pattern
             , $g->stg_push_return($g->code_label($method_name))
             ))
         ->add_method($g->public_method(
-                $method_name,
-                $g->stg_args(),
-                $this->compile_return($c, $g, $return_vector)
-            ));
+            $method_name,
+            $g->stg_args(),
+            $this->compile_return($c, $g, $return_vector)
+        ));
  
         $results->add($alternatives_results);
         $results->add($sub_results);
@@ -125,28 +125,28 @@ class CaseExpr extends Pattern
 
         if ($alternative->variable() === null) {
             $results->add_statements(array_flatten(
-                    $this->compile_alternative_common_return_code($c, $g)
+                $this->compile_alternative_common_return_code($c, $g)
                 // We won't need the value from the constructor.
                 ,
-                    $g->stg_pop_register()
-                ));
+                $g->stg_pop_register()
+            ));
         } else {
             $var_name = $alternative->variable()->name();
             $results->add_statements(array_flatten(
-                    $this->compile_alternative_common_return_code($c, $g)
+                $this->compile_alternative_common_return_code($c, $g)
                 // Save value from constructor in local env.
                 ,
-                    $g->stg_pop_register_to("return_vector"),
-                    $g->to_local_env($var_name, '$return_vector[0]')
-                ));
+                $g->stg_pop_register_to("return_vector"),
+                $g->to_local_env($var_name, '$return_vector[0]')
+            ));
         }
 
         $results->add($c->compile_syntax($g, $alternative->expression()));
         $results->add_method($g->public_method(
-                $method_name,
-                $g->stg_args(),
-                $results->flush_statements()
-            ));
+            $method_name,
+            $g->stg_args(),
+            $results->flush_statements()
+        ));
         
         return $results;
     }
@@ -166,10 +166,10 @@ class CaseExpr extends Pattern
             ->add_statement($g->stg_pop_register())
             ->add($c->compile_syntax($g, $alternative->expression()))
             ->add_method($g->public_method(
-                    $method_name,
-                    $g->stg_args(),
-                    $results->flush_statements()
-                ))
+                $method_name,
+                $g->stg_args(),
+                $results->flush_statements()
+            ))
             ;
     }
 
@@ -182,22 +182,22 @@ class CaseExpr extends Pattern
         $return_vector[$id] = $g->code_label($method_name);
         // Pop arguments to constructor and fill them into appropriate variables.
         $results->add_statements(array_flatten(
-                $this->compile_alternative_common_return_code($c, $g),
-                $g->stg_pop_register_to("data_vector"),
-                $g->stmt('array_shift($data_vector)'),
-                $g->stmt('array_shift($data_vector)'),
-                array_map(function (Lang\Variable $var) use ($g) {
-                $name = $var->name();
-                return $g->to_local_env($name, "array_shift(\$data_vector)");
-            }, $alternative->variables())
-            ));
+            $this->compile_alternative_common_return_code($c, $g),
+            $g->stg_pop_register_to("data_vector"),
+            $g->stmt('array_shift($data_vector)'),
+            $g->stmt('array_shift($data_vector)'),
+            array_map(function (Lang\Variable $var) use ($g) {
+                    $name = $var->name();
+                    return $g->to_local_env($name, "array_shift(\$data_vector)");
+                }, $alternative->variables())
+        ));
 
         $results->add($c->compile_syntax($g, $alternative->expression()));
         $results->add_method($g->public_method(
-                $method_name,
-                $g->stg_args(),
-                $results->flush_statements()
-            ));
+            $method_name,
+            $g->stg_args(),
+            $results->flush_statements()
+        ));
         
         return $results;
     }

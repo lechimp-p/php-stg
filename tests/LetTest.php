@@ -20,22 +20,22 @@ class LetTest extends OneProgramTestBase
          */
         return $l->prg(array( "main" => $l->lam_n(
             $l->lt(
-                        array( "a" => $l->lam_n(
-                        $l->con("A")
-                    )
+                array( "a" => $l->lam_n(
+                            $l->con("A")
+                        )
                     , "swapAB" => $l->lam_a(
                         array("a"),
                         $l->cse(
-                                    $l->app("a"),
-                                    array( "A" => $l->con("B")
+                            $l->app("a"),
+                            array( "A" => $l->con("B")
                                     , "B" => $l->con("A")
                                     )
-                                ),
+                        ),
                         false
                     )
                     ),
-                        $l->app("swapAB", "a")
-                    )
+                $l->app("swapAB", "a")
+            )
         )
             ));
     }
