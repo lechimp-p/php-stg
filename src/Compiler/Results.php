@@ -26,12 +26,12 @@ class Results
 
     public function __construct()
     {
-        $this->classes = array();
-        $this->methods = array();
-        $this->statements = array();
+        $this->classes = [];
+        $this->methods = [];
+        $this->statements = [];
     }
 
-    public function classes()
+    public function classes() : array
     {
         return $this->classes;
     }
@@ -44,22 +44,22 @@ class Results
 
     public function add_classes(array $cls)
     {
-        $cls = array_map(function (Gen\GClass $cl) {
-            return $cl;
-        }, $cls);
+        $cls = array_map(
+            fn (Gen\GClass $cl) => $cl,
+            $cls
+        );
         $this->classes = array_merge($this->classes, $cls);
         return $this;
     }
 
-
-    public function flush_classes()
+    public function flush_classes() : array
     {
         $cls = $this->classes;
-        $this->classes = array();
+        $this->classes = [];
         return $cls;
     }
 
-    public function methods()
+    public function methods() : array
     {
         return $this->methods;
     }
@@ -72,21 +72,22 @@ class Results
 
     public function add_methods(array $methods)
     {
-        $methods = array_map(function (Gen\GMethod $method) {
-            return $method;
-        }, $methods);
+        $methods = array_map(
+            fn (Gen\GMethod $method) => $method,
+            $methods
+        );
         $this->methods = array_merge($this->methods, $methods);
         return $this;
     }
 
-    public function flush_methods()
+    public function flush_methods() : array
     {
         $methods = $this->methods;
-        $this->methods = array();
+        $this->methods = [];
         return $methods;
     }
 
-    public function statements()
+    public function statements() : array
     {
         return $this->statements;
     }
@@ -99,17 +100,18 @@ class Results
 
     public function add_statements(array $stmts)
     {
-        $stmts = array_map(function (Gen\GStatement $stmt) {
-            return $stmt;
-        }, $stmts);
+        $stmts = array_map(
+            fn (Gen\GStatement $stmt) => $stmt,
+            $stmts
+        );
         $this->statements = array_merge($this->statements, $stmts);
         return $this;
     }
 
-    public function flush_statements()
+    public function flush_statements() : array
     {
         $stmts = $this->statements;
-        $this->statements = array();
+        $this->statements = [];
         return $stmts;
     }
 

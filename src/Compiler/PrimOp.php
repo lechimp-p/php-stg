@@ -20,7 +20,7 @@ class PrimOp extends Pattern
     /**
      * @inheritdoc
      */
-    public function compile(Compiler $c, Gen $g, &$prim_op)
+    public function compile(Compiler $c, Gen $g, &$prim_op) : Results
     {
         $id = $prim_op->id();
         $atoms = $prim_op->atoms();
@@ -30,9 +30,11 @@ class PrimOp extends Pattern
         $right = $g->atom($r);
         $method_name = "prim_op_$id";
         return $c->results()
-            ->add_statements(array_flatten(
-                $g->$method_name($left, $right),
-                $g->stg_primitive_value_jump($g)
-            ));
+            ->add_statements(
+                array_flatten(
+                    $g->$method_name($left, $right),
+                    $g->stg_primitive_value_jump($g)
+                )
+            );
     }
 }

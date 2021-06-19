@@ -20,9 +20,9 @@ class CaseExpr extends Pattern
     /**
      * @inheritdoc
      */
-    public function compile(Compiler $c, Gen $g, &$case_expression)
+    public function compile(Compiler $c, Gen $g, &$case_expression) : Results
     {
-        $return_vector = array();
+        $return_vector = [];
 
         $alternatives_results
             = $this->compile_alternatives($c, $g, $case_expression->alternatives(), $return_vector);
@@ -35,14 +35,17 @@ class CaseExpr extends Pattern
 
         $results = $c->results();
         $results
-        ->add_statements(array( $g->stg_push_local_env()
-            , $g->stg_push_return($g->code_label($method_name))
-            ))
-        ->add_method($g->public_method(
-            $method_name,
-            $g->stg_args(),
-            $this->compile_return($c, $g, $return_vector)
-        ));
+        ->add_statements([
+            $g->stg_push_local_env(),
+            $g->stg_push_return($g->code_label($method_name))
+        ])
+        ->add_method(
+            $g->public_method(
+                $method_name,
+                $g->stg_args(),
+                $this->compile_return($c, $g, $return_vector)
+            )
+        );
  
         $results->add($alternatives_results);
         $results->add($sub_results);
@@ -52,13 +55,13 @@ class CaseExpr extends Pattern
     protected function compile_return(Compiler $c, Gen $g, array $return_vector)
     {
         $default = null;
-        $stmts = array
+        $stmts = [
             // First entry of data vector contains actual value or closure,
             // while the second one is examined to chose a code label to go
             // on with. See compile_constructor and compile_primitive_value_jump.
-            ( $g->stg_get_register_to("data_vector")
-            , $g->stmt('$value = $data_vector[1]')
-            );
+            $g->stg_get_register_to("data_vector"),
+            $g->stmt('$value = $data_vector[1]')
+        ];
 
         // $value either is a real value or the name of a constructor here.
         foreach ($return_vector as $value => $return_label) {
@@ -78,9 +81,11 @@ class CaseExpr extends Pattern
         if ($default !== null) {
             $stmts[] = $g->stmt("return $default");
         } else {
-            $stmts[] = $g->stmt("throw new \\LogicException(" .
-                                "\"No matching alternative for '\$value'\"" .
-                                ")");
+            $stmts[] = $g->stmt(
+                "throw new \\LogicException(" .
+                    "\"No matching alternative for '\$value'\"" .
+                ")"
+            );
         }
 
         return $stmts;
@@ -112,8 +117,7 @@ class CaseExpr extends Pattern
     // the environment for the alternative.
     protected function compile_alternative_common_return_code(Compiler $c, Gen $g)
     {
-        return array( $g->stg_pop_local_env()
-            );
+        return [$g->stg_pop_local_env()];
     }
 
     protected function compile_alternative_default(Compiler $c, Gen $g, Lang\DefaultAlternative $alternative, array &$return_vector)
@@ -124,29 +128,33 @@ class CaseExpr extends Pattern
         $return_vector[""] = $g->code_label($method_name);
 
         if ($alternative->variable() === null) {
-            $results->add_statements(array_flatten(
-                $this->compile_alternative_common_return_code($c, $g)
-                // We won't need the value from the constructor.
-                ,
-                $g->stg_pop_register()
-            ));
+            $results->add_statements(
+                array_flatten(
+                    $this->compile_alternative_common_return_code($c, $g),
+                    // We won't need the value from the constructor.
+                    $g->stg_pop_register()
+                )
+            );
         } else {
             $var_name = $alternative->variable()->name();
-            $results->add_statements(array_flatten(
-                $this->compile_alternative_common_return_code($c, $g)
-                // Save value from constructor in local env.
-                ,
-                $g->stg_pop_register_to("return_vector"),
-                $g->to_local_env($var_name, '$return_vector[0]')
-            ));
+            $results->add_statements(
+                array_flatten(
+                    $this->compile_alternative_common_return_code($c, $g),
+                    // Save value from constructor in local env.
+                    $g->stg_pop_register_to("return_vector"),
+                    $g->to_local_env($var_name, '$return_vector[0]')
+                )
+            );
         }
 
         $results->add($c->compile_syntax($g, $alternative->expression()));
-        $results->add_method($g->public_method(
-            $method_name,
-            $g->stg_args(),
-            $results->flush_statements()
-        ));
+        $results->add_method(
+            $g->public_method(
+                $method_name,
+                $g->stg_args(),
+                $results->flush_statements()
+            )
+        );
         
         return $results;
     }
@@ -165,12 +173,13 @@ class CaseExpr extends Pattern
             ->add_statements($this->compile_alternative_common_return_code($c, $g))
             ->add_statement($g->stg_pop_register())
             ->add($c->compile_syntax($g, $alternative->expression()))
-            ->add_method($g->public_method(
-                $method_name,
-                $g->stg_args(),
-                $results->flush_statements()
-            ))
-            ;
+            ->add_method(
+                $g->public_method(
+                    $method_name,
+                    $g->stg_args(),
+                    $results->flush_statements()
+                )
+            );
     }
 
     protected function compile_alternative_algebraic(Compiler $c, Gen $g, Lang\AlgebraicAlternative $alternative, array &$return_vector)
@@ -181,23 +190,30 @@ class CaseExpr extends Pattern
         $method_name = $g->method_name("alternative_$id");
         $return_vector[$id] = $g->code_label($method_name);
         // Pop arguments to constructor and fill them into appropriate variables.
-        $results->add_statements(array_flatten(
-            $this->compile_alternative_common_return_code($c, $g),
-            $g->stg_pop_register_to("data_vector"),
-            $g->stmt('array_shift($data_vector)'),
-            $g->stmt('array_shift($data_vector)'),
-            array_map(function (Lang\Variable $var) use ($g) {
-                $name = $var->name();
-                return $g->to_local_env($name, "array_shift(\$data_vector)");
-            }, $alternative->variables())
-        ));
+        $results->add_statements(
+            array_flatten(
+                $this->compile_alternative_common_return_code($c, $g),
+                $g->stg_pop_register_to("data_vector"),
+                $g->stmt('array_shift($data_vector)'),
+                $g->stmt('array_shift($data_vector)'),
+                array_map(
+                    fn (Lang\Variable $var) => $g->to_local_env(
+                        $var->name(),
+                        "array_shift(\$data_vector)"
+                    ),
+                    $alternative->variables()
+                )
+            )
+        );
 
         $results->add($c->compile_syntax($g, $alternative->expression()));
-        $results->add_method($g->public_method(
-            $method_name,
-            $g->stg_args(),
-            $results->flush_statements()
-        ));
+        $results->add_method(
+            $g->public_method(
+                $method_name,
+                $g->stg_args(),
+                $results->flush_statements()
+            )
+        );
         
         return $results;
     }

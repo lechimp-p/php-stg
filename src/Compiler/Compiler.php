@@ -17,20 +17,19 @@ class Compiler
 
     /**
      * Create a code generator.
-     *
-     * @return Gen
      */
-    public function code_generator($namespace, $stg_name, $standard_name)
-    {
+    public function code_generator(
+        string $namespace,
+        string $stg_name,
+        string $standard_name
+    ) : Gen\Gen {
         return new Gen\Gen($namespace, $stg_name, $standard_name);
     }
 
     /**
      * Create a compilation results object
-     *
-     * @return Results
      */
-    public function results()
+    public function results() : Results
     {
         return new Results();
     }
@@ -42,42 +41,40 @@ class Compiler
      */
     public $patterns = [];
 
-    /**
-     * @var int
-     */
-    public $amount_of_patterns;
-
     public function __construct()
     {
         $this->pattern =
-            new AllSyntax(array( new Lambda()
-                , new Expression(array( new Application()
-                    , new Constructor()
-                    , new Literal()
-                    , new LetBinding()
-                    , new LetRecBinding()
-                    , new CaseExpr()
-                    , new PrimOp()
-                    ))
-                , new Program()
-                ));
-        $this->amount_of_patterns = count($this->patterns);
+            new AllSyntax([
+                new Lambda(),
+                new Expression([
+                    new Application(),
+                    new Constructor(),
+                    new Literal(),
+                    new LetBinding(),
+                    new LetRecBinding(),
+                    new CaseExpr(),
+                    new PrimOp()
+                ]),
+                new Program()
+            ]);
     }
 
     /**
      * Compile a program to a bunch of PHP files using the STG to execute the
      * defined program.
      *
-     * @param   Lang\Program    $program
-     * @param   string          $stg_class_name
-     * @param   string          $namespace      Where to put the classes we create.
-     * @param   strubg          $standard_name  Class name for standard closure.
-     * @return  array           $filename => $content
+     * @param   Lang\Program    $program        to be compiled
+     * @param   string          $stg_class      to be used for STG implementation
+     * @param   string          $namespace      to put the classes we create.
+     * @param   strubg          $standard_class for standard closure.
+     * @return  array<string,string> $filename => $content
      */
-    public function compile(Lang\Program $program, $stg_class_name, $namespace = "", $standard_name = "\\Lechimp\\STG\\Closures\\Standard")
-    {
-        assert(is_string($stg_class_name));
-
+    public function compile(
+        Lang\Program $program,
+        string $stg_class_name,
+        string $namespace = "",
+        string $standard_name = "\\Lechimp\\STG\\Closures\\Standard"
+    ) : array {
         $g = $this->code_generator($namespace, self::STG_VAR_NAME, $standard_name);
         // TODO: This should be going to the generator like namespace.
         $this->stg_class_name = $stg_class_name;
@@ -88,9 +85,15 @@ class Compiler
         assert(count($results->statements()) == 0);
 
         // Render all classes to a single file.
-        return array("main.php" => implode("\n\n", array_map(function (Gen\GClass $cl) {
-            return $cl->render(0);
-        }, $results->classes())));
+        return [
+            "main.php" => implode(
+                "\n\n",
+                array_map(
+                    fn (Gen\GClass $cl) => $cl->render(0),
+                    $results->classes()
+                )
+            )
+        ];
     }
 
     public function compile_syntax(Gen\Gen $g, Lang\Syntax $s)
@@ -105,11 +108,11 @@ function array_flatten()
 {
     $args = func_get_args();
     if (count($args) == 0) {
-        return array();
+        return [];
     }
     if (count($args) == 1) {
         if (is_array($args[0])) {
-            $returns = array();
+            $returns = [];
             foreach ($args[0] as $val) {
                 if (is_array($val)) {
                     $returns = array_merge($returns, array_flatten($val));

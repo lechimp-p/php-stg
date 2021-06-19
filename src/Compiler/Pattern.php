@@ -19,15 +19,16 @@ abstract class Pattern
     public function __construct(array $sub_patterns = null)
     {
         if ($sub_patterns === null) {
-            $sub_patterns = array();
+            $sub_patterns = [];
         }
 
-        $this->sub_patterns = array_map(function (Pattern $pattern) {
-            return $pattern;
-        }, $sub_patterns);
+        $this->sub_patterns = array_map(
+            fn (Pattern $pattern) => $pattern,
+            $sub_patterns
+        );
     }
 
-    public function sub_patterns()
+    public function sub_patterns() : array
     {
         return $this->sub_patterns;
     }
@@ -40,11 +41,10 @@ abstract class Pattern
      *
      * Throws an exception if no pattern matches.
      *
-     * @param   Syntax
      * @throws  \LogicException
      * @return  [Pattern, mixed]
      */
-    final public function search_compiler(Syntax $c)
+    final public function search_compiler(Syntax $c) : array
     {
         $res = $this->matches($c);
         if ($res === null) {
@@ -83,10 +83,7 @@ abstract class Pattern
     /**
      * Compile the pattern based on the stuff returned from matches.
      *
-     * @param   Compile $c
-     * @param   Gen     $g
      * @param   mixed   &$p
-     * @return  Results
      */
-    abstract public function compile(Compiler $c, Gen $g, &$p);
+    abstract public function compile(Compiler $c, Gen $g, &$p) : Results;
 }

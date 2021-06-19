@@ -20,7 +20,7 @@ class Expression extends Pattern
     /**
      * @inheritdoc
      */
-    public function compile(Compiler $c, Gen $g, &$_)
+    public function compile(Compiler $c, Gen $g, &$_) : Results
     {
         throw new \LogicException("Can't use pattern Expression to compile something.");
     }

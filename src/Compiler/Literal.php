@@ -20,13 +20,15 @@ class Literal extends Pattern
     /**
      * @inheritdoc
      */
-    public function compile(Compiler $c, Gen $g, &$value)
+    public function compile(Compiler $c, Gen $g, &$value) : Results
     {
         $results = $c->results();
-        $results->add_statements(array_flatten(
-            $g->stmt("\$primitive_value = $value"),
-            $g->stg_primitive_value_jump()
-        ));
+        $results->add_statements(
+            array_flatten(
+                $g->stmt("\$primitive_value = $value"),
+                $g->stg_primitive_value_jump()
+            )
+        );
         return $results;
     }
 }
