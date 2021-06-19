@@ -2,7 +2,7 @@
     "name": "lechimp-p/php-stg",
     "description": "The Spineless Tagless G-Machine in PHP.",
     "type": "library",
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Richard Klees",
