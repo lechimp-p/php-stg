@@ -1,5 +1,7 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Gen\GClass;
 use Lechimp\STG\Gen\GPrivateProperty;
 use Lechimp\STG\Gen\GProtectedProperty;
@@ -11,12 +13,12 @@ use Lechimp\STG\Gen\GArgument;
 use Lechimp\STG\Gen\GStatement;
 use Lechimp\STG\Gen\GIfThenElse;
 
-class GenText extends PHPUnit_Framework_TestCase
+class GenTest extends \PHPUnit\Framework\TestCase
 {
     protected function assertCodeEquals($left, $right)
     {
-        $_left = $this->removeEmptyLines(split("\n", $left));
-        $_right = $this->removeEmptyLines(split("\n", $right));
+        $_left = $this->removeEmptyLines(explode("\n", $left));
+        $_right = $this->removeEmptyLines(explode("\n", $right));
         $this->assertEquals($_left, $_right);
     }
 
@@ -110,21 +112,21 @@ PHP;
             "Test",
             array(),
             array( new GPublicMethod(
-                    "get_bar",
-                    array( new GArgument(null, "foo")
+                "get_bar",
+                array( new GArgument(null, "foo")
                         , new GArgument("array", "bar")
                         , new GArgument(null, "baz", "\"baz\"")
                         ),
-                    array( new GStatement('echo $foo')
+                array( new GStatement('echo $foo')
                         )
-                )
+            )
                 , new GPublicMethod(
                     "get_indentation",
                     array(),
                     array( new GStatement(function ($indentation) {
-                            return
+                        return
                             "$indentation\$indentation = \"$indentation\";";
-                        })
+                    })
                         )
                 )
                 )
@@ -150,14 +152,14 @@ PHP;
     public function test_ifThenElse()
     {
         $gen = new GIfThenElse(
-                "\$a == \$b",
-                array( new GStatement("echo 'equal: '")
+            "\$a == \$b",
+            array( new GStatement("echo 'equal: '")
                 , new GStatement("echo \$b")
                 ),
-                array( new GStatement("echo 'not equal: '")
+            array( new GStatement("echo 'not equal: '")
                 , new GStatement("echo \$a.\" \".\$b")
                 )
-            );
+        );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
 if ($a == $b) {
@@ -175,20 +177,20 @@ PHP;
     public function test_ifThenElse2()
     {
         $gen = new GIfThenElse(
-                "\$a == \$b",
-                array( new GStatement("echo 'equal: '")
+            "\$a == \$b",
+            array( new GStatement("echo 'equal: '")
                 , new GStatement("echo \$b")
                 ),
-                array( new GIfThenElse(
-                        "!is_null(\$a)",
-                        array( new GStatement("echo 'not equal: '")
+            array( new GIfThenElse(
+                    "!is_null(\$a)",
+                    array( new GStatement("echo 'not equal: '")
                         , new GStatement("echo \$a.\" \".\$b")
                         ),
-                        array( new GStatement("echo 'null'")
+                    array( new GStatement("echo 'null'")
                         )
-                    )
                 )
-            );
+                )
+        );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
 if ($a == $b) {
@@ -215,28 +217,28 @@ PHP;
             "Test",
             array(),
             array( new GPublicMethod(
-                    "get_bar",
-                    array( new GArgument(null, "foo")
+                "get_bar",
+                array( new GArgument(null, "foo")
                         , new GArgument("array", "bar")
                         , new GArgument(null, "baz", "\"baz\"")
                         ),
-                    array( new GIfThenElse(
-                                "\$a == \$b",
-                                array( new GStatement("echo 'equal: '")
+                array( new GIfThenElse(
+                        "\$a == \$b",
+                        array( new GStatement("echo 'equal: '")
                                 , new GStatement("echo \$b")
                                 ),
-                                array( new GIfThenElse(
-                                        "!is_null(\$a)",
-                                        array( new GStatement("echo 'not equal: '")
+                        array( new GIfThenElse(
+                                    "!is_null(\$a)",
+                                    array( new GStatement("echo 'not equal: '")
                                         , new GStatement("echo \$a.\" \".\$b")
                                         ),
-                                        array( new GStatement("echo 'null'")
+                                    array( new GStatement("echo 'null'")
                                         )
-                                    )
                                 )
-                            )
+                                )
+                    )
                         )
-                )
+            )
                 )
         );
         $generated = $gen->render(0);

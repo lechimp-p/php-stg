@@ -17,7 +17,7 @@ class WHNF extends Closure
     /**
      * @var array
      */
-    protected $data_vector;
+    protected $data_vector = [];
 
     /**
      * Give the data vector as it is used by case expressions.
@@ -30,7 +30,7 @@ class WHNF extends Closure
 
         // Overwrite first entry of data vector with self,
         // as this stands in for the former closure.
-        if ($this->data_vector[0] instanceof Closure) {
+        if (isset($this->data_vector[0]) && $this->data_vector[0] instanceof Closure) {
             $data_vector[0] = $this;
         }
         $this->data_vector = $data_vector;

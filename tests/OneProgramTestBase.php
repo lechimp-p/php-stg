@@ -1,13 +1,13 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
 
-require_once(__DIR__ . "/ProgramTestBase.php");
-
 abstract class OneProgramTestBase extends ProgramTestBase
 {
-    public function setUp()
+    public function setUp() : void
     {
         $this->echo_program = false;
     }

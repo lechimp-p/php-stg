@@ -40,7 +40,7 @@ class Compiler
      *
      * @var Pattern[]
      */
-    public $patterns;
+    public $patterns = [];
 
     /**
      * @var int

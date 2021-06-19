@@ -123,7 +123,7 @@ class Lang implements Syntax
         $alts = array();
         foreach ($alternatives as $key => $value) {
             assert(is_string($key));
-            $key = split(" ", $key);
+            $key = explode(" ", $key);
             assert(count($key) > 0);
             $pattern = array_shift($key);
 

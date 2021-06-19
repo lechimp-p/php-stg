@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\STG\Lang\Lang;
+namespace Lechimp\STG\Test;
 
-require_once(__DIR__ . "/OneProgramTestBase.php");
+use Lechimp\STG\Lang\Lang;
 
 class ConstructorWithValuesTest extends OneProgramTestBase
 {
@@ -17,21 +17,21 @@ class ConstructorWithValuesTest extends OneProgramTestBase
          *         Wrapped a b -> Result a b
          */
         return $l->prg(array( "main" => $l->lam_f(
-                        array("extract", "a"),
-                        $l->app("extract", "a")
-                    )
+            array("extract", "a"),
+            $l->app("extract", "a")
+        )
             , "a" => $l->lam_n(
-                        $l->con("Wrapped", $l->lit(42), $l->lit(23))
-                    )
+                $l->con("Wrapped", $l->lit(42), $l->lit(23))
+            )
             , "extract" => $l->lam_a(
-                        array("w"),
-                        $l->cse(
+                array("w"),
+                $l->cse(
                             $l->app("w"),
                             array( "Wrapped a b" => $l->con("Result", "a", "b")
                             )
                         ),
-                        false
-                    )
+                false
+            )
             ));
     }
 

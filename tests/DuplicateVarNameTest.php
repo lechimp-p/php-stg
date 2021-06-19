@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\STG\Lang\Lang;
+namespace Lechimp\STG\Test;
 
-require_once(__DIR__ . "/OneProgramTestBase.php");
+use Lechimp\STG\Lang\Lang;
 
 class DuplicateVarNameTest extends OneProgramTestBase
 {
@@ -22,36 +22,36 @@ class DuplicateVarNameTest extends OneProgramTestBase
          *         default -> a
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("swapAB", "a"),
-                    $l->lt(
-                    array( "b" => $l->lam_f(
-                            array("a"),
-                            $l->app("a")
-                        )
+            array("swapAB", "a"),
+            $l->lt(
+                        array( "b" => $l->lam_f(
+                        array("a"),
+                        $l->app("a")
+                    )
                     , "a" => $l->lam(
-                            array("swapAB"),
-                            array("c"),
-                            $l->app("swapAB", "c"),
-                            false
-                        )
+                        array("swapAB"),
+                        array("c"),
+                        $l->app("swapAB", "c"),
+                        false
+                    )
                     ),
-                    $l->app("a", "b")
-                )
-                )
+                        $l->app("a", "b")
+                    )
+        )
             , "a" => $l->lam_n(
-                    $l->con("A")
-                )
+                $l->con("A")
+            )
             , "swapAB" => $l->lam_a(
-                    array("a"),
-                    $l->cse(
+                array("a"),
+                $l->cse(
                         $l->app("a"),
                         array( "A" => $l->con("B")
                         , "B" => $l->con("A")
                         , "default" => $l->app("a")
                         )
                     ),
-                    false
-                )
+                false
+            )
             ));
     }
 

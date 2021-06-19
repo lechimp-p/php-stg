@@ -1,10 +1,10 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
 use Lechimp\STG\CodeLabel;
-
-require_once(__DIR__ . "/ProgramTestBase.php");
 
 class LiteralsTest extends ProgramTestBase
 {
@@ -22,8 +22,8 @@ class LiteralsTest extends ProgramTestBase
          *         2 -> 1
          */
         $program = $l->program(array( $l->binding(
-                    $l->variable("main"),
-                    $l->lambda(
+            $l->variable("main"),
+            $l->lambda(
                         array($l->variable("swap12"), $l->variable("a")),
                         array(),
                         $l->application(
@@ -33,19 +33,19 @@ class LiteralsTest extends ProgramTestBase
                         ),
                         true
                     )
-                )
+        )
             , $l->binding(
-                    $l->variable("a"),
-                    $l->lambda(
+                $l->variable("a"),
+                $l->lambda(
                         array(),
                         array(),
                         $l->literal(1),
                         true
                     )
-                )
+            )
             , $l->binding(
-                    $l->variable("swap12"),
-                    $l->lambda(
+                $l->variable("swap12"),
+                $l->lambda(
                         array(),
                         array($l->variable("a")),
                         $l->case_expr(
@@ -54,24 +54,24 @@ class LiteralsTest extends ProgramTestBase
                                 array()
                             ),
                             array( $l->primitive_alternative(
-                                    $l->literal(1),
-                                    $l->literal(2)
-                                )
+                                $l->literal(1),
+                                $l->literal(2)
+                            )
                             , $l->primitive_alternative(
-                                    $l->literal(2),
-                                    $l->literal(1)
-                                )
+                                $l->literal(2),
+                                $l->literal(1)
+                            )
                             )
                         ),
                         false
                     )
-                )
+            )
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "LiteralsTest");
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new LiteralsTest\TheMachine();
+        $machine = new \LiteralsTest\TheMachine();
         $result = $this->machine_result($machine);
         $this->assertEquals(2, $result[0]);
     }

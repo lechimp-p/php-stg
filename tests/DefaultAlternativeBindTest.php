@@ -1,5 +1,7 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 
 require_once(__DIR__ . "/OneProgramTestBase.php");
@@ -17,22 +19,22 @@ class DefaultAlternativeBindTest extends OneProgramTestBase
          *         b -> b
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("swapAB", "a"),
-                    $l->app("swapAB", "a")
-                )
+            array("swapAB", "a"),
+            $l->app("swapAB", "a")
+        )
             , "a" => $l->lam_n(
-                    $l->con("A"),
-                    false
-                )
+                $l->con("A"),
+                false
+            )
             , "swapAB" => $l->lam_a(
-                    array("a"),
-                    $l->cse(
+                array("a"),
+                $l->cse(
                         $l->app("a"),
                         array( "default b" => $l->app("b")
                         )
                     ),
-                    false
-                )
+                false
+            )
             ));
     }
 

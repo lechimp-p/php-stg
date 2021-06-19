@@ -1,10 +1,10 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
 use Lechimp\STG\CodeLabel;
-
-require_once(__DIR__ . "/ProgramTestBase.php");
 
 class PartialApplicationTest extends ProgramTestBase
 {
@@ -21,31 +21,31 @@ class PartialApplicationTest extends ProgramTestBase
          *  in v
          */
         $program = $l->prg(array( "main" => $l->lam_n(
-                    $l->ltr(
-                    array( "tc" => $l->lam_a(
-                            array("a", "b"),
-                            $l->con("T", "a", "b"),
-                            false
-                        )
+            $l->ltr(
+                        array( "tc" => $l->lam_a(
+                        array("a", "b"),
+                        $l->con("T", "a", "b"),
+                        false
+                    )
                     , "vt" => $l->lam_f(
-                            array("tc"),
-                            $l->app("tc", $l->lit(42))
-                        )
+                        array("tc"),
+                        $l->app("tc", $l->lit(42))
+                    )
                     , "v" => $l->lam_f(
-                            array("vt"),
-                            $l->app("vt", $l->lit(23))
-                        )
+                        array("vt"),
+                        $l->app("vt", $l->lit(23))
+                    )
                     ),
-                    $l->app("v")
-                ),
-                    false
-                )
+                        $l->app("v")
+                    ),
+            false
+        )
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "PartialApplicationTest");
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new PartialApplicationTest\TheMachine();
+        $machine = new \PartialApplicationTest\TheMachine();
         $result = $this->machine_result($machine);
         $this->assertEquals("T", $result[1]);
         $this->assertEquals(42, $result[2]);
@@ -69,42 +69,42 @@ class PartialApplicationTest extends ProgramTestBase
          *
          */
         $program = $l->prg(array( "main" => $l->lam_n(
-                    $l->ltr(
-                    array( "tc" => $l->lam_a(
-                            array("a", "b"),
-                            $l->con("T", "a", "b"),
-                            false
-                        )
+            $l->ltr(
+                        array( "tc" => $l->lam_a(
+                        array("a", "b"),
+                        $l->con("T", "a", "b"),
+                        false
+                    )
                     , "vt" => $l->lam_f(
-                            array("tc"),
-                            $l->app("tc", $l->lit(42))
-                        )
+                        array("tc"),
+                        $l->app("tc", $l->lit(42))
+                    )
                     , "v1" => $l->lam_f(
-                            array("vt"),
-                            $l->app("vt", $l->lit(23))
-                        )
+                        array("vt"),
+                        $l->app("vt", $l->lit(23))
+                    )
                     , "v2" => $l->lam_f(
-                            array("vt"),
-                            $l->app("vt", $l->lit(5))
-                        )
+                        array("vt"),
+                        $l->app("vt", $l->lit(5))
+                    )
                     ),
-                    $l->cse(
-                            $l->app("v1"),
-                            array( "T a b" => $l->cse(
-                                    $l->app("v2"),
-                                    array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
-                                )
+                        $l->cse(
+                        $l->app("v1"),
+                        array( "T a b" => $l->cse(
+                                $l->app("v2"),
+                                array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
                             )
-                        )
-                ),
-                    false
-                )
+                            )
+                    )
+                    ),
+            false
+        )
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "PartialApplicationTest2");
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new PartialApplicationTest2\TheMachine();
+        $machine = new \PartialApplicationTest2\TheMachine();
         $result = $this->machine_result($machine);
         $this->assertEquals("T4", $result[1]);
         $this->assertEquals(42, $result[2]);

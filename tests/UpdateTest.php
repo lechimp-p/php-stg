@@ -1,10 +1,10 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
 use Lechimp\STG\CodeLabel;
-
-require_once(__DIR__ . "/ProgramTestBase.php");
 
 class UpdateTest extends ProgramTestBase
 {
@@ -24,14 +24,14 @@ class UpdateTest extends ProgramTestBase
          *              V v2 -> Result v1 v2
          */
         $program = $l->program(array( $l->binding(
-                    $l->variable("main"),
-                    $l->lambda(
+            $l->variable("main"),
+            $l->lambda(
                         array(),
                         array(),
                         $l->letrec(
-                        array( $l->binding(
-                                $l->variable("v"),
-                                $l->lambda(
+                            array( $l->binding(
+                            $l->variable("v"),
+                            $l->lambda(
                                     array(),
                                     array($l->variable("c")),
                                     $l->constructor(
@@ -41,10 +41,10 @@ class UpdateTest extends ProgramTestBase
                                     ),
                                     false
                                 )
-                            )
+                        )
                         , $l->binding(
-                                $l->variable("a"),
-                                $l->lambda(
+                            $l->variable("a"),
+                            $l->lambda(
                                     array($l->variable("v")),
                                     array(),
                                     $l->application(
@@ -53,10 +53,10 @@ class UpdateTest extends ProgramTestBase
                                     ),
                                     true
                                 )
-                            )
+                        )
                         , $l->binding(
-                                $l->variable("t"),
-                                $l->lambda(
+                            $l->variable("t"),
+                            $l->lambda(
                                     array($l->variable("a")),
                                     array(),
                                     $l->constructor(
@@ -67,7 +67,7 @@ class UpdateTest extends ProgramTestBase
                                     ),
                                     true
                                 )
-                            )
+                        )
                         )
             /*  This part is:
              *  in case t of
@@ -76,57 +76,57 @@ class UpdateTest extends ProgramTestBase
              *              V v2 -> Result v1 v2
              */
                         ,
-                        $l->case_expr(
-                                $l->application(
+                            $l->case_expr(
+                            $l->application(
                                     $l->variable("t"),
                                     array()
                                 ),
-                                array( $l->algebraic_alternative(
-                                        "T",
-                                        array( $l->variable("a")
+                            array( $l->algebraic_alternative(
+                                    "T",
+                                    array( $l->variable("a")
                                         , $l->variable("b")
                                         ),
-                                        $l->case_expr(
+                                    $l->case_expr(
                                             $l->application(
                                                 $l->variable("a"),
                                                 array()
                                             ),
                                             array( $l->algebraic_alternative(
-                                                    "V",
-                                                    array($l->variable("v1")),
-                                                    $l->case_expr(
+                                                "V",
+                                                array($l->variable("v1")),
+                                                $l->case_expr(
                                                         $l->application(
                                                             $l->variable("b"),
                                                             array()
                                                         ),
                                                         array( $l->algebraic_alternative(
-                                                                "V",
-                                                                array($l->variable("v2")),
-                                                                $l->constructor(
+                                                            "V",
+                                                            array($l->variable("v2")),
+                                                            $l->constructor(
                                                                     "Result",
                                                                     array( $l->variable("v1")
                                                                     , $l->variable("v2")
                                                                     )
                                                                 )
-                                                            )
+                                                        )
                                                         )
                                                     )
-                                                )
+                                            )
                                             )
                                         )
-                                    )
                                 )
-                            )
-                    ),
+                                )
+                        )
+                        ),
                         false
                     )
-                )
+        )
             ));
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "UpdateTest");
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new UpdateTest\TheMachine();
+        $machine = new \UpdateTest\TheMachine();
         $result = $this->machine_result($machine);
         $this->assertEquals("Result", $result[1]);
         $this->assertEquals(42, $result[2]);

@@ -1,10 +1,10 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
-
-require_once(__DIR__ . "/OneProgramTestBase.php");
 
 class NestedCaseTest extends OneProgramTestBase
 {
@@ -24,21 +24,21 @@ class NestedCaseTest extends OneProgramTestBase
          *         Wrapped a -> Result a
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("extract", "a"),
-                    $l->app("extract", "a")
-                )
+            array("extract", "a"),
+            $l->app("extract", "a")
+        )
             , "a" => $l->lam_n(
-                    $l->lt(
-                    array( "w" => $l->lam_n(
-                            $l->con("Wrapped", $l->lit(42))
-                        )
+                $l->lt(
+                        array( "w" => $l->lam_n(
+                        $l->con("Wrapped", $l->lit(42))
+                    )
                     ),
-                    $l->con("Wrapped", "w")
-                )
-                )
+                        $l->con("Wrapped", "w")
+                    )
+            )
             , "extract" => $l->lam_a(
-                    array("w"),
-                    $l->cse(
+                array("w"),
+                $l->cse(
                         $l->cse(
                             $l->app("w"),
                             array( "Wrapped a" => $l->app("a")
@@ -47,8 +47,8 @@ class NestedCaseTest extends OneProgramTestBase
                         array( "Wrapped a" => $l->con("Result", "a")
                         )
                     ),
-                    false
-                )
+                false
+            )
             ));
     }
 

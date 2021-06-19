@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\STG\Lang\Lang;
+namespace Lechimp\STG\Test;
 
-require_once(__DIR__ . "/OneProgramTestBase.php");
+use Lechimp\STG\Lang\Lang;
 
 class DefaultAlternativeTest extends OneProgramTestBase
 {
@@ -19,23 +19,23 @@ class DefaultAlternativeTest extends OneProgramTestBase
          *         default -> a
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("swapAB", "a"),
-                    $l->app("swapAB", "a")
-                )
+            array("swapAB", "a"),
+            $l->app("swapAB", "a")
+        )
             , "a" => $l->lam_n(
-                    $l->con("C")
-                )
+                $l->con("C")
+            )
             , "swapAB" => $l->lam_a(
-                    array($l->variable("a")),
-                    $l->cse(
+                array($l->variable("a")),
+                $l->cse(
                         $l->app("a"),
                         array( "A" => $l->con("B")
                         , "B" => $l->con("A")
                         , "default" => $l->app("a")
                         )
                     ),
-                    false
-                )
+                false
+            )
             ));
     }
 

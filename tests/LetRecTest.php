@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\STG\Lang\Lang;
+namespace Lechimp\STG\Test;
 
-require_once(__DIR__ . "/OneProgramTestBase.php");
+use Lechimp\STG\Lang\Lang;
 
 class LetRecTest extends OneProgramTestBase
 {
@@ -19,27 +19,27 @@ class LetRecTest extends OneProgramTestBase
          *      in result
          */
         return $l->prg(array( "main" => $l->lam_n(
-                    $l->ltr(
-                    array( "result" => $l->lam_f(
-                            array("a", "extract"),
-                            $l->app("extract", "a")
-                        )
+            $l->ltr(
+                        array( "result" => $l->lam_f(
+                        array("a", "extract"),
+                        $l->app("extract", "a")
+                    )
                     , "a" => $l->lam_n(
-                            $l->con("Wrapped", $l->lit(42), $l->lit(23))
-                        )
+                        $l->con("Wrapped", $l->lit(42), $l->lit(23))
+                    )
                     , "extract" => $l->lam_a(
-                            array("w"),
-                            $l->cse(
+                        array("w"),
+                        $l->cse(
                                 $l->app("w"),
                                 array(  "Wrapped a b" => $l->con("Result", "a", "b")
                                 )
                             ),
-                            false
-                        )
+                        false
+                    )
                     ),
-                    $l->app("result")
-                )
-                )
+                        $l->app("result")
+                    )
+        )
             ));
     }
 

@@ -1,9 +1,9 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
-
-require_once(__DIR__ . "/OneProgramTestBase.php");
 
 class GCTest extends ProgramTestBase
 {
@@ -39,47 +39,47 @@ class GCTest extends ProgramTestBase
          *  in l1
          */
         $program = $l->prg(array( "main" => $l->lam_f(
-                    array("sum", "a"),
-                    $l->app("sum", "a")
-                )
+            array("sum", "a"),
+            $l->app("sum", "a")
+        )
             , "sum" => $l->lam(
-                    array("sum"),
-                    array("v"),
-                    $l->cse(
+                array("sum"),
+                array("v"),
+                $l->cse(
                         $l->app("v"),
                         array( "Cons h t" => $l->lt(
                             array( "s" => $l->lam_f(
-                                        array("sum", "t"),
-                                        $l->app("sum", "t")
-                                    )
+                                array("sum", "t"),
+                                $l->app("sum", "t")
+                            )
                                 ),
                             $l->cse(
-                                        $l->app("s"),
-                                        array("default u" => $l->prm("IntAddOp", "h", "u"))
-                                    )
+                                $l->app("s"),
+                                array("default u" => $l->prm("IntAddOp", "h", "u"))
+                            )
                         )
                         , "End" => $l->lit(0)
                         )
                     ),
-                    false
-                )
+                false
+            )
             , "cons" => $l->lam_a(
-                    array("h", "t"),
-                    $l->lt(
-                    array( "b" => $l->lam_f(
-                            array("h", "t"),
-                            $l->con("Cons", "h", "t")
-                        )
+                array("h", "t"),
+                $l->lt(
+                        array( "b" => $l->lam_f(
+                        array("h", "t"),
+                        $l->con("Cons", "h", "t")
+                    )
                     ),
-                    $l->app("b")
-                ),
-                    false
-                )
+                        $l->app("b")
+                    ),
+                false
+            )
             , "end" => $l->lam_n($l->con("End"))
             , "a" => $l->lam_f(
-                    array("cons", "end"),
-                    $l->ltr(
-                    array( "l1" => $l->lam_f(array("l2", "cons"), $l->app("cons", $l->lit(1), "l2"))
+                array("cons", "end"),
+                $l->ltr(
+                        array( "l1" => $l->lam_f(array("l2", "cons"), $l->app("cons", $l->lit(1), "l2"))
                     , "l2" => $l->lam_f(array("l3", "cons"), $l->app("cons", $l->lit(2), "l3"))
                     , "l3" => $l->lam_f(array("l4", "cons"), $l->app("cons", $l->lit(3), "l4"))
                     , "l4" => $l->lam_f(array("l5", "cons"), $l->app("cons", $l->lit(4), "l5"))
@@ -90,16 +90,16 @@ class GCTest extends ProgramTestBase
                     , "l9" => $l->lam_f(array("l10", "cons"), $l->app("cons", $l->lit(9), "l10"))
                     , "l10" => $l->lam_f(array("end", "cons"), $l->app("cons", $l->lit(10), "end"))
                     ),
-                    $l->app("l1")
-                )
-                )
+                        $l->app("l1")
+                    )
+            )
             ));
 
         $compiler = new Compiler();
         $compiled = $compiler->compile($program, "TheMachine", "GCTest");
         //$this->echo_program($compiled["main.php"]);
         eval($compiled["main.php"]);
-        $machine = new GCTest\TheMachine();
+        $machine = new \GCTest\TheMachine();
         $machine->check_garbage_collection_cycles = 100000;
         $result = $this->machine_result($machine);
 

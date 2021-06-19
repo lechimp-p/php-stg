@@ -1,5 +1,7 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 class Jumps
 {
     public function one($_)
@@ -14,7 +16,7 @@ class Jumps
 
 use Lechimp\STG\CodeLabel;
 
-class JumpTest extends PHPUnit_Framework_TestCase
+class JumpTest extends \PHPUnit\Framework\TestCase
 {
     public function test_jump1()
     {
@@ -32,28 +34,25 @@ class JumpTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, $res);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function test_noUnknownMethod()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $jumps = new Jumps();
         $label = new CodeLabel($jumps, "three");
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function test_noNoneObject()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $label = new CodeLabel("foo", "three");
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function test_noNull()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $label = new CodeLabel(null, "three");
     }
 }

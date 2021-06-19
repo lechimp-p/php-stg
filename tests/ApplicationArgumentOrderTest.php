@@ -1,8 +1,8 @@
 <?php
 
-use Lechimp\STG\Lang\Lang;
+namespace Lechimp\STG\Test;
 
-require_once(__DIR__ . "/OneProgramTestBase.php");
+use Lechimp\STG\Lang\Lang;
 
 class ApplicationArgumentOrderTest extends OneProgramTestBase
 {
@@ -16,21 +16,21 @@ class ApplicationArgumentOrderTest extends OneProgramTestBase
          *      in t
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("tuple2"),
-                    $l->app("tuple2", $l->lit(1), $l->lit(2))
-                )
+            array("tuple2"),
+            $l->app("tuple2", $l->lit(1), $l->lit(2))
+        )
             , "tuple2" => $l->lam_a(
-                    array("l", "r"),
-                    $l->lt(
-                    array( "t" => $l->lam_f(
-                            array("l", "r"),
-                            $l->con("T2", "l", "r")
-                        )
+                array("l", "r"),
+                $l->lt(
+                        array( "t" => $l->lam_f(
+                        array("l", "r"),
+                        $l->con("T2", "l", "r")
+                    )
                     ),
-                    $l->app("t")
-                ),
-                    false
-                )
+                        $l->app("t")
+                    ),
+                false
+            )
             ));
     }
 

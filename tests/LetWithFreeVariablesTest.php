@@ -1,10 +1,10 @@
 <?php
 
+namespace Lechimp\STG\Test;
+
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler;
 use Lechimp\STG\CodeLabel;
-
-require_once(__DIR__ . "/OneProgramTestBase.php");
 
 class LetWithFreeVariablesTest extends OneProgramTestBase
 {
@@ -21,28 +21,28 @@ class LetWithFreeVariablesTest extends OneProgramTestBase
          *         Wrapped a b -> Result a b
          */
         return $l->prg(array( "main" => $l->lam_f(
-                    array("a", "extract"),
-                    $l->lt(
-                    array( "result" => $l->lam_f(
-                                array("a", "extract"),
-                                $l->app("extract", "a")
-                            )
+            array("a", "extract"),
+            $l->lt(
+                        array( "result" => $l->lam_f(
+                        array("a", "extract"),
+                        $l->app("extract", "a")
+                    )
                     ),
-                    $l->app("result")
-                )
-                )
+                        $l->app("result")
+                    )
+        )
             , "a" => $l->lam_n(
-                    $l->con("Wrapped", $l->lit(42), $l->lit(23))
-                )
+                $l->con("Wrapped", $l->lit(42), $l->lit(23))
+            )
             , "extract" => $l->lam_a(
-                    array("w"),
-                    $l->cse(
+                array("w"),
+                $l->cse(
                         $l->app("w"),
                         array( "Wrapped a b" => $l->con("Result", "a", "b")
                         )
                     ),
-                    false
-                )
+                false
+            )
             ));
     }
 
