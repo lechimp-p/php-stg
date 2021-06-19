@@ -34,9 +34,9 @@ class LetBinding extends Pattern
                 return array_flatten(
                     $g->stmt("\$free_vars_$name = array()"),
                     array_map(function (Lang\Variable $free_var) use ($g, $name) {
-                                $fname = $free_var->name();
-                                return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
-                            }, $binding->lambda()->free_variables()),
+                        $fname = $free_var->name();
+                        return $g->stmt("\$free_vars_{$name}[\"$fname\"] = \$local_env[\"$fname\"]");
+                    }, $binding->lambda()->free_variables()),
                     $g->to_local_env($name, $g->stg_new_closure($class_name, $name))
                 );
             }, $let_binding->bindings())))

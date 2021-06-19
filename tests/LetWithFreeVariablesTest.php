@@ -24,9 +24,9 @@ class LetWithFreeVariablesTest extends OneProgramTestBase
             array("a", "extract"),
             $l->lt(
                 array( "result" => $l->lam_f(
-                            array("a", "extract"),
-                            $l->app("extract", "a")
-                        )
+                    array("a", "extract"),
+                    $l->app("extract", "a")
+                )
                     ),
                 $l->app("result")
             )

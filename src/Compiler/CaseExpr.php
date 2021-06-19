@@ -187,9 +187,9 @@ class CaseExpr extends Pattern
             $g->stmt('array_shift($data_vector)'),
             $g->stmt('array_shift($data_vector)'),
             array_map(function (Lang\Variable $var) use ($g) {
-                    $name = $var->name();
-                    return $g->to_local_env($name, "array_shift(\$data_vector)");
-                }, $alternative->variables())
+                $name = $var->name();
+                return $g->to_local_env($name, "array_shift(\$data_vector)");
+            }, $alternative->variables())
         ));
 
         $results->add($c->compile_syntax($g, $alternative->expression()));

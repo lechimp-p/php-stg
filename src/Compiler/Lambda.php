@@ -31,20 +31,20 @@ class Lambda extends Pattern
         $results = $c->results();
         $results->add_methods(array_flatten(
             $g->public_method(
-                    "entry_code",
-                    $g->stg_args(),
-                    array_merge(
+                "entry_code",
+                $g->stg_args(),
+                array_merge(
                     $this->compile_entry_code($g, $lambda),
                     $sub_results->flush_statements()
                 )
-                )
+            )
 
             // Required method for concrete STGClosures.
             ,
             $g->public_method("free_variables_names", array(), array( $g->stmt(function ($ind) use ($g, $var_names) {
-                    return
+                return
                     "{$ind}return " . $g->multiline_array($ind, $var_names) . ";";
-                })))
+            })))
 
             // Put previously compiled methods after entry code for readability
             // of generated code.
@@ -66,14 +66,14 @@ class Lambda extends Pattern
             // Get the free variables into the local env.
             ,
             array_map(function (Lang\Variable $free_var) use ($g) {
-                    return $g->free_var_to_local_env($free_var->name());
-                }, $lambda->free_variables())
+                return $g->free_var_to_local_env($free_var->name());
+            }, $lambda->free_variables())
 
             // Get the arguments into the local env.
             ,
             array_map(function (Lang\Variable $argument) use ($g) {
-                    return $g->stg_pop_arg_to_local_env($argument->name());
-                }, $lambda->arguments())
+                return $g->stg_pop_arg_to_local_env($argument->name());
+            }, $lambda->arguments())
 
             // Make the entry code of the closure point to the black hole.
             ,

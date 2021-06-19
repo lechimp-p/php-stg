@@ -23,9 +23,9 @@ class ApplicationArgumentOrderTest extends OneProgramTestBase
                 array("l", "r"),
                 $l->lt(
                     array( "t" => $l->lam_f(
-                            array("l", "r"),
-                            $l->con("T2", "l", "r")
-                        )
+                        array("l", "r"),
+                        $l->con("T2", "l", "r")
+                    )
                     ),
                     $l->app("t")
                 ),

@@ -70,14 +70,14 @@ class GClass extends GBase
             // Properties
             ,
             array_map(function (GProperty $prop) use ($indentation) {
-                    return $prop->render($indentation + 1);
-                }, $this->properties)
+                return $prop->render($indentation + 1);
+            }, $this->properties)
 
             // Methods
             ,
             array_map(function (GMethod $method) use ($indentation) {
-                    return $method->render($indentation + 1);
-                }, $this->methods),
+                return $method->render($indentation + 1);
+            }, $this->methods),
             array( $this->indent($indentation, "}") ),
             $namespace_end
         ));

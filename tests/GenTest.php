@@ -228,13 +228,13 @@ PHP;
                                 , new GStatement("echo \$b")
                                 ),
                     array( new GIfThenElse(
-                            "!is_null(\$a)",
-                            array( new GStatement("echo 'not equal: '")
+                        "!is_null(\$a)",
+                        array( new GStatement("echo 'not equal: '")
                                         , new GStatement("echo \$a.\" \".\$b")
                                         ),
-                            array( new GStatement("echo 'null'")
+                        array( new GStatement("echo 'null'")
                                         )
-                        )
+                    )
                                 )
                 )
                         )

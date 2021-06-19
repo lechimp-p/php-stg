@@ -25,9 +25,9 @@ class DuplicateVarNameTest extends OneProgramTestBase
             array("swapAB", "a"),
             $l->lt(
                 array( "b" => $l->lam_f(
-                            array("a"),
-                            $l->app("a")
-                        )
+                    array("a"),
+                    $l->app("a")
+                )
                     , "a" => $l->lam(
                         array("swapAB"),
                         array("c"),

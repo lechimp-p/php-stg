@@ -23,10 +23,10 @@ class PartialApplicationTest extends ProgramTestBase
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->ltr(
                 array( "tc" => $l->lam_a(
-                            array("a", "b"),
-                            $l->con("T", "a", "b"),
-                            false
-                        )
+                    array("a", "b"),
+                    $l->con("T", "a", "b"),
+                    false
+                )
                     , "vt" => $l->lam_f(
                         array("tc"),
                         $l->app("tc", $l->lit(42))
@@ -71,10 +71,10 @@ class PartialApplicationTest extends ProgramTestBase
         $program = $l->prg(array( "main" => $l->lam_n(
             $l->ltr(
                 array( "tc" => $l->lam_a(
-                            array("a", "b"),
-                            $l->con("T", "a", "b"),
-                            false
-                        )
+                    array("a", "b"),
+                    $l->con("T", "a", "b"),
+                    false
+                )
                     , "vt" => $l->lam_f(
                         array("tc"),
                         $l->app("tc", $l->lit(42))
@@ -89,13 +89,13 @@ class PartialApplicationTest extends ProgramTestBase
                     )
                     ),
                 $l->cse(
-                            $l->app("v1"),
-                            array( "T a b" => $l->cse(
-                            $l->app("v2"),
-                            array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
-                        )
+                    $l->app("v1"),
+                    array( "T a b" => $l->cse(
+                        $l->app("v2"),
+                        array( "T c d" => $l->con("T4", "a", "b", "c", "d") )
+                    )
                             )
-                        )
+                )
             ),
             false
         )

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-vendor/bin/php-cs-fixer fix --config=.cs_format.php_cs $@
+vendor/bin/php-cs-fixer fix --using-cache=no --config=.cs_format.php_cs $@

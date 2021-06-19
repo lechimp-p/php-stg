@@ -27,10 +27,10 @@ class LiteralsTest extends ProgramTestBase
                 array($l->variable("swap12"), $l->variable("a")),
                 array(),
                 $l->application(
-                            $l->variable("swap12"),
-                            array( $l->variable("a")
+                    $l->variable("swap12"),
+                    array( $l->variable("a")
                             )
-                        ),
+                ),
                 true
             )
         )
@@ -49,20 +49,20 @@ class LiteralsTest extends ProgramTestBase
                     array(),
                     array($l->variable("a")),
                     $l->case_expr(
-                            $l->application(
-                                $l->variable("a"),
-                                array()
-                            ),
-                            array( $l->primitive_alternative(
-                                $l->literal(1),
-                                $l->literal(2)
-                            )
+                        $l->application(
+                            $l->variable("a"),
+                            array()
+                        ),
+                        array( $l->primitive_alternative(
+                            $l->literal(1),
+                            $l->literal(2)
+                        )
                             , $l->primitive_alternative(
                                 $l->literal(2),
                                 $l->literal(1)
                             )
                             )
-                        ),
+                    ),
                     false
                 )
             )

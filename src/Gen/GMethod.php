@@ -44,8 +44,8 @@ abstract class GMethod extends GBase
         return implode("\n", array_merge(
             array( $this->indent($indentation, "$qualifier function $name($arguments) {") ),
             array_map(function (GStatement $stmt) use ($indentation) {
-                    return $stmt->render($indentation + 1);
-                }, $this->statements),
+                return $stmt->render($indentation + 1);
+            }, $this->statements),
             array( $this->indent($indentation, "}") )
         ));
     }

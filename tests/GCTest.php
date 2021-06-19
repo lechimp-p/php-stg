@@ -48,16 +48,16 @@ class GCTest extends ProgramTestBase
                 $l->cse(
                     $l->app("v"),
                     array( "Cons h t" => $l->lt(
-                            array( "s" => $l->lam_f(
-                                array("sum", "t"),
-                                $l->app("sum", "t")
-                            )
-                                ),
-                            $l->cse(
-                                $l->app("s"),
-                                array("default u" => $l->prm("IntAddOp", "h", "u"))
-                            )
+                        array( "s" => $l->lam_f(
+                            array("sum", "t"),
+                            $l->app("sum", "t")
                         )
+                                ),
+                        $l->cse(
+                            $l->app("s"),
+                            array("default u" => $l->prm("IntAddOp", "h", "u"))
+                        )
+                    )
                         , "End" => $l->lit(0)
                         )
                 ),
@@ -67,9 +67,9 @@ class GCTest extends ProgramTestBase
                 array("h", "t"),
                 $l->lt(
                     array( "b" => $l->lam_f(
-                            array("h", "t"),
-                            $l->con("Cons", "h", "t")
-                        )
+                        array("h", "t"),
+                        $l->con("Cons", "h", "t")
+                    )
                     ),
                     $l->app("b")
                 ),

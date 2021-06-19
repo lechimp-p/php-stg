@@ -30,8 +30,8 @@ class NestedCaseTest extends OneProgramTestBase
             , "a" => $l->lam_n(
                 $l->lt(
                     array( "w" => $l->lam_n(
-                            $l->con("Wrapped", $l->lit(42))
-                        )
+                        $l->con("Wrapped", $l->lit(42))
+                    )
                     ),
                     $l->con("Wrapped", "w")
                 )
@@ -40,10 +40,10 @@ class NestedCaseTest extends OneProgramTestBase
                 array("w"),
                 $l->cse(
                     $l->cse(
-                            $l->app("w"),
-                            array( "Wrapped a" => $l->app("a")
+                        $l->app("w"),
+                        array( "Wrapped a" => $l->app("a")
                             )
-                        ),
+                    ),
                     array( "Wrapped a" => $l->con("Result", "a")
                         )
                 ),
