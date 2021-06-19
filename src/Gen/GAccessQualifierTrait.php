@@ -2,13 +2,15 @@
 
 namespace Lechimp\STG\Gen;
 
-trait GAccessQualifierTrait {
+trait GAccessQualifierTrait
+{
     /**
      * @var string
      */
     protected $qualifier;
 
-    protected function render_qualifier() {
+    protected function render_qualifier()
+    {
         return $this->qualifier;
     }
 }

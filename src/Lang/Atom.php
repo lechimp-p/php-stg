@@ -2,5 +2,6 @@
 
 namespace Lechimp\STG\Lang;
 
-interface Atom {
+interface Atom
+{
 }

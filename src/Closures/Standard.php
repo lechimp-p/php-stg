@@ -10,7 +10,8 @@ use Lechimp\STG\CodeLabel;
 /**
  * Representation of a closure in PHP.
  */
-abstract class Standard extends Closure {
+abstract class Standard extends Closure
+{
     use GC;
 
     /**
@@ -28,7 +29,8 @@ abstract class Standard extends Closure {
      * ATTENTION: The dictionary of free variables is passed by reference.
      *            to make recursive definitions possible.
      */
-    public function __construct(array &$free_variables) {
+    public function __construct(array &$free_variables)
+    {
         $free_variables_names = $this->free_variables_names();
         assert(count($free_variables_names) == count($free_variables));
         assert(sort($free_variables_names) == sort(array_keys($free_variables)));
@@ -46,7 +48,7 @@ abstract class Standard extends Closure {
     /**
      * Get a list of the free variables of the closure.
      *
-     * @return  string[]    
+     * @return  string[]
      */
     abstract public function free_variables_names();
 
@@ -57,7 +59,8 @@ abstract class Standard extends Closure {
      *
      * @param   STG $stg
      */
-    public function black_hole(STG $stg) {
+    public function black_hole(STG $stg)
+    {
         throw new BlackHole();
     }
 
@@ -67,12 +70,13 @@ abstract class Standard extends Closure {
      * @param   string          $name
      * @return  Closures\Closure|int
      */
-    public function free_variable($name) {
+    public function free_variable($name)
+    {
         assert(is_string($name));
         assert($this->updated === null);
         if (array_key_exists($name, $this->free_variables)) {
             throw new \LogicException("Unknown free variable '$name' in closure '"
-                                     .get_class($this)."'");
+                                     . get_class($this) . "'");
         }
         return $this->free_variables[$name];
     }
@@ -86,17 +90,19 @@ abstract class Standard extends Closure {
      * @param   Closure $updated
      * @return  null
      */
-    public function update(Closure $updated) {
+    public function update(Closure $updated)
+    {
         assert($this->updated === null);
         $this->updated = $updated;
         $this->free_variables = null;
         $this->entry_code = $updated->entry_code;
-    } 
+    }
 
     /**
      * @inheritdoc
      */
-    public function collect_garbage(array &$survivors) {
+    public function collect_garbage(array &$survivors)
+    {
         if ($this->updated !== null) {
             // The closure was updated. Drop it.
             return $this->updated->collect_garbage($survivors);
@@ -108,7 +114,8 @@ abstract class Standard extends Closure {
     /**
      * @inheritdoc
      */
-    public function collect_garbage_in_references(array &$survivors) {
+    public function collect_garbage_in_references(array &$survivors)
+    {
         assert($this->free_variables !== null);
         $this->collect_garbage_in_array($this->free_variables, $survivors);
     }

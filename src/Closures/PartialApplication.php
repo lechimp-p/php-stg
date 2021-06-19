@@ -7,7 +7,8 @@ use Lechimp\STG\STG;
 use Lechimp\STG\Exceptions\BlackHole;
 use Lechimp\STG\CodeLabel;
 
-class PartialApplication extends Closure {
+class PartialApplication extends Closure
+{
     use GC;
 
     /**
@@ -29,10 +30,11 @@ class PartialApplication extends Closure {
      * ATTENTION: The dictionary of free variables is passed by reference.
      *            to make recursive definitions possible.
      */
-    public function __construct( Closure $function_closure
-                               , \SPLFixedArray $a_stack
-                               , \SPLFixedArray $b_stack
-                               ) {
+    public function __construct(
+        Closure $function_closure,
+        \SPLFixedArray $a_stack,
+        \SPLFixedArray $b_stack
+    ) {
         parent::__construct();
 
         // For partial update.
@@ -41,25 +43,26 @@ class PartialApplication extends Closure {
         $this->b_stack = $b_stack;
     }
 
-    public function entry_code(STG $stg) {
+    public function entry_code(STG $stg)
+    {
         $stg->push_array_a_stack($this->a_stack);
         $stg->push_array_b_stack($this->b_stack);
  
         return $stg->enter($this->function_closure);
     }
 
-    public function free_variables_names() {
+    public function free_variables_names()
+    {
         return array();
     }
 
     /**
      * @inheritdoc
      */
-    public function collect_garbage_in_references(array &$survivors) {
+    public function collect_garbage_in_references(array &$survivors)
+    {
         $this->function_closure = $this->function_closure->collect_garbage($survivors);
         $this->collect_garbage_in_stack($this->a_stack, $survivors);
         $this->collect_garbage_in_stack($this->b_stack, $survivors);
-    } 
+    }
 }
-
-

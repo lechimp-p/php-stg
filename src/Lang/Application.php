@@ -5,7 +5,8 @@ namespace Lechimp\STG\Lang;
 /**
  * Application of a function to some arguments.
  */
-class Application extends Expression implements Syntax {
+class Application extends Expression implements Syntax
+{
     /**
      * @var Variable
      */
@@ -16,18 +17,21 @@ class Application extends Expression implements Syntax {
      */
     private $atoms;
 
-    public function __construct(Variable $variable, array $atoms) {
+    public function __construct(Variable $variable, array $atoms)
+    {
         $this->variable = $variable;
-        $this->atoms = array_map(function(Atom $atom) {
+        $this->atoms = array_map(function (Atom $atom) {
             return $atom;
         }, $atoms);
     }
 
-    public function variable() {
+    public function variable()
+    {
         return $this->variable;
     }
 
-    public function atoms() {
+    public function atoms()
+    {
         return $this->atoms;
     }
-} 
+}

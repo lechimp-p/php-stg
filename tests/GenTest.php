@@ -11,20 +11,24 @@ use Lechimp\STG\Gen\GArgument;
 use Lechimp\STG\Gen\GStatement;
 use Lechimp\STG\Gen\GIfThenElse;
 
-class GenText extends PHPUnit_Framework_TestCase {
-    protected function assertCodeEquals($left, $right) {
+class GenText extends PHPUnit_Framework_TestCase
+{
+    protected function assertCodeEquals($left, $right)
+    {
         $_left = $this->removeEmptyLines(split("\n", $left));
         $_right = $this->removeEmptyLines(split("\n", $right));
         $this->assertEquals($_left, $_right);
     }
 
-    protected function removeEmptyLines(array $lines) {
-        return array_filter($lines, function($line) {
+    protected function removeEmptyLines(array $lines)
+    {
+        return array_filter($lines, function ($line) {
             return trim($line) != "";
         });
     }
 
-    public function test_emptyClass() {
+    public function test_emptyClass()
+    {
         $gen = new GClass("Lechimp\\STG", "Test", array(), array());
         $generated = $gen->render(0);
         $expected = <<<'PHP'
@@ -38,7 +42,8 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_extendedClass() {
+    public function test_extendedClass()
+    {
         $gen = new GClass("Lechimp\\STG", "Test", array(), array(), "Foo");
         $generated = $gen->render(0);
         $expected = <<<'PHP'
@@ -52,7 +57,8 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_noNamespaceClass() {
+    public function test_noNamespaceClass()
+    {
         $gen = new GClass("", "Test", array(), array());
         $generated = $gen->render(0);
         $expected = <<<'PHP'
@@ -62,19 +68,20 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_filledClass() {
-        $gen = new GClass("Lechimp\\STG", "Test"
-            , array
-                ( new GPrivateProperty("foo")
+    public function test_filledClass()
+    {
+        $gen = new GClass(
+            "Lechimp\\STG",
+            "Test",
+            array( new GPrivateProperty("foo")
                 , new GProtectedProperty("bar")
                 , new GPublicProperty("baz")
-                )
-            , array
-                ( new GPrivateMethod("get_bar", array(), array())
+                ),
+            array( new GPrivateMethod("get_bar", array(), array())
                 , new GProtectedMethod("get_foo", array(), array())
                 , new GPublicMethod("__construct", array(), array())
                 )
-            );
+        );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
 namespace Lechimp\STG {
@@ -96,29 +103,32 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_filledMethod() {
-        $gen = new GClass("Lechimp\\STG", "Test"
-            , array()
-            , array
-                ( new GPublicMethod("get_bar"
-                    , array
-                        ( new GArgument(null, "foo")
+    public function test_filledMethod()
+    {
+        $gen = new GClass(
+            "Lechimp\\STG",
+            "Test",
+            array(),
+            array( new GPublicMethod(
+                    "get_bar",
+                    array( new GArgument(null, "foo")
                         , new GArgument("array", "bar")
                         , new GArgument(null, "baz", "\"baz\"")
+                        ),
+                    array( new GStatement('echo $foo')
                         )
-                    , array
-                        ( new GStatement('echo $foo')
-                        )
-                    )
-                , new GPublicMethod("get_indentation"
-                    , array()
-                    , array
-                        ( new GStatement(function($indentation) { return
-                            "$indentation\$indentation = \"$indentation\";"; })
-                        )
-                    )
                 )
-            );
+                , new GPublicMethod(
+                    "get_indentation",
+                    array(),
+                    array( new GStatement(function ($indentation) {
+                            return
+                            "$indentation\$indentation = \"$indentation\";";
+                        })
+                        )
+                )
+                )
+        );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
 namespace Lechimp\STG {
@@ -137,15 +147,14 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_ifThenElse() {
-        $gen = new GIfThenElse
-            ( "\$a == \$b"
-            , array
-                ( new GStatement("echo 'equal: '")
+    public function test_ifThenElse()
+    {
+        $gen = new GIfThenElse(
+                "\$a == \$b",
+                array( new GStatement("echo 'equal: '")
                 , new GStatement("echo \$b")
-                )
-            , array
-                ( new GStatement("echo 'not equal: '")
+                ),
+                array( new GStatement("echo 'not equal: '")
                 , new GStatement("echo \$a.\" \".\$b")
                 )
             );
@@ -163,22 +172,19 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_ifThenElse2() {
-        $gen = new GIfThenElse
-            ( "\$a == \$b"
-            , array
-                ( new GStatement("echo 'equal: '")
+    public function test_ifThenElse2()
+    {
+        $gen = new GIfThenElse(
+                "\$a == \$b",
+                array( new GStatement("echo 'equal: '")
                 , new GStatement("echo \$b")
-                )
-            , array
-                ( new GIfThenElse
-                    ( "!is_null(\$a)"
-                    , array
-                        ( new GStatement("echo 'not equal: '")
+                ),
+                array( new GIfThenElse(
+                        "!is_null(\$a)",
+                        array( new GStatement("echo 'not equal: '")
                         , new GStatement("echo \$a.\" \".\$b")
-                        )
-                    , array
-                        ( new GStatement("echo 'null'")
+                        ),
+                        array( new GStatement("echo 'null'")
                         )
                     )
                 )
@@ -202,40 +208,37 @@ PHP;
         $this->assertCodeEquals($expected, $generated);
     }
 
-    public function test_filledMethodIfThenElse() {
-        $gen = new GClass("Lechimp\\STG", "Test"
-            , array()
-            , array
-                ( new GPublicMethod("get_bar"
-                    , array
-                        ( new GArgument(null, "foo")
+    public function test_filledMethodIfThenElse()
+    {
+        $gen = new GClass(
+            "Lechimp\\STG",
+            "Test",
+            array(),
+            array( new GPublicMethod(
+                    "get_bar",
+                    array( new GArgument(null, "foo")
                         , new GArgument("array", "bar")
                         , new GArgument(null, "baz", "\"baz\"")
-                        )
-                    , array
-                        ( new GIfThenElse
-                            ( "\$a == \$b"
-                            , array
-                                ( new GStatement("echo 'equal: '")
+                        ),
+                    array( new GIfThenElse(
+                                "\$a == \$b",
+                                array( new GStatement("echo 'equal: '")
                                 , new GStatement("echo \$b")
-                                )
-                            , array
-                                ( new GIfThenElse
-                                    ( "!is_null(\$a)"
-                                    , array
-                                        ( new GStatement("echo 'not equal: '")
+                                ),
+                                array( new GIfThenElse(
+                                        "!is_null(\$a)",
+                                        array( new GStatement("echo 'not equal: '")
                                         , new GStatement("echo \$a.\" \".\$b")
-                                        )
-                                    , array
-                                        ( new GStatement("echo 'null'")
+                                        ),
+                                        array( new GStatement("echo 'null'")
                                         )
                                     )
                                 )
                             )
                         )
-                    )
                 )
-            );
+                )
+        );
         $generated = $gen->render(0);
         $expected = <<<'PHP'
 namespace Lechimp\STG {
@@ -262,7 +265,4 @@ class Test {
 PHP;
         $this->assertCodeEquals($expected, $generated);
     }
-
-
-
 }

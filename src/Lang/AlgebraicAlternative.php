@@ -2,7 +2,8 @@
 
 namespace Lechimp\STG\Lang;
 
-class AlgebraicAlternative extends Alternative implements Syntax {
+class AlgebraicAlternative extends Alternative implements Syntax
+{
     /**
      * @var string
      */
@@ -13,20 +14,23 @@ class AlgebraicAlternative extends Alternative implements Syntax {
      */
     protected $variables;
 
-    public function __construct($id, array $variables, Expression $expression) {
+    public function __construct($id, array $variables, Expression $expression)
+    {
         assert(is_string($id));
         $this->id = $id;
         $this->expression = $expression;
-        $this->variables = array_map(function(Variable $var) {
+        $this->variables = array_map(function (Variable $var) {
             return $var;
         }, $variables);
     }
 
-    public function id() {
+    public function id()
+    {
         return $this->id;
     }
 
-    public function variables() {
+    public function variables()
+    {
         return $this->variables;
     }
 }

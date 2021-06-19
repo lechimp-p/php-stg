@@ -2,7 +2,8 @@
 
 namespace Lechimp\STG\Gen;
 
-class GIfThenElse extends GStatement {
+class GIfThenElse extends GStatement
+{
     /**
      * @var string
      */
@@ -18,13 +19,14 @@ class GIfThenElse extends GStatement {
      */
     protected $else;
 
-    public function __construct($if, array $then, array $else) {
+    public function __construct($if, array $then, array $else)
+    {
         assert(is_string($if));
         $this->if = $if;
-        $this->then = array_map(function(GStatement $stmt) {
+        $this->then = array_map(function (GStatement $stmt) {
             return $stmt;
         }, $then);
-        $this->else = array_map(function(GStatement $stmt) {
+        $this->else = array_map(function (GStatement $stmt) {
             return $stmt;
         }, $else);
     }
@@ -32,24 +34,22 @@ class GIfThenElse extends GStatement {
     /**
      * @inheritdoc
      */
-    public function render($indentation) {
+    public function render($indentation)
+    {
         assert(is_int($indentation));
         $if = $this->if;
-        return implode("\n", array_merge
-            ( array( $this->indent($indentation, "if ($if) {"))
-            , array_map(function(GStatement $stmt) use ($indentation) {
+        return implode("\n", array_merge(
+                array( $this->indent($indentation, "if ($if) {")),
+                array_map(function (GStatement $stmt) use ($indentation) {
                 return $stmt->render($indentation + 1);
-            }, $this->then)
-            , array
-                ( $this->indent($indentation, "}")
+            }, $this->then),
+                array( $this->indent($indentation, "}")
                 , $this->indent($indentation, "else {")
-                )
-            , array_map(function(GStatement $stmt) use ($indentation)  {
+                ),
+                array_map(function (GStatement $stmt) use ($indentation) {
                 return $stmt->render($indentation + 1);
-            }, $this->else)
-            , array ( $this->indent($indentation, "}") )
+            }, $this->else),
+                array( $this->indent($indentation, "}") )
             ));
     }
 }
-
-?>

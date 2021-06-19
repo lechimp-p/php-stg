@@ -8,24 +8,27 @@ use Lechimp\STG\Gen\Gen;
 /**
  * A pattern on the STG-syntax tree and how to compile it.
  */
-abstract class Pattern {
+abstract class Pattern
+{
     /**
      * Patterns that are more specific than this one.
      * @var Pattern[]
      */
     protected $sub_patterns;
 
-    public function __construct(array $sub_patterns = null) {
+    public function __construct(array $sub_patterns = null)
+    {
         if ($sub_patterns === null) {
             $sub_patterns = array();
         }
 
-        $this->sub_patterns = array_map(function(Pattern $pattern) {
+        $this->sub_patterns = array_map(function (Pattern $pattern) {
             return $pattern;
-        }, $sub_patterns); 
+        }, $sub_patterns);
     }
 
-    public function sub_patterns() {
+    public function sub_patterns()
+    {
         return $this->sub_patterns;
     }
 
@@ -41,16 +44,17 @@ abstract class Pattern {
      * @throws  \LogicException
      * @return  [Pattern, mixed]
      */
-    final public function search_compiler(Syntax $c) {
+    final public function search_compiler(Syntax $c)
+    {
         $res = $this->matches($c);
         if ($res === null) {
-            throw new \LogicException("Don't know how to compile ".get_class($s));
+            throw new \LogicException("Don't know how to compile " . get_class($s));
         }
         
         $most_specific = $this;
 
         $continue = true;
-        while($continue) {
+        while ($continue) {
             $continue = false;
             foreach ($most_specific->sub_patterns() as $pattern) {
                 $tmp = $pattern->matches($c);
@@ -63,7 +67,7 @@ abstract class Pattern {
             }
         }
         return array($most_specific, $res);
-    } 
+    }
 
     /**
      * Does this pattern match the language construct?

@@ -2,5 +2,6 @@
 
 namespace Lechimp\STG\Exceptions;
 
-class BlackHole extends Exception {
+class BlackHole extends Exception
+{
 }

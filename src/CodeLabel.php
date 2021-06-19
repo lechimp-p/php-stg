@@ -15,30 +15,33 @@ namespace Lechimp\STG;
  * We therefore return code labels to jump somewhere and call them in a main
  * loop.
  */
-class CodeLabel {
+class CodeLabel
+{
     /**
-     * @var mixed 
+     * @var mixed
      */
-     private $object;
+    private $object;
 
     /**
      * @var string
      */
     private $method;
 
-    public function __construct($object, $method) {
+    public function __construct($object, $method)
+    {
         if (!is_object($object)) {
             throw new \InvalidArgumentException("Expected an object as first parameter.");
         }
         if (!method_exists($object, $method)) {
-            throw new \InvalidArgumentException("Expected a name of a method of the".
+            throw new \InvalidArgumentException("Expected a name of a method of the" .
                                          " object as second parameter.");
         }
         $this->object = $object;
         $this->method = $method;
     }
 
-    public function jump($stg) {
+    public function jump($stg)
+    {
         return $this->object->{$this->method}($stg);
     }
 }

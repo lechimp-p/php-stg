@@ -2,7 +2,8 @@
 
 namespace Lechimp\STG\Gen;
 
-abstract class GProperty extends GBase {
+abstract class GProperty extends GBase
+{
     use GAccessQualifierTrait;
 
     /**
@@ -10,7 +11,8 @@ abstract class GProperty extends GBase {
      */
     protected $name;
 
-    public function __construct($name) {
+    public function __construct($name)
+    {
         assert(is_string($name));
         $this->name = $name;
     }
@@ -18,7 +20,8 @@ abstract class GProperty extends GBase {
     /**
      * @inheritdoc
      */
-    public function render($indentation) {
-        return $this->indent($indentation, $this->render_qualifier().' $'.$this->name.';');
+    public function render($indentation)
+    {
+        return $this->indent($indentation, $this->render_qualifier() . ' $' . $this->name . ';');
     }
 }

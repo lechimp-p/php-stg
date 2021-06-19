@@ -3,14 +3,17 @@
 use Lechimp\STG\Lang\Lang;
 use Lechimp\STG\Compiler\Compiler;
 
-require_once(__DIR__."/ProgramTestBase.php");
+require_once(__DIR__ . "/ProgramTestBase.php");
 
-abstract class OneProgramTestBase extends ProgramTestBase {
-    public function setUp() {
+abstract class OneProgramTestBase extends ProgramTestBase
+{
+    public function setUp()
+    {
         $this->echo_program = false;
     }
 
-    public function test_program() {
+    public function test_program()
+    {
         $cls = get_class($this);
         $l = new Lang();
         $program = $this->program($l);

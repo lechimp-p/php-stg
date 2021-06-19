@@ -8,13 +8,15 @@ use Lechimp\STG\CodeLabel;
 /**
  * Base class for closures.
  */
-abstract class Closure {
+abstract class Closure
+{
     /**
      * @var CodeLabel
      */
     public $entry_code;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->entry_code = new CodeLabel($this, "entry_code");
     }
 
@@ -38,7 +40,8 @@ abstract class Closure {
      * @return &array   $visited
      * @return Standard
      */
-    public function collect_garbage(array &$survivors) {
+    public function collect_garbage(array &$survivors)
+    {
         $id = spl_object_hash($this);
         if (array_key_exists($id, $survivors)) {
             // Garbage collection on this has already been done.

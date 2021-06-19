@@ -10,7 +10,8 @@ use Lechimp\STG\CodeLabel;
 /**
  * A closure representing a constructor in weak head normal form.
  */
-class WHNF extends Closure {
+class WHNF extends Closure
+{
     use GC;
 
     /**
@@ -23,7 +24,8 @@ class WHNF extends Closure {
      *
      * @param   array   $data_vector
      */
-    public function __construct(array $data_vector) {
+    public function __construct(array $data_vector)
+    {
         parent::__construct();
 
         // Overwrite first entry of data vector with self,
@@ -40,7 +42,8 @@ class WHNF extends Closure {
      * @param   STG     $stg
      * @return  CodeLabel
      */
-    public function entry_code(STG $stg) {
+    public function entry_code(STG $stg)
+    {
         $return = $stg->pop_b_stack();
         $stg->push_register($this->data_vector);
         return $return;
@@ -49,16 +52,18 @@ class WHNF extends Closure {
     /**
      * Get a list of the free variables of the closure.
      *
-     * @return  string[]    
+     * @return  string[]
      */
-    public function free_variables_names() {
+    public function free_variables_names()
+    {
         return array();
     }
 
     /**
      * @inheritdoc
      */
-    public function collect_garbage_in_references(array &$survivors) {
+    public function collect_garbage_in_references(array &$survivors)
+    {
         $this->collect_garbage_in_array($this->data_vector, $survivors);
     }
 }

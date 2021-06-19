@@ -2,45 +2,46 @@
 
 use Lechimp\STG\Lang\Lang;
 
-require_once(__DIR__."/OneProgramTestBase.php");
+require_once(__DIR__ . "/OneProgramTestBase.php");
 
-class LetTest extends OneProgramTestBase {
-    protected function program(Lang $l) {
+class LetTest extends OneProgramTestBase
+{
+    protected function program(Lang $l)
+    {
         /**
          * Represents the following program
-         * main = \{} \u \{} -> 
+         * main = \{} \u \{} ->
          *      let a = \{} \n \{} -> A
-         *          swapAB = \{} \n \{a} -> 
+         *          swapAB = \{} \n \{a} ->
          *              case a of
          *                  A -> B
-         *                  B -> A   
+         *                  B -> A
          *      in swapAB a
          */
-        return $l->prg(array
-            ( "main" => $l->lam_n
-                ( $l->lt( array
-                    ( "a" => $l->lam_n
-                            ( $l->con("A")
+        return $l->prg(array( "main" => $l->lam_n(
+                    $l->lt(
+                    array( "a" => $l->lam_n(
+                                $l->con("A")
                             )
-                    , "swapAB" => $l->lam_a
-                            ( array("a")
-                            , $l->cse
-                                ( $l->app("a")
-                                , array
-                                    ( "A" => $l->con("B")
+                    , "swapAB" => $l->lam_a(
+                                array("a"),
+                                $l->cse(
+                                    $l->app("a"),
+                                    array( "A" => $l->con("B")
                                     , "B" => $l->con("A")
                                     )
-                                )
-                            , false
+                                ),
+                                false
                             )
-                    )
-                    , $l->app("swapAB", "a")
-                    )
+                    ),
+                    $l->app("swapAB", "a")
+                )
                 )
             ));
     }
 
-    protected function assertions($result) {
+    protected function assertions($result)
+    {
         $this->assertEquals("B", $result[1]);
     }
 }

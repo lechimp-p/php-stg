@@ -5,7 +5,8 @@ namespace Lechimp\STG\Lang;
 /**
  * A saturated constructor.
  */
-class Constructor extends Expression implements Syntax {
+class Constructor extends Expression implements Syntax
+{
     /**
      * @var string
      */
@@ -16,19 +17,22 @@ class Constructor extends Expression implements Syntax {
      */
     private $atoms;
 
-    public function __construct($id, array $atoms) {
+    public function __construct($id, array $atoms)
+    {
         assert(is_string($id));
         $this->id = $id;
-        $this->atoms = array_map(function(Atom $atom) {
+        $this->atoms = array_map(function (Atom $atom) {
             return $atom;
         }, $atoms);
     }
 
-    public function id() {
+    public function id()
+    {
         return $this->id;
     }
 
-    public function atoms() {
+    public function atoms()
+    {
         return $this->atoms;
     }
 }

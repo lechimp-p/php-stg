@@ -2,44 +2,45 @@
 
 use Lechimp\STG\Lang\Lang;
 
-require_once(__DIR__."/OneProgramTestBase.php");
+require_once(__DIR__ . "/OneProgramTestBase.php");
 
-class DefaultAlternativeTest extends OneProgramTestBase {
-    protected function program(Lang $l) {
+class DefaultAlternativeTest extends OneProgramTestBase
+{
+    protected function program(Lang $l)
+    {
         /**
          * Represents the following program
          * main = \{swapAB, a} \u \{} -> swapAB a
          * a = \{} \n \{} -> C
-         * swapAB = \{} \n \{a} -> 
+         * swapAB = \{} \n \{a} ->
          *     case a of
          *         A -> B
-         *         B -> A   
-         *         default -> a   
+         *         B -> A
+         *         default -> a
          */
-        return $l->prg(array
-            ( "main" => $l->lam_f
-                ( array("swapAB", "a")
-                , $l->app("swapAB", "a")
+        return $l->prg(array( "main" => $l->lam_f(
+                    array("swapAB", "a"),
+                    $l->app("swapAB", "a")
                 )
-            , "a" => $l->lam_n
-                ( $l->con("C")
+            , "a" => $l->lam_n(
+                    $l->con("C")
                 )
-            , "swapAB" => $l->lam_a
-                ( array($l->variable("a"))
-                , $l->cse
-                    ( $l->app("a")
-                    , array
-                        ( "A"       => $l->con("B")
-                        , "B"       => $l->con("A")
+            , "swapAB" => $l->lam_a(
+                    array($l->variable("a")),
+                    $l->cse(
+                        $l->app("a"),
+                        array( "A" => $l->con("B")
+                        , "B" => $l->con("A")
                         , "default" => $l->app("a")
                         )
-                    )
-                , false
+                    ),
+                    false
                 )
             ));
     }
 
-    protected function assertions($result) {
+    protected function assertions($result)
+    {
         $this->assertEquals("C", $result[1]);
     }
 }

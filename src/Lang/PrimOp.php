@@ -5,7 +5,8 @@ namespace Lechimp\STG\Lang;
 /**
  * A builtin primitive operation.
  */
-class PrimOp extends Expression implements Syntax {
+class PrimOp extends Expression implements Syntax
+{
     /**
      * @var string
      */
@@ -16,9 +17,8 @@ class PrimOp extends Expression implements Syntax {
      */
     private $atoms;
 
-    static private $op_ids = array
-        ( "IntAddOp"   
-        , "IntSubOp"     
+    private static $op_ids = array( "IntAddOp"
+        , "IntSubOp"
         , "IntMulOp"
 //        , "IntMulMayOfloOp"
 //        , "IntQuotOp"
@@ -32,9 +32,10 @@ class PrimOp extends Expression implements Syntax {
 //        , "IntNeOp"
 //        , "IntLtOp"
 //        , "IntLeOp"
-        ); 
+        );
 
-    public function __construct($id, array $atoms) {
+    public function __construct($id, array $atoms)
+    {
         assert(in_array($id, static::$op_ids));
         $this->atoms = array_map(function (Atom $atom) {
             return $atom;
@@ -42,11 +43,13 @@ class PrimOp extends Expression implements Syntax {
         $this->id = $id;
     }
 
-    public function id() {
+    public function id()
+    {
         return $this->id;
     }
 
-    public function atoms() {
+    public function atoms()
+    {
         return $this->atoms;
     }
 }
